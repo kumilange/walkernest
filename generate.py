@@ -189,9 +189,9 @@ def main(city, bbox):
     park_gdf = normalize_data(fetch_data(park_query, bbox))
 
     # Write residential, supermarket, park GeoDataFrames to a GeoJSON file
-    residential_gdf.to_file(f"{city}_residential.geojson", driver='GeoJSON')
-    supermarket_gdf.to_file(f"{city}_supermarket.geojson", driver='GeoJSON')
-    park_gdf.to_file(f"{city}_park.geojson", driver='GeoJSON')
+    residential_gdf.to_file(f"geojson/{city}_residential.geojson", driver='GeoJSON')
+    supermarket_gdf.to_file(f"geojson/{city}_supermarket.geojson", driver='GeoJSON')
+    park_gdf.to_file(f"geojson/{city}_park.geojson", driver='GeoJSON')
 
     # Add centroids to the DataFrames
     residentials = add_centroids(residential_gdf)
@@ -220,7 +220,7 @@ def main(city, bbox):
             suitable_residential_gdf = suitable_residential_gdf.drop(columns=[col])
     
 	# Output the suitable residential areas as GeoJSON
-    suitable_residential_gdf.to_file(f"{city}.geojson", driver='GeoJSON')
+    suitable_residential_gdf.to_file(f"geojson/{city}.geojson", driver='GeoJSON')
     print(f"Suitable residential areas have been saved to '{city}.geojson'")
 
 if __name__ == "__main__":
