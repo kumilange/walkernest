@@ -1,0 +1,34 @@
+# macOS system files
+.DS_Store
+
+# Python-related files
+__pycache__/
+venv/
+.pytest_cache/
+
+# Node.js-related files
+node_modules/
+frontend/node_modules/
+frontend/dist/
+
+# Environment variable files
+.env
+.env.local
+.env.development
+.env.production
+.env.*
+
+# IDE and editor files
+.vscode/
+
+# Temporary files and caches
+cache/
+.qodo
+seed/temp_features.json
+
+# Nx cache
+.nx/
+
+# Miscellaneous files
+commands.txt
+deploy/walkernest-key-pair.pem

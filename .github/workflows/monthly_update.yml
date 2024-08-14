@@ -1,0 +1,67 @@
+name: Monthly Data Update
+
+on:
+  schedule:
+    - cron: '0 10 1 * *' # Runs at 3 AM (MST) on the 1st of every month
+  workflow_dispatch: # Allows manual triggering from GitHub Actions UI
+
+jobs:
+  update-data:
+    runs-on: ubuntu-latest
+
+    steps:
+      - name: Checkout repository
+        uses: actions/checkout@v4
+
+      - name: Set up Python
+        uses: actions/setup-python@v4
+        with:
+          python-version: '3.10'
+
+      - name: Install dependencies
+        run: |
+          pip3 install --no-cache-dir fastapi uvicorn[standard] psycopg2-binary shapely numpy osmnx networkx scikit-learn geopandas python-multipart orjson
+
+      - name: Grant execute permissions to the script
+        run: chmod +x seed/generate_seed_data.py
+
+      - name: Run the update script
+        run: |
+          python3 seed/generate_seed_data.py
+
+      - name: Configure Git
+        run: |
+          git config --global user.name 'github-actions[bot]'
+          git config --global user.email 'github-actions[bot]@users.noreply.github.com'
+
+      - name: Commit and push changes
+        run: |
+          git add .
+          git commit -m "Update data"
+          git push origin main
+        env:
+          GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+
+      - name: Grant execute permissions to the seed script
+        run: chmod +x seed/seed.sh
+
+      - name: Run the seed script
+        run: |
+          # Change to the directory where seed.sh is located
+          cd seed
+
+          # Create the .env file in the seed directory
+          echo "USER=${{ secrets.USER }}" >> .env
+          echo "DOMAIN_NAME=${{ secrets.DOMAIN_NAME }}" >> .env
+          echo "INSTANCE_IP=${{ secrets.INSTANCE_IP }}" >> .env
+          echo "DB_USERNAME=${{ secrets.DB_USERNAME }}" >> .env
+          echo "DB_PASSWORD=${{ secrets.DB_PASSWORD }}" >> .env
+          echo "DB_HOST=${{ secrets.DB_HOST }}" >> .env
+          echo "DB_PORT=${{ secrets.DB_PORT }}" >> .env
+          echo "DB_NAME=${{ secrets.DB_NAME }}" >> .env
+          echo "RUN_SEED=true" >> .env
+          set -a
+          source .env
+
+          # Run the seed script
+          ./seed.sh

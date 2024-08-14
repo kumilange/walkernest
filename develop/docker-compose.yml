@@ -1,0 +1,68 @@
+services:
+  backend:
+    container_name: fastapi-backend
+    build:
+      context: ..
+      dockerfile: backend/Dockerfile
+    platform: linux/amd64
+    ports:
+      - '3000:3000'
+    volumes:
+      - ../backend:/app
+    working_dir: /app
+    command: uvicorn app.main:app --host 0.0.0.0 --port 3000 --reload --reload-dir /app
+    depends_on:
+      postgis:
+        condition: service_healthy
+    env_file:
+      - ../.env.development
+    environment:
+      - DB_USERNAME=${DB_USERNAME}
+      - DB_PASSWORD=${DB_PASSWORD}
+      - DB_HOST=postgis # Refers to the PostgreSQL service in Docker Compose
+      - DB_PORT=${DB_PORT}
+      - DB_NAME=${DB_NAME}
+      - NODE_ENV=development
+
+  frontend:
+    container_name: react-frontend
+    build:
+      context: ..
+      dockerfile: frontend/Dockerfile.dev
+    platform: linux/amd64
+    ports:
+      - '5173:5173'
+    volumes:
+      - ../shared:/shared
+    depends_on:
+      - backend
+    env_file:
+      - ../.env.development
+    environment:
+      - VITE_API_DOMAIN=${VITE_API_DOMAIN}
+      - VITE_API_PROTOCOL=${VITE_API_PROTOCOL}
+      - VITE_MAPTILER_API_KEY=${VITE_MAPTILER_API_KEY}
+      - NODE_ENV=development
+
+  postgis:
+    container_name: postgis-db
+    image: kartoza/postgis:16-3.4
+    env_file:
+      - ../.env.development
+    environment:
+      - POSTGRES_USER=${DB_USERNAME}
+      - POSTGRES_PASSWORD=${DB_PASSWORD}
+      - POSTGRES_DB=${DB_NAME}
+    ports:
+      - '5432:5432'
+    volumes:
+      - postgis-data:/var/lib/postgresql
+    healthcheck:
+      test: ['CMD-SHELL', 'pg_isready']
+      interval: 10s
+      timeout: 10s
+      retries: 10
+
+volumes:
+  postgis-data:
+    driver: local

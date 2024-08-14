@@ -1,0 +1,30 @@
+{
+  "name": "seed",
+  "$schema": "../node_modules/nx/schemas/project-schema.json",
+  "projectType": "application",
+  "sourceRoot": "seed",
+  "targets": {
+    "generate": {
+      "executor": "nx:run-commands",
+      "options": {
+        "cwd": "seed",
+        "command": "cd .. && python seed/generate_seed_data.py"
+      }
+    },
+    "seed": {
+      "executor": "nx:run-commands",
+      "options": {
+        "cwd": "seed",
+        "command": "docker-compose -f ../develop/docker-compose.yml up -d postgis && sleep 10 && set -a && . ../.env && set +a && export RUN_SEED=true && ./seed.sh"
+      }
+    },
+    "test": {
+      "executor": "nx:run-commands",
+      "options": {
+        "cwd": "seed",
+        "command": "cd .. && pytest seed/tests"
+      }
+    }
+  },
+  "tags": ["data"]
+}

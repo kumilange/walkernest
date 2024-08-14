@@ -1,0 +1,13 @@
+{
+"type": "FeatureCollection",
+"name": "lone tree_cafe",
+"crs": { "type": "name", "properties": { "name": "urn:ogc:def:crs:OGC:1.3:CRS84" } },
+"features": [
+{ "type": "Feature", "properties": { "amenity": "cafe", "name": "Starbucks", "id": 736007279, "building": null }, "geometry": { "type": "Point", "coordinates": [ -104.88356, 39.5380406 ] } },
+{ "type": "Feature", "properties": { "amenity": "cafe", "name": "Starbucks", "id": 1187840704, "building": null }, "geometry": { "type": "Point", "coordinates": [ -104.8838796, 39.5545708 ] } },
+{ "type": "Feature", "properties": { "amenity": "cafe", "name": "Starbucks", "id": 1261587356, "building": null }, "geometry": { "type": "Point", "coordinates": [ -104.8871412, 39.5646999 ] } },
+{ "type": "Feature", "properties": { "amenity": "cafe", "name": "Starbucks", "id": 9014425837, "building": null }, "geometry": { "type": "Point", "coordinates": [ -104.8838183, 39.5349137 ] } },
+{ "type": "Feature", "properties": { "amenity": "cafe", "name": "Monk and Mongoose Coffee Company", "id": 10989930297, "building": null }, "geometry": { "type": "Point", "coordinates": [ -104.8776039, 39.5302997 ] } },
+{ "type": "Feature", "properties": { "amenity": "cafe", "name": "Starbucks", "id": 836173728, "building": "yes" }, "geometry": { "type": "Polygon", "coordinates": [ [ [ -104.8802671, 39.5357664 ], [ -104.8801599, 39.5357659 ], [ -104.8801599, 39.5357716 ], [ -104.8801193, 39.5357714 ], [ -104.8801196, 39.5357397 ], [ -104.8801259, 39.5357397 ], [ -104.8801262, 39.5356978 ], [ -104.8801138, 39.5356977 ], [ -104.8801143, 39.5356447 ], [ -104.8801251, 39.5356447 ], [ -104.8801255, 39.5355893 ], [ -104.8801769, 39.5355895 ], [ -104.880177, 39.5355786 ], [ -104.8802167, 39.5355787 ], [ -104.8802166, 39.5355907 ], [ -104.8802684, 39.535591 ], [ -104.8802671, 39.5357664 ] ] ] } }
+]
+}

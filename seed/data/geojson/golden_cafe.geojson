@@ -1,0 +1,19 @@
+{
+"type": "FeatureCollection",
+"name": "golden_cafe",
+"crs": { "type": "name", "properties": { "name": "urn:ogc:def:crs:OGC:1.3:CRS84" } },
+"features": [
+{ "type": "Feature", "properties": { "amenity": "cafe", "name": "Red Silo Coffee Roasters", "id": 946465198, "building": null }, "geometry": { "type": "Point", "coordinates": [ -105.22033, 39.754566 ] } },
+{ "type": "Feature", "properties": { "amenity": "cafe", "name": "Bean Foster's", "id": 3666542792, "building": null }, "geometry": { "type": "Point", "coordinates": [ -105.2086423, 39.7284656 ] } },
+{ "type": "Feature", "properties": { "amenity": "cafe", "name": "Windy Saddle", "id": 4112104237, "building": null }, "geometry": { "type": "Point", "coordinates": [ -105.2218426, 39.7557188 ] } },
+{ "type": "Feature", "properties": { "amenity": "cafe", "name": "Starbucks", "id": 6065414087, "building": null }, "geometry": { "type": "Point", "coordinates": [ -105.1928435, 39.7391336 ] } },
+{ "type": "Feature", "properties": { "amenity": "cafe", "name": "Blaster's Brew", "id": 6845425894, "building": null }, "geometry": { "type": "Point", "coordinates": [ -105.222036, 39.7496258 ] } },
+{ "type": "Feature", "properties": { "amenity": "cafe", "name": "Starbucks", "id": 7383750762, "building": null }, "geometry": { "type": "Point", "coordinates": [ -105.223497, 39.7495427 ] } },
+{ "type": "Feature", "properties": { "amenity": "cafe", "name": "Cafe 13", "id": 9143034141, "building": null }, "geometry": { "type": "Point", "coordinates": [ -105.2213182, 39.7540426 ] } },
+{ "type": "Feature", "properties": { "amenity": "cafe", "name": "Humble House", "id": 12217392535, "building": null }, "geometry": { "type": "Point", "coordinates": [ -105.221299, 39.7550847 ] } },
+{ "type": "Feature", "properties": { "amenity": "cafe", "name": "Starbucks", "id": 51528448, "building": "commercial" }, "geometry": { "type": "Polygon", "coordinates": [ [ [ -105.2344389, 39.7674286 ], [ -105.2344336, 39.7673372 ], [ -105.2344445, 39.7673368 ], [ -105.2344416, 39.7672859 ], [ -105.2344316, 39.7672862 ], [ -105.2344284, 39.767231 ], [ -105.2343406, 39.7672339 ], [ -105.234352, 39.7674316 ], [ -105.2344389, 39.7674286 ] ] ] } },
+{ "type": "Feature", "properties": { "amenity": "cafe", "name": "Starbucks", "id": 92727554, "building": "yes" }, "geometry": { "type": "Polygon", "coordinates": [ [ [ -105.1964208, 39.7387951 ], [ -105.1963158, 39.738728 ], [ -105.196251, 39.7387881 ], [ -105.1962338, 39.7387771 ], [ -105.1962092, 39.7387993 ], [ -105.1961835, 39.7388237 ], [ -105.196197, 39.7388323 ], [ -105.1961514, 39.7388746 ], [ -105.1962601, 39.738944 ], [ -105.1963161, 39.7388921 ], [ -105.1964208, 39.7387951 ] ] ] } },
+{ "type": "Feature", "properties": { "amenity": "cafe", "name": "Higher Grounds", "id": 92731284, "building": "commercial" }, "geometry": { "type": "Polygon", "coordinates": [ [ [ -105.220083, 39.7535214 ], [ -105.2199781, 39.753413 ], [ -105.2197788, 39.7535269 ], [ -105.2198837, 39.7536354 ], [ -105.220083, 39.7535214 ] ] ] } },
+{ "type": "Feature", "properties": { "amenity": "cafe", "name": "Pangea Coffee Roasters", "id": 392853178, "building": "retail" }, "geometry": { "type": "Polygon", "coordinates": [ [ [ -105.2231958, 39.7542753 ], [ -105.2233123, 39.7542097 ], [ -105.2232149, 39.7541039 ], [ -105.2230946, 39.7541685 ], [ -105.2231958, 39.7542753 ] ] ] } }
+]
+}
