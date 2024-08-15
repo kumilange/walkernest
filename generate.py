@@ -1,12 +1,16 @@
 import time
 import argparse
 import requests
+import warnings
 import osmnx as ox
 import numpy as np
 import pandas as pd
 import networkx as nx
 import geopandas as gpd
 from shapely.geometry import Point, LineString, Polygon, MultiPolygon, MultiLineString
+
+# Suppress FutureWarning
+warnings.simplefilter(action='ignore', category=FutureWarning)
 
 def generate_query(bbox, key_value_pairs):
     """
@@ -22,97 +26,88 @@ def generate_query(bbox, key_value_pairs):
     query += ");\nout geom;\n>;\nout skel qt;\n"
     return query
 
-def fetch_data(query, bbox):
-    """
-    Fetch data from the Overpass API based on the provided query template and bounding box.
+# def fetch_data(query, bbox):
+#     """
+#     Fetch data from the Overpass API based on the provided query template and bounding box.
 
-    Parameters:
-    query (str): The Overpass API query template with a placeholder for the bounding box.
-    bbox (str): The bounding box coordinates in the format "min_lat,min_lon,max_lat,max_lon".
+#     Parameters:
+#     query (str): The Overpass API query template with a placeholder for the bounding box.
+#     bbox (str): The bounding box coordinates in the format "min_lat,min_lon,max_lat,max_lon".
 
-    Returns:
-    dict: The JSON response from the Overpass API.
-    """
-    query = query.format(bbox=bbox)
-    overpass_url = "http://overpass-api.de/api/interpreter"
+#     Returns:
+#     dict: The JSON response from the Overpass API.
+#     """
+#     query = query.format(bbox=bbox)
+#     overpass_url = "http://overpass-api.de/api/interpreter"
     
-    try:
-        response = requests.get(overpass_url, params={'data': query})
-        response.raise_for_status()
-        data = response.json()
-        return data
-    except requests.RequestException as e:
-        print(f"Error fetching data from Overpass API: {e}")
-        return None
+#     try:
+#         response = requests.get(overpass_url, params={'data': query})
+#         response.raise_for_status()
+#         data = response.json()
+#         return data
+#     except requests.RequestException as e:
+#         print(f"Error fetching data from Overpass API: {e}")
+#         return None
 
-def normalize_data(data):
+def create_geometry(element, nodes):
+    if element['type'] == 'node':
+        return Point(element['lon'], element['lat'])
+    elif element['type'] == 'way':
+        way_nodes = element['nodes']
+        way_geometry = [Point(nodes[node_id]['lon'], nodes[node_id]['lat']) for node_id in way_nodes]
+        if way_geometry[0] == way_geometry[-1]:
+            return Polygon(way_geometry)
+        else:
+            return LineString(way_geometry)
+    elif element['type'] == 'relation':
+        outer = []
+        inners = []
+        for member in element['members']:
+            member_geometry = [Point(coord['lon'], coord['lat']) for coord in member['geometry']]
+            if member['role'] == 'outer' and len(member_geometry) >= 4:
+                outer.append(member_geometry)
+            elif member['role'] == 'inner' and len(member_geometry) >= 4:
+                inners.append(member_geometry)
+        if outer:
+            if len(outer) == 1:
+                return Polygon(outer[0], inners)
+            else:
+                return MultiPolygon([Polygon(o, inners) for o in outer if len(o) >= 4])
+    return None
+
+def filter_properties(element):
+    props = element['tags'] if 'tags' in element else {}
+    return {k: v for k, v in props.items() if k in ['building', 'shop', 'leisure', 'name']}
+
+def fetch_and_normalize_data(query):
     """
-    Normalize the fetched data from the Overpass API into a GeoDataFrame.
+    Fetch data from the Overpass API and normalize it into a GeoDataFrame.
 
     Parameters:
-    data (dict): The JSON response from the Overpass API.
+    query (str): The Overpass QL query.
 
     Returns:
     gpd.GeoDataFrame: A GeoDataFrame containing the normalized data.
     """
-    # A dictionary to store nodes by their ID for lookup
+    overpass_url = "http://overpass-api.de/api/interpreter"
+    response = requests.get(overpass_url, params={'data': query})
+    response.raise_for_status()
+    data = response.json()
+
     elements = data['elements']
     nodes = {element['id']: element for element in elements if element['type'] == 'node'}
 
-    # Parse the Overpass API Data
     geometry = []
     properties = []
 
     for element in elements:
-        if element['type'] == 'node':
-            # For nodes, create a Point
-            point = Point(element['lon'], element['lat'])
-            props = element['tags'] if 'tags' in element else {}
-            filtered_props = {k: v for k, v in props.items() if k in ['building', 'shop', 'leisure', 'name']}
-            if filtered_props:
-                geometry.append(point)
-                properties.append(filtered_props)
-        elif element['type'] == 'way':
-            # For ways, create a LineString or Polygon from the node references
-            way_nodes = element['nodes']
-            way_geometry = [Point(nodes[node_id]['lon'], nodes[node_id]['lat']) for node_id in way_nodes]
-            if way_geometry[0] == way_geometry[-1]:
-                # If the first and last nodes are the same, it's a closed way (Polygon)
-                geom = Polygon(way_geometry)
-            else:
-                # Otherwise, it's a LineString
-                geom = LineString(way_geometry)
-            props = element['tags'] if 'tags' in element else {}
-            filtered_props = {k: v for k, v in props.items() if k in ['building', 'shop', 'leisure', 'name']}
-            if filtered_props:
-                geometry.append(geom)
-                properties.append(filtered_props)
-        elif element['type'] == 'relation':
-            # For relations, handle multipolygon
-            outer = []
-            inners = []
-            for member in element['members']:
-                member_geometry = [Point(coord['lon'], coord['lat']) for coord in member['geometry']]
-                if member['role'] == 'outer':
-                    if len(member_geometry) >= 4:  # Ensure at least 4 coordinates
-                        outer.append(member_geometry)
-                elif member['role'] == 'inner':
-                    if len(member_geometry) >= 4:  # Ensure at least 4 coordinates
-                        inners.append(member_geometry)
-            if outer:
-                if len(outer) == 1:
-                    geom = Polygon(outer[0], inners)
-                else:
-                    geom = MultiPolygon([Polygon(o, inners) for o in outer if len(o) >= 4])
-                props = element['tags'] if 'tags' in element else {}
-                filtered_props = {k: v for k, v in props.items() if k in ['building', 'shop', 'leisure', 'name']}
-                if filtered_props:
-                    geometry.append(geom)
-                    properties.append(filtered_props)
+        geom = create_geometry(element, nodes)
+        filtered_props = filter_properties(element)
+        if geom and filtered_props:
+            geometry.append(geom)
+            properties.append(filtered_props)
 
-    # Create the GeoDataFrame
     gdf = gpd.GeoDataFrame(properties, geometry=geometry)
-
     return gdf
 
 def get_centroid(geometry):
@@ -205,12 +200,12 @@ def main(city, bbox):
     # Generate the queries
     residential_query = generate_query(bbox, [("building", "apartments"), ("building", "residential")])
     supermarket_query = generate_query(bbox, [("shop", "supermarket"), ("shop", "grocery")])
-    park_query = generate_query(bbox, [("leisure", "park"), ("leisure", "dog_park")]
-)
+    park_query = generate_query(bbox, [("leisure", "park"), ("leisure", "dog_park")])
+
     # Fetch data from the Overpass API
-    residential_gdf = normalize_data(fetch_data(residential_query, bbox))
-    supermarket_gdf = normalize_data(fetch_data(supermarket_query, bbox))
-    park_gdf = normalize_data(fetch_data(park_query, bbox))
+    residential_gdf = fetch_and_normalize_data(residential_query)
+    supermarket_gdf = fetch_and_normalize_data(supermarket_query)
+    park_gdf = fetch_and_normalize_data(park_query)
 
     # Write residential, supermarket, park GeoDataFrames to a GeoJSON file
     residential_gdf.to_file(f"geojson/{city}_residential.geojson", driver='GeoJSON')
