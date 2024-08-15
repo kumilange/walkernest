@@ -1,5 +1,14 @@
 from shapely.geometry import Polygon, Point, LineString, MultiPolygon, MultiLineString
 
+def add_centroids(gdf):
+    def get_centroid(geometry):
+        if isinstance(geometry, (Point, Polygon, MultiPolygon)):
+            return geometry.centroid
+        return None
+
+    gdf = gdf.assign(centroid=gdf['geometry'].apply(get_centroid))
+    return gdf
+
 def create_geometry(element, nodes):
     if element['type'] == 'node':
         return Point(element['lon'], element['lat'])

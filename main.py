@@ -1,16 +1,18 @@
 import time
 import argparse
 import warnings
-import osmnx as ox
 import pandas as pd
-from data_fetcher import fetch_and_normalize_data, generate_query
-from file_utils import save_to_geojson
-from generate import add_centroids
-from geometry_utils import add_boundary, drop_additional_geometry_columns
-from network_utils import convert_to_network_nodes, find_suitable_residential_network_nodes, retrieve_suitable_residential_areas
+from utils.file import save_to_geojson
+from utils.data_fetcher import fetch_and_normalize_data, generate_query
+from utils.geometry import add_boundary, add_centroids, drop_additional_geometry_columns
+from utils.networkx import convert_to_network_nodes, create_network_graph, find_suitable_residential_network_nodes, retrieve_suitable_residential_areas
 
 # Suppress FutureWarning
 warnings.simplefilter(action='ignore', category=FutureWarning)
+
+# Constants
+MAX_DISTANCE_PARK = 400  # 5 minutes walk in meters
+MAX_DISTANCE_SUPERMARKET = 1000  # 12 minutes walk in meters
 
 def main(city, bbox):    
     # Generate the queries
@@ -23,28 +25,25 @@ def main(city, bbox):
     supermarket_gdf = fetch_and_normalize_data(supermarket_query)
     park_gdf = fetch_and_normalize_data(park_query)
 
-    # Save GeoDataFrames to GeoJSON files
+    # Save different types of GeoDataFrames to their respective GeoJSON files
     save_to_geojson(residential_gdf, city, "residential")
     save_to_geojson(supermarket_gdf, city, "supermarket")
     save_to_geojson(park_gdf, city, "park")
 
-    # Add centroids to the DataFrames
+    # Add centroids and boundary to the DataFrames
     residentials = add_centroids(residential_gdf)
     supermarkets = add_centroids(supermarket_gdf)
     parks = add_boundary(park_gdf)
     
-		# Convert centroids to network nodes
-    south, west, north, east = map(float, bbox.split(','))
-    G = ox.graph_from_bbox(bbox=(north, south, east, west), network_type='walk') # Create a network graph of the area
+	# Convert centroids and boundary to network nodes
+    G = create_network_graph(bbox)
     supermarket_nnodes = convert_to_network_nodes(G, supermarkets)
     residential_nnodes = convert_to_network_nodes(G, residentials)
     park_nnodes = convert_to_network_nodes(G, parks, use_centroid=False)
     
     # Find suitable residential network nodes
-    max_park_distance = 400  # 5 minutes walk in meters
-    max_supermarket_distance = 1000  # 12 minutes walk in meters
     suitable_residential_nnodes = find_suitable_residential_network_nodes(
-        G, residential_nnodes, park_nnodes, supermarket_nnodes, max_park_distance, max_supermarket_distance)
+        G, residential_nnodes, park_nnodes, supermarket_nnodes, MAX_DISTANCE_PARK, MAX_DISTANCE_SUPERMARKET)
     
     # Retrieve suitable residential areas
     suitable_residential_gdf = retrieve_suitable_residential_areas(residentials, G, suitable_residential_nnodes)
@@ -52,7 +51,7 @@ def main(city, bbox):
     # Drop additional geometry columns if any
     suitable_residential_gdf = drop_additional_geometry_columns(suitable_residential_gdf)
     
-		# Output the suitable residential areas as GeoJSON
+	# Save the suitable residential areas as GeoJSON
     save_to_geojson(suitable_residential_gdf, city)
     print(f"Suitable residential areas have been saved to 'geojson/{city}.geojson'")
 
@@ -68,7 +67,7 @@ if __name__ == "__main__":
             bbox = row['bbox']
             print(f"Execution start for {city} with Bounding Box {bbox}")
             start_time = time.time()
-            main(city, bbox)
+            main(city, bbox) # Call the main function
             end_time = time.time()
             print(f"Execution time for {city}: {end_time - start_time} seconds\n")
     else:

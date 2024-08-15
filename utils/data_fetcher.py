@@ -1,6 +1,6 @@
 import requests
 import geopandas as gpd
-from geometry_utils import create_geometry, filter_properties
+from utils.geometry import create_geometry, filter_properties
 
 def generate_query(bbox, key_value_pairs):
     """

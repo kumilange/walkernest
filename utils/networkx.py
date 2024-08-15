@@ -2,6 +2,20 @@ import osmnx as ox
 import networkx as nx
 from shapely.geometry import Point, Polygon, LineString, MultiPolygon, MultiLineString
 
+def create_network_graph(bbox, network_type='walk'):
+    """
+    Create a graph from a bounding box string.
+
+    Parameters:
+    bbox (str): The bounding box string in the format "south,west,north,east".
+    network_type (str): The type of network to create (default is 'walk').
+
+    Returns:
+    networkx.Graph: The graph representing the road network within the bounding box.
+    """
+    south, west, north, east = map(float, bbox.split(','))
+    return ox.graph_from_bbox(north, south, east, west, network_type=network_type)
+
 def convert_to_network_nodes(G, gdf, use_centroid=True):
     if use_centroid:
         # Ensure the 'centroid' column exists
