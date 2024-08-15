@@ -6,7 +6,7 @@ import numpy as np
 import pandas as pd
 import networkx as nx
 import geopandas as gpd
-from shapely.geometry import Point, LineString, Polygon, MultiPolygon
+from shapely.geometry import Point, LineString, Polygon, MultiPolygon, MultiLineString
 
 def generate_query(bbox, key_value_pairs):
     """
@@ -124,25 +124,24 @@ def add_centroids(gdf):
     gdf = gdf.assign(centroid=gdf['geometry'].apply(get_centroid))
     return gdf
 
-# def add_sampled_points(gdf):    
-#     num_points = 10
-#     # Sample points within each geometry
-#     sampled_points = []
-#     for geom in gdf.geometry:
-#         minx, miny, maxx, maxy = geom.bounds
-#         points = []
-#         while len(points) < num_points:
-#             random_point = gpd.points_from_xy(
-#                 np.random.uniform(minx, maxx, num_points),
-#                 np.random.uniform(miny, maxy, num_points)
-#             )
-#             points.extend([point for point in random_point if geom.contains(point)])
-#         sampled_points.append(points[:num_points])
-    
-#     # Flatten the list of lists and create a new GeoDataFrame
-#     sampled_points_flat = [point for sublist in sampled_points for point in sublist]
-#     sampled_gdf = gpd.GeoDataFrame(geometry=sampled_points_flat)
-#     return sampled_gdf
+def add_boundary(gdf):
+    """
+    Set the geometry to the boundary of each geometry in the GeoDataFrame.
+    """
+    def get_boundary(geometry):
+        if isinstance(geometry, Polygon):
+            return geometry.boundary
+        elif isinstance(geometry, Point):
+            return geometry
+        elif isinstance(geometry, LineString):
+            return geometry
+        elif isinstance(geometry, (MultiPolygon, MultiLineString)):
+            return [part.boundary for part in geometry.geoms]
+        else:
+            raise TypeError("Unsupported geometry type")
+
+    gdf['geometry'] = gdf.geometry.apply(get_boundary)
+    return gdf
 
 def convert_to_network_nodes(G, gdf, use_centroid=True):
     if use_centroid:
@@ -150,11 +149,26 @@ def convert_to_network_nodes(G, gdf, use_centroid=True):
         if 'centroid' not in gdf.columns:
             raise KeyError("The GeoDataFrame does not contain a 'centroid' column.")
         points = gdf['centroid']
+        return [ox.distance.nearest_nodes(G, point.x, point.y) for point in points]
     else:
-        points = gdf.geometry
-    
-    # Convert points to network nodes
-    return [ox.distance.nearest_nodes(G, point.x, point.y) for point in points]
+        nodes = []
+        for _, row in gdf.iterrows():
+            geometry = row['geometry']
+            if isinstance(geometry, Point):
+                # It's a Point geometry
+                nodes.append(ox.distance.nearest_nodes(G, geometry.x, geometry.y))
+            elif isinstance(geometry, (Polygon, LineString)):
+                # It's a Polygon or LineString geometry, use the boundary
+                for point in geometry.coords:
+                    nodes.append(ox.distance.nearest_nodes(G, point[0], point[1]))
+            elif isinstance(geometry, (MultiPolygon, MultiLineString)):
+                # It's a MultiPolygon or MultiLineString geometry, use the boundaries of each part
+                for part in geometry.geoms:
+                    for point in part.boundary.coords:
+                        nodes.append(ox.distance.nearest_nodes(G, point[0], point[1]))
+            else:
+                raise TypeError("Unsupported geometry type")
+        return nodes
 
 def find_suitable_residential_network_nodes(G, residential_nnodes, park_nnodes, supermarket_nnodes, max_park_distance, max_supermarket_distance):
     # Create subgraphs for parks and supermarkets within the specified distances
@@ -166,17 +180,27 @@ def find_suitable_residential_network_nodes(G, residential_nnodes, park_nnodes, 
     for supermarket_nnode in supermarket_nnodes:
         supermarket_subgraph_nnodes.update(nx.ego_graph(G, supermarket_nnode, radius=max_supermarket_distance, distance='length').nodes())
     
-    # Find the intersection of the park and supermarket subgraphs
-    suitable_nnodes = park_subgraph_nnodes.intersection(supermarket_subgraph_nnodes)
+    # Filter the residential nodes to find those that intersect both park and supermarket subgraphs
+    suitable_residential_nnodes = [
+        node for node in residential_nnodes 
+        if node in park_subgraph_nnodes and node in supermarket_subgraph_nnodes
+    ]
     
-    # Filter the residential nodes to find suitable residential areas
-    suitable_residential_nnodes = [node for node in residential_nnodes if node in suitable_nnodes]
+    # Convert the sets to GeoDataFrames for saving to file
+    park_subgraph_gdf = gpd.GeoDataFrame(geometry=[Point(G.nodes[node]['x'], G.nodes[node]['y']) for node in park_subgraph_nnodes], crs="EPSG:4326")
+    supermarket_subgraph_gdf = gpd.GeoDataFrame(geometry=[Point(G.nodes[node]['x'], G.nodes[node]['y']) for node in supermarket_subgraph_nnodes], crs="EPSG:4326")
     
+    # Save the GeoDataFrames to files
+    park_subgraph_gdf.to_file(f"park_subgraph_nnodes.geojson", driver='GeoJSON')
+    supermarket_subgraph_gdf.to_file(f"supermarket_subgraph_nnodes.geojson", driver='GeoJSON')
+
     return suitable_residential_nnodes
 
-def main(city, bbox):    
+def main(city, bbox):
+    # Parse the bounding box coordinates
+    south, west, north, east = map(float, bbox.split(','))
     # Create a network graph of the area
-    G = ox.graph_from_place(f"{city}, Colorado, USA", network_type='walk')
+    G = ox.graph_from_bbox(bbox=(north, south, east, west), network_type='walk')
     
     # Generate the queries
     residential_query = generate_query(bbox, [("building", "apartments"), ("building", "residential")])
@@ -196,12 +220,12 @@ def main(city, bbox):
     # Add centroids to the DataFrames
     residentials = add_centroids(residential_gdf)
     supermarkets = add_centroids(supermarket_gdf)
-    parks = add_centroids(park_gdf)
+    parks = add_boundary(park_gdf)
     
     # Convert centroids to network nodes
-    park_nnodes = convert_to_network_nodes(G, parks)
     supermarket_nnodes = convert_to_network_nodes(G, supermarkets)
     residential_nnodes = convert_to_network_nodes(G, residentials)
+    park_nnodes = convert_to_network_nodes(G, parks, use_centroid=False)
     
     # Define distance thresholds
     max_park_distance_meters = 400  # 5 minutes walk in meters
@@ -221,7 +245,7 @@ def main(city, bbox):
     
 	# Output the suitable residential areas as GeoJSON
     suitable_residential_gdf.to_file(f"geojson/{city}.geojson", driver='GeoJSON')
-    print(f"Suitable residential areas have been saved to '{city}.geojson'")
+    print(f"Suitable residential areas have been saved to 'geojson/{city}.geojson'")
 
 if __name__ == "__main__":
     parser = argparse.ArgumentParser(description='Process city and bbox for main function')
