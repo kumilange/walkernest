@@ -26,29 +26,6 @@ def generate_query(bbox, key_value_pairs):
     query += ");\nout geom;\n>;\nout skel qt;\n"
     return query
 
-# def fetch_data(query, bbox):
-#     """
-#     Fetch data from the Overpass API based on the provided query template and bounding box.
-
-#     Parameters:
-#     query (str): The Overpass API query template with a placeholder for the bounding box.
-#     bbox (str): The bounding box coordinates in the format "min_lat,min_lon,max_lat,max_lon".
-
-#     Returns:
-#     dict: The JSON response from the Overpass API.
-#     """
-#     query = query.format(bbox=bbox)
-#     overpass_url = "http://overpass-api.de/api/interpreter"
-    
-#     try:
-#         response = requests.get(overpass_url, params={'data': query})
-#         response.raise_for_status()
-#         data = response.json()
-#         return data
-#     except requests.RequestException as e:
-#         print(f"Error fetching data from Overpass API: {e}")
-#         return None
-
 def create_geometry(element, nodes):
     if element['type'] == 'node':
         return Point(element['lon'], element['lat'])
@@ -131,7 +108,7 @@ def add_boundary(gdf):
         elif isinstance(geometry, LineString):
             return geometry
         elif isinstance(geometry, (MultiPolygon, MultiLineString)):
-            return [part.boundary for part in geometry.geoms]
+            return MultiLineString([part.boundary for part in geometry.geoms])
         else:
             raise TypeError("Unsupported geometry type")
 
@@ -159,8 +136,11 @@ def convert_to_network_nodes(G, gdf, use_centroid=True):
             elif isinstance(geometry, (MultiPolygon, MultiLineString)):
                 # It's a MultiPolygon or MultiLineString geometry, use the boundaries of each part
                 for part in geometry.geoms:
-                    for point in part.boundary.coords:
-                        nodes.append(ox.distance.nearest_nodes(G, point[0], point[1]))
+                    if isinstance(part, (Polygon, LineString)):
+                        for point in part.coords:
+                            nodes.append(ox.distance.nearest_nodes(G, point[0], point[1]))
+                    else:
+                        raise TypeError("Unsupported sub-geometry type in MultiPolygon or MultiLineString")
             else:
                 raise TypeError("Unsupported geometry type")
         return nodes
@@ -180,14 +160,6 @@ def find_suitable_residential_network_nodes(G, residential_nnodes, park_nnodes, 
         node for node in residential_nnodes 
         if node in park_subgraph_nnodes and node in supermarket_subgraph_nnodes
     ]
-    
-    # Convert the sets to GeoDataFrames for saving to file
-    park_subgraph_gdf = gpd.GeoDataFrame(geometry=[Point(G.nodes[node]['x'], G.nodes[node]['y']) for node in park_subgraph_nnodes], crs="EPSG:4326")
-    supermarket_subgraph_gdf = gpd.GeoDataFrame(geometry=[Point(G.nodes[node]['x'], G.nodes[node]['y']) for node in supermarket_subgraph_nnodes], crs="EPSG:4326")
-    
-    # Save the GeoDataFrames to files
-    park_subgraph_gdf.to_file(f"park_subgraph_nnodes.geojson", driver='GeoJSON')
-    supermarket_subgraph_gdf.to_file(f"supermarket_subgraph_nnodes.geojson", driver='GeoJSON')
 
     return suitable_residential_nnodes
 
