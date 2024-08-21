@@ -4,7 +4,7 @@ import warnings
 import pandas as pd
 from utils.file import save_to_geojson
 from utils.data_fetcher import fetch_and_normalize_data, generate_query
-from utils.geometry import add_boundary, add_centroids, drop_additional_geometry_columns
+from utils.geometry import add_boundary, add_centroid, drop_additional_geometry_columns, set_centroid
 from utils.networkx import convert_to_network_nodes, create_network_graph, find_suitable_residential_network_nodes, retrieve_suitable_residential_areas
 
 # Suppress FutureWarning
@@ -31,8 +31,8 @@ def main(city, bbox):
     save_to_geojson(park_gdf, city, "park")
 
     # Add centroids and boundary to the DataFrames
-    residentials = add_centroids(residential_gdf)
-    supermarkets = add_centroids(supermarket_gdf)
+    residentials = add_centroid(residential_gdf)
+    supermarkets = add_centroid(supermarket_gdf)
     parks = add_boundary(park_gdf)
     
 	# Convert centroids and boundary to network nodes
@@ -51,9 +51,14 @@ def main(city, bbox):
     # Drop additional geometry columns if any
     suitable_residential_gdf = drop_additional_geometry_columns(suitable_residential_gdf)
     
+    # Replace the geometry of each feature in the GeoDataFrame with its centroid
+    suitable_residential_gdf_for_clusters = set_centroid(suitable_residential_gdf.copy())
+
 	# Save the suitable residential areas as GeoJSON
     save_to_geojson(suitable_residential_gdf, city)
-    print(f"Suitable residential areas have been saved to 'geojson/{city}.geojson'")
+    print(f"Suitable residential areas have been saved to 'geojson/{city.lower()}.geojson'")
+    save_to_geojson(suitable_residential_gdf_for_clusters, city, "clusters")
+    print(f"Suitable residential areas for clusters have been saved to 'geojson/{city.lower()}_cluster.geojson'")
 
 if __name__ == "__main__":
     parser = argparse.ArgumentParser(description='Process city and bbox for main function')

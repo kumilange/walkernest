@@ -1,12 +1,19 @@
 from shapely.geometry import Polygon, Point, LineString, MultiPolygon, MultiLineString
 
-def add_centroids(gdf):
+def add_centroid(gdf):
     def get_centroid(geometry):
         if isinstance(geometry, (Point, Polygon, MultiPolygon)):
             return geometry.centroid
         return None
 
     gdf = gdf.assign(centroid=gdf['geometry'].apply(get_centroid))
+    return gdf
+
+def set_centroid(gdf):
+    """
+    Replace the geometry of each feature in the GeoDataFrame with its centroid.
+    """
+    gdf['geometry'] = gdf.geometry.centroid
     return gdf
 
 def create_geometry(element, nodes):

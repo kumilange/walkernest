@@ -7,6 +7,7 @@ def save_to_geojson(gdf, city, data_type=None):
     city (str): The name of the city.
     data_type (str, optional): The type of data (e.g., residential, supermarket, park). Defaults to None.
     """
+    city = city.lower()
     if data_type:
         file_path = f"geojson/{city}_{data_type}.geojson"
     else:
