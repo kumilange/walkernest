@@ -61,6 +61,20 @@ def convert_to_network_nodes(G, gdf, use_centroid=True):
     return list(nodes)  # Convert the set back to a list before returning
 
 def find_suitable_residential_network_nodes(G, residential_nnodes, park_nnodes, supermarket_nnodes, max_park_distance, max_supermarket_distance):
+    """
+    Find suitable residential network nodes that are within specified distances from both park and supermarket nodes.
+
+    Parameters:
+    G (networkx.Graph): The graph representing the network.
+    residential_nnodes (list): List of residential network nodes.
+    park_nnodes (list): List of park network nodes.
+    supermarket_nnodes (list): List of supermarket network nodes.
+    max_park_distance (float): Maximum distance from park nodes to consider.
+    max_supermarket_distance (float): Maximum distance from supermarket nodes to consider.
+
+    Returns:
+    list: List of suitable residential network nodes within the specified distances from both park and supermarket nodes.
+    """
     # Create subgraphs for parks and supermarkets within the specified distances
     park_subgraph_nnodes = set()
     for park_nnode in park_nnodes:

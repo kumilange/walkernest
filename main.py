@@ -54,13 +54,12 @@ def main(city, bbox):
     
 	# Save the suitable residential areas as GeoJSON
     save_to_geojson(suitable_residential_gdf, city, "result")
-    # print(f"Suitable residential areas have been saved to 'geojson/{city.lower()}_result.geojson'")
 
     # Replace the geometry of each feature in the GeoDataFrame with its centroid
     suitable_residential_gdf_for_centroid = set_centroid(suitable_residential_gdf.copy())
 
+    # Save the suitable residential GeoDataFrame for centroid to a GeoJSON file
     save_to_geojson(suitable_residential_gdf_for_centroid, city, "result_centroid")
-    # print(f"Suitable residential areas for clusters have been saved to 'geojson/{city.lower()}_result_centroid.geojson'")
 
 if __name__ == "__main__":
     parser = argparse.ArgumentParser(description='Process city and bbox for main function')
