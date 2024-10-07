@@ -42,6 +42,7 @@ def fetch_and_normalize_data(query):
         filtered_props = filter_properties(element)
         if geom and filtered_props:
             geometry.append(geom)
+            filtered_props["id"] = element["id"]
             properties.append(filtered_props)
 
     gdf = gpd.GeoDataFrame(properties, geometry=geometry)

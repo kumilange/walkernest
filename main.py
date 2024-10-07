@@ -28,6 +28,7 @@ def main(city, bbox):
     # Save different types of GeoDataFrames to their respective GeoJSON files
     save_to_geojson(residential_gdf, city, "residential")
     save_to_geojson(supermarket_gdf, city, "supermarket")
+    save_to_geojson(set_centroid(supermarket_gdf.copy()), city, "supermarket_centroid")
     save_to_geojson(park_gdf, city, "park")
 
     # Add centroids and boundary to the DataFrames
@@ -51,14 +52,15 @@ def main(city, bbox):
     # Drop additional geometry columns if any
     suitable_residential_gdf = drop_additional_geometry_columns(suitable_residential_gdf)
     
-    # Replace the geometry of each feature in the GeoDataFrame with its centroid
-    suitable_residential_gdf_for_clusters = set_centroid(suitable_residential_gdf.copy())
-
 	# Save the suitable residential areas as GeoJSON
-    save_to_geojson(suitable_residential_gdf, city)
-    print(f"Suitable residential areas have been saved to 'geojson/{city.lower()}.geojson'")
-    save_to_geojson(suitable_residential_gdf_for_clusters, city, "clusters")
-    print(f"Suitable residential areas for clusters have been saved to 'geojson/{city.lower()}_cluster.geojson'")
+    save_to_geojson(suitable_residential_gdf, city, "result")
+    # print(f"Suitable residential areas have been saved to 'geojson/{city.lower()}_result.geojson'")
+
+    # Replace the geometry of each feature in the GeoDataFrame with its centroid
+    suitable_residential_gdf_for_centroid = set_centroid(suitable_residential_gdf.copy())
+
+    save_to_geojson(suitable_residential_gdf_for_centroid, city, "result_centroid")
+    # print(f"Suitable residential areas for clusters have been saved to 'geojson/{city.lower()}_result_centroid.geojson'")
 
 if __name__ == "__main__":
     parser = argparse.ArgumentParser(description='Process city and bbox for main function')

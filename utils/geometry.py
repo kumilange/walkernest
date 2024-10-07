@@ -6,7 +6,8 @@ def add_centroid(gdf):
             return geometry.centroid
         return None
 
-    gdf = gdf.assign(centroid=gdf['geometry'].apply(get_centroid))
+    gdf['centroid'] = gdf['geometry'].apply(get_centroid)
+    
     return gdf
 
 def set_centroid(gdf):
@@ -51,10 +52,10 @@ def add_boundary(gdf):
     Set the geometry to the boundary of each geometry in the GeoDataFrame.
     """
     def get_boundary(geometry):
-        if isinstance(geometry, Polygon):
-            return geometry.boundary
-        elif isinstance(geometry, Point):
+        if isinstance(geometry, Point):
             return geometry
+        elif isinstance(geometry, Polygon):
+            return geometry.boundary
         elif isinstance(geometry, LineString):
             return geometry
         elif isinstance(geometry, (MultiPolygon, MultiLineString)):
@@ -62,7 +63,7 @@ def add_boundary(gdf):
         else:
             raise TypeError("Unsupported geometry type")
 
-    gdf['geometry'] = gdf.geometry.apply(get_boundary)
+    gdf['boundary'] = gdf.geometry.apply(get_boundary)
     return gdf
 
 def drop_additional_geometry_columns(gdf):

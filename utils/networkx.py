@@ -15,52 +15,64 @@ def create_network_graph(bbox, network_type='walk'):
     """
     south, west, north, east = map(float, bbox.split(','))
     return ox.graph_from_bbox(north, south, east, west, network_type=network_type)
+    
+def get_equally_distant_points(coords):
+    total_points = len(coords)
+
+    if total_points < 10:
+        num_points = total_points
+    elif 10 <= total_points < 100:
+        num_points = 10
+    else:
+        num_points = total_points // 10
+
+    if total_points < num_points:
+        raise ValueError("Not enough points to select from")
+    
+    step = total_points // num_points
+    return [coords[i * step] for i in range(num_points)]
 
 def convert_to_network_nodes(G, gdf, use_centroid=True):
+    def add_nearest_nodes(geometry, nodes):
+        if isinstance(geometry, Point):
+            nodes.add(ox.distance.nearest_nodes(G, geometry.x, geometry.y))
+        elif isinstance(geometry, (Polygon, LineString)):
+            selected_points = get_equally_distant_points(list(geometry.coords))
+            for point in selected_points:
+                nodes.add(ox.distance.nearest_nodes(G, point[0], point[1]))
+        elif isinstance(geometry, (MultiPolygon, MultiLineString)):
+            for part in geometry.geoms:
+                add_nearest_nodes(part, nodes)
+        else:
+            raise TypeError("Unsupported geometry type")
+
     if use_centroid:
         # Ensure the 'centroid' column exists
         if 'centroid' not in gdf.columns:
             raise KeyError("The GeoDataFrame does not contain a 'centroid' column.")
         points = gdf['centroid']
-        return [ox.distance.nearest_nodes(G, point.x, point.y) for point in points]
+        # Use a set to store unique nodes
+        nodes = {ox.distance.nearest_nodes(G, point.x, point.y) for point in points}
     else:
-        nodes = []
-        for _, row in gdf.iterrows():
-            geometry = row['geometry']
-            if isinstance(geometry, Point):
-                # It's a Point geometry
-                nodes.append(ox.distance.nearest_nodes(G, geometry.x, geometry.y))
-            elif isinstance(geometry, (Polygon, LineString)):
-                # It's a Polygon or LineString geometry, use the boundary
-                for point in geometry.coords:
-                    nodes.append(ox.distance.nearest_nodes(G, point[0], point[1]))
-            elif isinstance(geometry, (MultiPolygon, MultiLineString)):
-                # It's a MultiPolygon or MultiLineString geometry, use the boundaries of each part
-                for part in geometry.geoms:
-                    if isinstance(part, (Polygon, LineString)):
-                        for point in part.coords:
-                            nodes.append(ox.distance.nearest_nodes(G, point[0], point[1]))
-                    else:
-                        raise TypeError("Unsupported sub-geometry type in MultiPolygon or MultiLineString")
-            else:
-                raise TypeError("Unsupported geometry type")
-        return nodes
+        nodes = set()  # Use a set to store unique nodes
+        for geometry in gdf['boundary']:
+            add_nearest_nodes(geometry, nodes)
+
+    return list(nodes)  # Convert the set back to a list before returning
 
 def find_suitable_residential_network_nodes(G, residential_nnodes, park_nnodes, supermarket_nnodes, max_park_distance, max_supermarket_distance):
     # Create subgraphs for parks and supermarkets within the specified distances
     park_subgraph_nnodes = set()
     for park_nnode in park_nnodes:
         park_subgraph_nnodes.update(nx.ego_graph(G, park_nnode, radius=max_park_distance, distance='length').nodes())
-    
+
     supermarket_subgraph_nnodes = set()
     for supermarket_nnode in supermarket_nnodes:
         supermarket_subgraph_nnodes.update(nx.ego_graph(G, supermarket_nnode, radius=max_supermarket_distance, distance='length').nodes())
     
-    # Filter the residential nodes to find those that intersect both park and supermarket subgraphs
-    suitable_residential_nnodes = [
-        node for node in residential_nnodes 
-        if node in park_subgraph_nnodes and node in supermarket_subgraph_nnodes
-    ]
+    # Find suitable residential network nodes
+    residential_nnodes_set = set(residential_nnodes)
+    suitable_residential_nnodes = list(residential_nnodes_set & park_subgraph_nnodes & supermarket_subgraph_nnodes)
 
     return suitable_residential_nnodes
 
