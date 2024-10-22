@@ -1,4 +1,30 @@
 python3 -m venv venv
+(This command creates a virtual environment named venv using Python 3.)
+
 source venv/bin/activate
+(This command activates the virtual environment. Once activated, any Python packages installed will be isolated to this environment.)
+
 python main.py --csv citylist.csv
+(This command runs the main.py script with the argument --csv citylist.csv. The script likely processes the citylist.csv file.)
+
 deactivate
+(This command deactivates the virtual environment, returning the shell to its normal state.)
+
+PostgreSQL
+### runs a Docker with PostgreSQL and PostGIS ###
+docker run --name postgis \
+-e POSTGRES_DB=postgres \
+-e POSTGRES_USER=postgres \
+-e POSTGRES_PASSWORD=postgres \
+-p 5432:5432 \
+-d kartoza/postgis:16-3.4
+
+### enter the shell on the running container
+docker exec -it postgis /bin/bash
+
+### connect to PostgreSQL using psql client
+psql -h localhost -U postgres -d postgres
+
+### enable PostGIS
+CREATE EXTENSION postgis;
+SELECT postgis_version();
