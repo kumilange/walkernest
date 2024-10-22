@@ -15,6 +15,11 @@ def set_centroid(gdf):
     Replace the geometry of each feature in the GeoDataFrame with its centroid.
     """
     gdf['geometry'] = gdf.geometry.centroid
+
+    # Check if the 'centroid' column exists before dropping it
+    if 'centroid' in gdf.columns:
+        gdf = gdf.drop(columns=['centroid'])
+
     return gdf
 
 def create_geometry(element, nodes):
@@ -64,20 +69,4 @@ def add_boundary(gdf):
             raise TypeError("Unsupported geometry type")
 
     gdf['boundary'] = gdf.geometry.apply(get_boundary)
-    return gdf
-
-def drop_additional_geometry_columns(gdf):
-    """
-    Drop additional geometry columns from a GeoDataFrame if any.
-
-    Parameters:
-    gdf (gpd.GeoDataFrame): The GeoDataFrame to process.
-
-    Returns:
-    gpd.GeoDataFrame: The GeoDataFrame with additional geometry columns removed.
-    """
-    geometry_column = gdf.geometry.name
-    for col in gdf.columns:
-        if col != geometry_column and gdf[col].dtype == 'geometry':
-            gdf = gdf.drop(columns=[col])
     return gdf

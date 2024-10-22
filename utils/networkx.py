@@ -1,3 +1,4 @@
+import numpy as np
 import osmnx as ox
 import networkx as nx
 from shapely.geometry import Point, Polygon, LineString, MultiPolygon, MultiLineString
@@ -36,11 +37,11 @@ def convert_to_network_nodes(G, gdf, use_centroid=True):
     def add_nearest_nodes(geometry, nodes):
         if isinstance(geometry, Point):
             nodes.add(ox.distance.nearest_nodes(G, geometry.x, geometry.y))
-        elif isinstance(geometry, (Polygon, LineString)):
+        elif isinstance(geometry, (LineString)):
             selected_points = get_equally_distant_points(list(geometry.coords))
             for point in selected_points:
                 nodes.add(ox.distance.nearest_nodes(G, point[0], point[1]))
-        elif isinstance(geometry, (MultiPolygon, MultiLineString)):
+        elif isinstance(geometry, (MultiLineString)):
             for part in geometry.geoms:
                 add_nearest_nodes(part, nodes)
         else:
@@ -102,4 +103,14 @@ def retrieve_suitable_residential_areas(residentials, G, suitable_residential_nn
     Returns:
     gpd.GeoDataFrame: Filtered GeoDataFrame of suitable residential areas.
     """
-    return residentials[residentials['centroid'].apply(lambda x: ox.distance.nearest_nodes(G, x.x, x.y) in suitable_residential_nnodes)]
+    # Extract centroid coordinates
+    centroids = np.array([(geom.x, geom.y) for geom in residentials['centroid']])
+    
+    # Calculate nearest nodes for all centroids
+    nearest_nodes = ox.distance.nearest_nodes(G, centroids[:, 0], centroids[:, 1])
+    
+    residentials['nearest_node'] = nearest_nodes
+    filtered_residentials = residentials[residentials['nearest_node'].isin(suitable_residential_nnodes)]
+    filtered_residentials = filtered_residentials.drop(columns=['nearest_node'])
+    
+    return filtered_residentials

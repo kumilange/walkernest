@@ -45,5 +45,4 @@ def fetch_and_normalize_data(query):
             filtered_props["id"] = element["id"]
             properties.append(filtered_props)
 
-    gdf = gpd.GeoDataFrame(properties, geometry=geometry)
-    return gdf
+    return gpd.GeoDataFrame(properties, geometry=geometry)

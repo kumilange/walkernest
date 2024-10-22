@@ -4,7 +4,7 @@ import warnings
 import pandas as pd
 from utils.file import save_to_geojson
 from utils.data_fetcher import fetch_and_normalize_data, generate_query
-from utils.geometry import add_boundary, add_centroid, drop_additional_geometry_columns, set_centroid
+from utils.geometry import add_boundary, add_centroid, set_centroid
 from utils.networkx import convert_to_network_nodes, create_network_graph, find_suitable_residential_network_nodes, retrieve_suitable_residential_areas
 
 # Suppress FutureWarning
@@ -38,28 +38,24 @@ def main(city, bbox):
     
 	# Convert centroids and boundary to network nodes
     G = create_network_graph(bbox)
-    supermarket_nnodes = convert_to_network_nodes(G, supermarkets)
     residential_nnodes = convert_to_network_nodes(G, residentials)
+    supermarket_nnodes = convert_to_network_nodes(G, supermarkets)
     park_nnodes = convert_to_network_nodes(G, parks, use_centroid=False)
     
     # Find suitable residential network nodes
     suitable_residential_nnodes = find_suitable_residential_network_nodes(
         G, residential_nnodes, park_nnodes, supermarket_nnodes, MAX_DISTANCE_PARK, MAX_DISTANCE_SUPERMARKET)
-    
-    # Retrieve suitable residential areas
-    suitable_residential_gdf = retrieve_suitable_residential_areas(residentials, G, suitable_residential_nnodes)
 
-    # Drop additional geometry columns if any
-    suitable_residential_gdf = drop_additional_geometry_columns(suitable_residential_gdf)
-    
+    # Retrieve suitable residential areas from network nodes
+    suitable_residential_gdf_with_geoms = retrieve_suitable_residential_areas(residentials, G, suitable_residential_nnodes)
+
 	# Save the suitable residential areas as GeoJSON
+    suitable_residential_gdf = (suitable_residential_gdf_with_geoms.copy()).drop(columns=['centroid'])
     save_to_geojson(suitable_residential_gdf, city, "result")
 
-    # Replace the geometry of each feature in the GeoDataFrame with its centroid
-    suitable_residential_gdf_for_centroid = set_centroid(suitable_residential_gdf.copy())
-
-    # Save the suitable residential GeoDataFrame for centroid to a GeoJSON file
-    save_to_geojson(suitable_residential_gdf_for_centroid, city, "result_centroid")
+    # Save the suitable residential GeoDataFrame for cluster presentation to a GeoJSON file
+    suitable_residential_gdf_with_centroid = set_centroid(suitable_residential_gdf_with_geoms.copy())
+    save_to_geojson(suitable_residential_gdf_with_centroid, city, "result_centroid")
 
 if __name__ == "__main__":
     parser = argparse.ArgumentParser(description='Process city and bbox for main function')
