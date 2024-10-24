@@ -2,7 +2,7 @@ import time
 import argparse
 import warnings
 import pandas as pd
-from utils.file import save_to_geojson
+from utils.file import save_gdf_to_geojson, save_list_to_json
 from utils.data_fetcher import fetch_and_normalize_data, generate_query
 from utils.geometry import add_boundary, add_centroid, set_centroid
 from utils.networkx import convert_to_network_nodes, create_network_graph, find_suitable_apartment_network_nodes, retrieve_suitable_apartments
@@ -26,10 +26,10 @@ def main(city, bbox):
     park_gdf = fetch_and_normalize_data(park_query)
 
     # Save different types of GeoDataFrames to their respective GeoJSON files
-    save_to_geojson(apartment_gdf, city, "apartment")
-    save_to_geojson(supermarket_gdf, city, "supermarket")
-    # save_to_geojson(set_centroid(supermarket_gdf.copy()), city, "supermarket_centroid")
-    save_to_geojson(park_gdf, city, "park")
+    save_gdf_to_geojson(apartment_gdf, city, "apartment")
+    save_gdf_to_geojson(supermarket_gdf, city, "supermarket")
+    # save_gdf_to_geojson(set_centroid(supermarket_gdf.copy()), city, "supermarket_centroid")
+    save_gdf_to_geojson(park_gdf, city, "park")
 
     # Add centroids and boundary to the DataFrames
     apartments = add_centroid(apartment_gdf)
@@ -42,10 +42,13 @@ def main(city, bbox):
     supermarket_nnodes = convert_to_network_nodes(G, supermarkets)
     park_nnodes = convert_to_network_nodes(G, parks, use_centroid=False)
 
-    print(f"apartment_nnodes: {apartment_nnodes}\n")
-    print(f"supermarket_nnodes: {supermarket_nnodes}\n")
-    print(f"park_nnodes: {park_nnodes}\n")
-    
+    # Save different types of GeoDataFrames to their respective GeoJSON files
+    save_list_to_json(apartment_nnodes, city, "apartment")
+    save_list_to_json(supermarket_nnodes, city, "supermarket")
+    save_list_to_json(park_nnodes, city, "park")
+
+    return
+
     # Find suitable apartment network nodes
     suitable_apartment_nnodes = find_suitable_apartment_network_nodes(
         G, apartment_nnodes, park_nnodes, supermarket_nnodes, MAX_DISTANCE_PARK, MAX_DISTANCE_SUPERMARKET)
@@ -55,11 +58,11 @@ def main(city, bbox):
 
 	# Save the suitable apartment areas as GeoJSON
     suitable_apartment_gdf = (suitable_apartment_gdf_with_geoms.copy()).drop(columns=['centroid'])
-    save_to_geojson(suitable_apartment_gdf, city, "result")
+    save_gdf_to_geojson(suitable_apartment_gdf, city, "result")
 
     # Save the suitable apartment GeoDataFrame for cluster presentation to a GeoJSON file
     suitable_apartment_gdf_with_centroid = set_centroid(suitable_apartment_gdf_with_geoms.copy())
-    save_to_geojson(suitable_apartment_gdf_with_centroid, city, "result_centroid")
+    save_gdf_to_geojson(suitable_apartment_gdf_with_centroid, city, "result_centroid")
 
 if __name__ == "__main__":
     parser = argparse.ArgumentParser(description='Process city and bbox for main function')

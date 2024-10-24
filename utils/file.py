@@ -1,4 +1,7 @@
-def save_to_geojson(gdf, city, data_type=None):
+import os
+import json
+
+def save_gdf_to_geojson(gdf, city, data_type):
     """
     Save a GeoDataFrame to a GeoJSON file.
 
@@ -8,9 +11,15 @@ def save_to_geojson(gdf, city, data_type=None):
     data_type (str, optional): The type of data (e.g., apartment, supermarket, park). Defaults to None.
     """
     city = city.lower()
-    if data_type:
-        file_path = f"geojson/{city}_{data_type}.geojson"
-    else:
-        file_path = f"geojson/{city}.geojson"
+    file_path = f"geojson/{city}_{data_type}.geojson"
     
     gdf.to_file(file_path, driver='GeoJSON')
+
+# Function to save list to a JSON file
+def save_list_to_json(list, city, data_type):
+    os.makedirs('./network_nodes', exist_ok=True)
+    city = city.lower()
+    file_path = f"network_nodes/{city}_{data_type}.json"
+    
+    with open(file_path, 'w') as f:
+        json.dump(list, f, separators=(',', ':'))
