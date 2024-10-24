@@ -33,4 +33,4 @@ SELECT postgis_version();
 docker build -t my-seed-script . 
 
 ### create and start a new Docker coitainer with a name "seed-script", linking another container postgis
-docker run --rm --name seed-script --link postgis:postgis my-seed-script
+docker run --rm --name seed-script --link postgis:postgis --env-file .env my-seed-script
