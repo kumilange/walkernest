@@ -1,7 +1,7 @@
 import numpy as np
 import osmnx as ox
 import networkx as nx
-from shapely.geometry import Point, Polygon, LineString, MultiPolygon, MultiLineString
+from shapely.geometry import Point, LineString, MultiLineString
 
 def create_network_graph(bbox, network_type='walk'):
     """
@@ -61,20 +61,20 @@ def convert_to_network_nodes(G, gdf, use_centroid=True):
 
     return list(nodes)  # Convert the set back to a list before returning
 
-def find_suitable_residential_network_nodes(G, residential_nnodes, park_nnodes, supermarket_nnodes, max_park_distance, max_supermarket_distance):
+def find_suitable_apartment_network_nodes(G, apartment_nnodes, park_nnodes, supermarket_nnodes, max_park_distance, max_supermarket_distance):
     """
-    Find suitable residential network nodes that are within specified distances from both park and supermarket nodes.
+    Find suitable apartment network nodes that are within specified distances from both park and supermarket nodes.
 
     Parameters:
     G (networkx.Graph): The graph representing the network.
-    residential_nnodes (list): List of residential network nodes.
+    apartment_nnodes (list): List of apartment network nodes.
     park_nnodes (list): List of park network nodes.
     supermarket_nnodes (list): List of supermarket network nodes.
     max_park_distance (float): Maximum distance from park nodes to consider.
     max_supermarket_distance (float): Maximum distance from supermarket nodes to consider.
 
     Returns:
-    list: List of suitable residential network nodes within the specified distances from both park and supermarket nodes.
+    list: List of suitable apartment network nodes within the specified distances from both park and supermarket nodes.
     """
     # Create subgraphs for parks and supermarkets within the specified distances
     park_subgraph_nnodes = set()
@@ -85,32 +85,32 @@ def find_suitable_residential_network_nodes(G, residential_nnodes, park_nnodes, 
     for supermarket_nnode in supermarket_nnodes:
         supermarket_subgraph_nnodes.update(nx.ego_graph(G, supermarket_nnode, radius=max_supermarket_distance, distance='length').nodes())
     
-    # Find suitable residential network nodes
-    residential_nnodes_set = set(residential_nnodes)
-    suitable_residential_nnodes = list(residential_nnodes_set & park_subgraph_nnodes & supermarket_subgraph_nnodes)
+    # Find suitable apartment network nodes
+    apartment_nnodes_set = set(apartment_nnodes)
+    suitable_apartment_nnodes = list(apartment_nnodes_set & park_subgraph_nnodes & supermarket_subgraph_nnodes)
 
-    return suitable_residential_nnodes
+    return suitable_apartment_nnodes
 
-def retrieve_suitable_residential_areas(residentials, G, suitable_residential_nnodes):
+def retrieve_suitable_apartments(apartments, G, suitable_apartment_nnodes):
     """
-    Retrieve suitable residential areas based on their centroids and nearest network nodes.
+    Retrieve suitable apartments based on their centroids and nearest network nodes.
 
     Parameters:
-    residentials (gpd.GeoDataFrame): GeoDataFrame of residential areas.
+    apartments (gpd.GeoDataFrame): GeoDataFrame of apartments.
     G (networkx.Graph): The graph representing the road network.
-    suitable_residential_nnodes (list): List of suitable residential network nodes.
+    suitable_apartment_nnodes (list): List of suitable apartment network nodes.
 
     Returns:
-    gpd.GeoDataFrame: Filtered GeoDataFrame of suitable residential areas.
+    gpd.GeoDataFrame: Filtered GeoDataFrame of suitable apartments.
     """
     # Extract centroid coordinates
-    centroids = np.array([(geom.x, geom.y) for geom in residentials['centroid']])
+    centroids = np.array([(geom.x, geom.y) for geom in apartments['centroid']])
     
     # Calculate nearest nodes for all centroids
     nearest_nodes = ox.distance.nearest_nodes(G, centroids[:, 0], centroids[:, 1])
     
-    residentials['nearest_node'] = nearest_nodes
-    filtered_residentials = residentials[residentials['nearest_node'].isin(suitable_residential_nnodes)]
-    filtered_residentials = filtered_residentials.drop(columns=['nearest_node'])
+    apartments['nearest_node'] = nearest_nodes
+    filtered_apartments = apartments[apartments['nearest_node'].isin(suitable_apartment_nnodes)]
+    filtered_apartments = filtered_apartments.drop(columns=['nearest_node'])
     
-    return filtered_residentials
+    return filtered_apartments

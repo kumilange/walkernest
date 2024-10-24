@@ -13,7 +13,7 @@ deactivate
 PostgreSQL
 ### runs a Docker with PostgreSQL and PostGIS ###
 docker run --name postgis \
--e POSTGRES_DB=postgres \
+-e POSTGRES_DB=gis \
 -e POSTGRES_USER=postgres \
 -e POSTGRES_PASSWORD=postgres \
 -p 5432:5432 \
@@ -23,8 +23,14 @@ docker run --name postgis \
 docker exec -it postgis /bin/bash
 
 ### connect to PostgreSQL using psql client
-psql -h localhost -U postgres -d postgres
+psql -h localhost -U postgres -d gis
 
 ### enable PostGIS
 CREATE EXTENSION postgis;
 SELECT postgis_version();
+
+### build a Docker image with a name "my-seed-script" from Dockerfile 
+docker build -t my-seed-script . 
+
+### create and start a new Docker coitainer with a name "seed-script", linking another container postgis
+docker run --rm --name seed-script --link postgis:postgis my-seed-script
