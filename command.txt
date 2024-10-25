@@ -4,11 +4,11 @@ python3 -m venv venv
 source venv/bin/activate
 (This command activates the virtual environment. Once activated, any Python packages installed will be isolated to this environment.)
 
-python main.py --csv citylist.csv
-(This command runs the main.py script with the argument --csv citylist.csv. The script likely processes the citylist.csv file.)
-
 deactivate
 (This command deactivates the virtual environment, returning the shell to its normal state.)
+
+python dataset.py --csv citylist.csv
+(This command runs the dataset script with the argument --csv citylist.csv. The script likely processes the citylist.csv file.)
 
 PostgreSQL
 ### runs a Docker with PostgreSQL and PostGIS ###
@@ -29,8 +29,5 @@ psql -h localhost -U postgres -d gis
 CREATE EXTENSION postgis;
 SELECT postgis_version();
 
-### build a Docker image with a name "my-seed-script" from Dockerfile 
-docker build -t my-seed-script . 
-
-### create and start a new Docker coitainer with a name "seed-script", linking another container postgis
-docker run --rm --name seed-script --link postgis:postgis --env-file .env my-seed-script
+### docker-compose
+docker-compose up --build
