@@ -37,9 +37,19 @@ def initialize_tables(engine):
                 CREATE TABLE IF NOT EXISTS geojsons (
                     id SERIAL PRIMARY KEY,
                     city_id INTEGER NOT NULL,
-                    name VARCHAR(50) CHECK (name IN ('park', 'supermarket')) NOT NULL,
+                    name VARCHAR(50) CHECK (name IN ('park', 'supermarket', 'apartment')) NOT NULL,
                     geom GEOMETRY,
                     properties JSONB
+                )
+            """))
+
+            # Drop and create the network_graphs table
+            conn.execute(text("DROP TABLE IF EXISTS network_graphs"))
+            conn.execute(text("""
+                CREATE TABLE IF NOT EXISTS network_graphs (
+                    id SERIAL PRIMARY KEY,
+                    city_id INTEGER NOT NULL,
+                    graph JSONB NOT NULL
                 )
             """))
 
@@ -49,7 +59,7 @@ def initialize_tables(engine):
                 CREATE TABLE IF NOT EXISTS network_nodes (
                     id SERIAL PRIMARY KEY,
                     city_id INTEGER NOT NULL,
-                    name VARCHAR(50) NOT NULL,
+                    name VARCHAR(50) CHECK (name IN ('park', 'supermarket', 'apartment')) NOT NULL,
                     nodes JSONB NOT NULL
                 )
             """))
@@ -88,7 +98,7 @@ def insert_geojson_data(engine, city_data):
                         continue
 
                     city_id = city_data[city_name]["id"]
-                    name = 'park' if 'park' in filename else 'supermarket' if 'supermarket' in filename else None
+                    name = 'apartment' if 'apartment' in filename else 'supermarket' if 'supermarket' in filename else 'park' if 'park' in filename else None
                     if not name:
                         continue
 
@@ -98,12 +108,36 @@ def insert_geojson_data(engine, city_data):
                             geom_json = json.dumps(feature['geometry'])
                             properties_json = json.dumps(feature['properties'])
                             stmt = text("INSERT INTO geojsons (city_id, name, geom, properties) VALUES (:city_id, :name, ST_GeomFromGeoJSON(:geom), :properties)")
-                            print(f"Inserting: {city_id}, {name}") 
+                            print(f"Inserting geojson_data: {city_id}, {name}") 
                             conn.execute(stmt, {'city_id': city_id, 'name': name, 'geom': geom_json, 'properties': properties_json})
             trans.commit()  # Commit the transaction
         except Exception as e:
             trans.rollback()  # Rollback the transaction on error
             logger.error(f"Error inserting geojson data: {e}", exc_info=True)
+
+# Function to insert network graphs into PostgreSQL
+def insert_network_graphs_data(engine, city_data):
+    nodes_dir = './network_graphs'
+    with engine.connect() as conn:
+        trans = conn.begin()  # Begin a transaction
+        try:
+            for filename in os.listdir(nodes_dir):
+                city_name = next((name for name in city_data.keys() if name in filename), None)
+                if not city_name:
+                    continue
+
+                city_id = city_data[city_name]["id"]
+
+                with open(os.path.join(nodes_dir, filename), 'r') as file:
+                    graph_json_str = file.read()
+                    stmt = text("INSERT INTO network_graphs (city_id, graph) VALUES (:city_id, :graph)")
+                    print(f"Inserting network_graphs_data: {city_id}") 
+                    conn.execute(stmt, {'city_id': city_id, 'graph': graph_json_str})
+        
+            trans.commit()  # Commit the transaction
+        except Exception as e:
+            trans.rollback()  # Rollback the transaction on error
+            logger.error(f"Error inserting network nodes: {e}", exc_info=True)
 
 # Function to insert network nodes into PostgreSQL
 def insert_network_nodes_data(engine, city_data):
@@ -133,3 +167,4 @@ def insert_network_nodes_data(engine, city_data):
         except Exception as e:
             trans.rollback()  # Rollback the transaction on error
             logger.error(f"Error inserting network nodes: {e}", exc_info=True)
+

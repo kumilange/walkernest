@@ -1,8 +1,15 @@
 import json
-from psycopg2 import DatabaseError
+import time
+from concurrent.futures import ThreadPoolExecutor
+import geopandas as gpd
 import psycopg2.pool
+from shapely.geometry import Point
+from psycopg2 import DatabaseError
 from fastapi import Depends, FastAPI, FastAPI, Depends, Query, HTTPException
+from fastapi.responses import JSONResponse
 from fastapi.staticfiles import StaticFiles
+from shapely.wkt import loads as load_wkt
+from utils.networkx import deserialize_graph, find_suitable_apartment_network_nodes, retrieve_suitable_apartments
 
 app = FastAPI()
 pool = psycopg2.pool.SimpleConnectionPool(
@@ -16,6 +23,27 @@ def get_connection():
         yield conn
     finally:
         pool.putconn(conn)
+
+def polygon_to_bbox(polygon_wkt):
+    """
+    Convert a GEOMETRY(Polygon, 4326) to "south,west,north,east" format.
+    
+    Args:
+        polygon_wkt (str): The WKT representation of the polygon.
+    
+    Returns:
+        str: The bounding box in "south,west,north,east" format.
+    """
+    # Load the polygon from WKT
+    polygon = load_wkt(polygon_wkt)
+    
+    # Get the bounding box (minx, miny, maxx, maxy)
+    minx, miny, maxx, maxy = polygon.bounds
+    
+    # Format as "south,west,north,east"
+    bbox_str = f"{miny},{minx},{maxy},{maxx}"
+    
+    return bbox_str
 
 
 @app.get("/health")
@@ -58,25 +86,115 @@ def get_geojsons(city_id: int = Query(...), name: str = Query(...), conn=Depends
     except Exception as e:
         raise HTTPException(status_code=500, detail=f"An error occurred: {e}")
 
+def fetch_network_graph(cur, city_id):
+    cur.execute("""
+        SELECT graph
+        FROM network_graphs
+        WHERE city_id = %s
+    """, (city_id,))
+    row = cur.fetchone()
+    if row:
+        return row[0]
+    else:
+        raise HTTPException(status_code=404, detail="Network graph not found")
+        
+def fetch_nodes(cur, city_id):
+    cur.execute("""
+        SELECT name, nodes
+        FROM network_nodes
+        WHERE city_id = %s AND name IN ('park', 'supermarket', 'apartment')
+    """, (city_id,))
+    return cur.fetchall()
+
+def fetch_geom(cur, city_id):
+    cur.execute("""
+        SELECT ST_AsText(geom) as geom
+        FROM cities
+        WHERE id = %s
+    """, (city_id,))
+    return cur.fetchone()
+
+def fetch_centroids(cur, city_id):
+    cur.execute("""
+        SELECT ST_AsGeoJSON(ST_Centroid(geom)) AS centroid, properties
+        FROM geojsons
+        WHERE city_id = %s AND name = 'apartment'
+    """, (city_id,))
+    return cur.fetchall()
+
+
 @app.get("/nwnodes")
-def get_geojsons(city_id: int = Query(...), name: str = Query(...), conn=Depends(get_connection)):
+def get_geojsons(city_id: int = Query(...), max_park_meter:int = Query(...), max_supermarket_meter:int = Query(...), conn=Depends(get_connection)):
     """
     Return the nodes JSONB list from the network_nodes table based on city_id and name.
     """
     try:
         with conn.cursor() as cur:
-            # Execute the query to fetch nodes JSONB list
-            cur.execute("""
-                SELECT nodes
-                FROM network_nodes
-                WHERE city_id = %s AND name = %s
-            """, (city_id, name))
-            row = cur.fetchone()
+            # Use ThreadPoolExecutor to parallelize database queries
+            with ThreadPoolExecutor() as executor:
+                start_time1 = time.time()
 
-        if row:
-            return row[0]
-        else:
-            raise HTTPException(status_code=404, detail="No data found for the given city_id and name")
+                future_nodes = executor.submit(fetch_nodes, cur, city_id)
+                future_centroids = executor.submit(fetch_centroids, cur, city_id)
+                future_graphs = executor.submit(fetch_network_graph, cur, city_id)
+
+                nodes_rows = future_nodes.result()
+                centroid_rows = future_centroids.result()
+                graphs_row = future_graphs.result()
+                
+                end_time1 = time.time()
+                print(f"Execution time for ThreadPoolExecutor: {end_time1 - start_time1} seconds\n")
+
+            # Store the results in a dictionary {name: nodes}
+            nodes_dict = {row[0]: row[1] for row in nodes_rows}
+
+            # Check if all required types are present
+            missing = [name for name in ['park', 'supermarket', 'apartment'] if name not in nodes_dict]
+            if missing:
+                raise HTTPException(status_code=404, detail=f"No data found for the given city_id for: {', '.join(missing)}")
+
+            apartment_nnodes = nodes_dict.get('apartment')
+            supermarket_nnodes = nodes_dict.get('supermarket')
+            park_nnodes = nodes_dict.get('park')
+
+            G = deserialize_graph(graphs_row)
+            start_time3 = time.time()
+            # Find suitable apartment network nodes
+            suitable_apartment_nnodes = find_suitable_apartment_network_nodes(
+                G, apartment_nnodes, park_nnodes, supermarket_nnodes, max_park_meter, max_supermarket_meter)
+            
+            end_time3 = time.time()
+            print(f"Execution time for find_suitable_apartment_network_nodes: {end_time3 - start_time3} seconds\n")
+
+            if centroid_rows:
+                centroids = []
+                properties_list = []
+
+                for row in centroid_rows:
+                    centroid_json = json.loads(row[0])
+                    properties = row[1]
+
+                    # Convert centroid to shapely Point
+                    centroid = Point(centroid_json['coordinates'])
+                    centroids.append(centroid)
+                    properties_list.append(properties)
+
+                # Form GeoDataFrame
+                apartment_gdf = gpd.GeoDataFrame(properties_list, geometry=centroids, crs="EPSG:4326")
+            else:
+                raise HTTPException(status_code=404, detail="Apartment not found")
+            
+            start_time4 = time.time()
+            # Retrieve suitable apartment areas from network nodes
+            suitable_apartment_gdf_with_geoms = retrieve_suitable_apartments(apartment_gdf, G, suitable_apartment_nnodes)
+
+            # Convert GeoDataFrame to GeoJSON
+            suitable_apartment_geojson = json.loads(suitable_apartment_gdf_with_geoms.to_json())
+
+            end_time4 = time.time()
+            print(f"Execution time for retrieve_suitable_apartments: {end_time4 - start_time4} seconds\n")
+
+            return JSONResponse(content=suitable_apartment_geojson)
 
     except DatabaseError as e:
         raise HTTPException(status_code=500, detail=f"Database error: {e}")

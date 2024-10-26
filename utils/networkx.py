@@ -1,7 +1,8 @@
+import json
 import numpy as np
 import osmnx as ox
 import networkx as nx
-from shapely.geometry import Point, LineString, MultiLineString
+from shapely.geometry import shape, Point, LineString, MultiLineString
 
 def create_network_graph(bbox, network_type='walk'):
     """
@@ -16,7 +17,28 @@ def create_network_graph(bbox, network_type='walk'):
     """
     south, west, north, east = map(float, bbox.split(','))
     return ox.graph_from_bbox(north, south, east, west, network_type=network_type)
-    
+
+def deserialize_graph(graph_json_str):    
+    # Ensure the input is a JSON string
+    if isinstance(graph_json_str, dict):
+        graph_json_str = json.dumps(graph_json_str)
+
+    # Deserialize the JSON string to a dictionary
+    graph_data = json.loads(graph_json_str)
+
+    # Convert GeoJSON-like dictionaries back to shapely geometries
+    for node in graph_data['nodes']:
+        if 'geometry' in node:
+            node['geometry'] = shape(node['geometry'])
+    for link in graph_data['links']:
+        if 'geometry' in link:
+            link['geometry'] = shape(link['geometry'])
+
+    # Convert the dictionary to a MultiDiGraph
+    G = nx.readwrite.json_graph.node_link_graph(graph_data, multigraph=True)
+
+    return G
+  
 def get_equally_distant_points(coords):
     total_points = len(coords)
 
@@ -104,7 +126,7 @@ def retrieve_suitable_apartments(apartments, G, suitable_apartment_nnodes):
     gpd.GeoDataFrame: Filtered GeoDataFrame of suitable apartments.
     """
     # Extract centroid coordinates
-    centroids = np.array([(geom.x, geom.y) for geom in apartments['centroid']])
+    centroids = np.array([(geom.x, geom.y) for geom in apartments['geometry']])
     
     # Calculate nearest nodes for all centroids
     nearest_nodes = ox.distance.nearest_nodes(G, centroids[:, 0], centroids[:, 1])

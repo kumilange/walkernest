@@ -2,7 +2,7 @@ import time
 import argparse
 import warnings
 import pandas as pd
-from utils.file import save_gdf_to_geojson, save_list_to_json
+from utils.file import save_gdf_to_geojson, save_graph_to_json, save_list_to_json
 from utils.data_fetcher import fetch_and_normalize_data, generate_query
 from utils.geometry import add_boundary, add_centroid, set_centroid
 from utils.networkx import convert_to_network_nodes, create_network_graph, find_suitable_apartment_network_nodes, retrieve_suitable_apartments
@@ -26,10 +26,9 @@ def main(city, bbox):
     park_gdf = fetch_and_normalize_data(park_query)
 
     # Save different types of GeoDataFrames to their respective GeoJSON files
-    save_gdf_to_geojson(apartment_gdf, city, "apartment")
-    save_gdf_to_geojson(supermarket_gdf, city, "supermarket")
-    # save_gdf_to_geojson(set_centroid(supermarket_gdf.copy()), city, "supermarket_centroid")
-    save_gdf_to_geojson(park_gdf, city, "park")
+    # save_gdf_to_geojson(apartment_gdf, city, "apartment")
+    # save_gdf_to_geojson(supermarket_gdf, city, "supermarket")
+    # save_gdf_to_geojson(park_gdf, city, "park")
 
     # Add centroids and boundary to the DataFrames
     apartments = add_centroid(apartment_gdf)
@@ -38,6 +37,11 @@ def main(city, bbox):
     
 	# Convert centroids and boundary to network nodes
     G = create_network_graph(bbox)
+    # Save network graph to JSON file
+    save_graph_to_json(G, city)
+
+    return
+
     apartment_nnodes = convert_to_network_nodes(G, apartments)
     supermarket_nnodes = convert_to_network_nodes(G, supermarkets)
     park_nnodes = convert_to_network_nodes(G, parks, use_centroid=False)
@@ -46,8 +50,6 @@ def main(city, bbox):
     save_list_to_json(apartment_nnodes, city, "apartment")
     save_list_to_json(supermarket_nnodes, city, "supermarket")
     save_list_to_json(park_nnodes, city, "park")
-
-    return
 
     # Find suitable apartment network nodes
     suitable_apartment_nnodes = find_suitable_apartment_network_nodes(

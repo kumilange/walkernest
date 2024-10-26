@@ -1,5 +1,5 @@
 import os
-from utils.postgis import initialize_tables, insert_city_data, insert_geojson_data, insert_network_nodes_data, load_city_data
+from utils.postgis import initialize_tables, insert_city_data, insert_geojson_data, insert_network_graphs_data, insert_network_nodes_data, load_city_data
 from sqlalchemy import create_engine, text
 
 # Connect to PostgreSQL
@@ -24,5 +24,7 @@ initialize_tables(engine)
 insert_city_data(engine, city_data)
 # geojson data
 insert_geojson_data(engine, city_data)
+# network graph
+insert_network_graphs_data(engine, city_data)
 # network nodes
 insert_network_nodes_data(engine, city_data)
