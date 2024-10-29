@@ -126,7 +126,7 @@ def retrieve_suitable_apartments(apartments, G, suitable_apartment_nnodes):
     gpd.GeoDataFrame: Filtered GeoDataFrame of suitable apartments.
     """
     # Extract centroid coordinates
-    centroids = np.array([(geom.x, geom.y) for geom in apartments['geometry']])
+    centroids = np.array([(geom.x, geom.y) for geom in apartments['centroid']])
     
     # Calculate nearest nodes for all centroids
     nearest_nodes = ox.distance.nearest_nodes(G, centroids[:, 0], centroids[:, 1])
