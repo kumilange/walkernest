@@ -33,19 +33,6 @@ services:
       interval: 10s
       timeout: 10s
       retries: 10
-  seed-script:
-    build:
-      context: .
-      dockerfile: Dockerfile.seed
-    depends_on:
-      postgis:
-        condition: service_healthy
-    env_file:
-      - .env
-    volumes:
-      - .:/app
-    working_dir: /app
-    command: ['python', 'seed.py']
 volumes:
   postgis-data:
     driver: local

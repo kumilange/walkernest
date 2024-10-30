@@ -1,19 +1,24 @@
-# Use an official Python runtime as a parent image
-FROM python:3.9-slim
+FROM osgeo/gdal:alpine-small-latest
 
-# Set the working directory in the container
-WORKDIR /app
+# Install PostgreSQL client and jq
+RUN apk add --no-cache postgresql-client jq
 
-# Copy the current directory contents into the container at /app
-COPY . /app
+# Set environment variables for database connection
+ENV DB_USERNAME=your_db_username
+ENV DB_PASSWORD=your_db_password
+ENV DB_HOST=your_db_host
+ENV DB_PORT=your_db_port
+ENV DB_NAME=your_db_name
 
-# Install any needed packages specified in requirements.txt
-RUN pip install --no-cache-dir -r requirements.txt
+# Copy seed script and data files
+COPY seed.sh /usr/local/bin/seed.sh
+COPY citylist.json /data/citylist.json
+COPY geojson /data/geojson
+COPY network_graphs /data/network_graphs
+COPY network_nodes /data/network_nodes
 
-# Install additional dependencies
-RUN apt-get update && apt-get install -y \
-    libpq-dev \
-    && rm -rf /var/lib/apt/lists/*
+# Make the seed script executable
+RUN chmod +x /usr/local/bin/seed.sh
 
-# Run seed.py when the container launches
-CMD ["python", "seed.py"]
+# Run the seed script
+CMD ["/usr/local/bin/seed.sh"]

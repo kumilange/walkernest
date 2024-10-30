@@ -135,26 +135,37 @@ def create_geodataframe_with_centroid(rows):
     properties_list = []
 
     for row in rows:
-        geom_json = json.loads(row[0])
-        centroid_json = json.loads(row[1])
-        properties = row[2]
+        try:
+            if row[0] is None or row[1] is None:
+                raise ValueError("Row contains None value")
 
-        # Convert GeoJSON to shapely geometries
-        geometry = shape(geom_json)
-        centroid = Point(centroid_json['coordinates'])
+            geom_json = json.loads(row[0])
+            centroid_json = json.loads(row[1])
+            properties = row[2]
 
-        geometries.append(geometry)
-        centroids.append(centroid)
-        properties_list.append(properties)
+            # Convert GeoJSON to shapely geometries
+            geometry = shape(geom_json)
+            centroid = Point(centroid_json['coordinates'])
+
+            geometries.append(geometry)
+            centroids.append(centroid)
+            properties_list.append(properties)
+        except (ValueError, TypeError) as e:
+            print(f"Error processing row {row}: {e}")
+        except Exception as e:
+            print(f"Unexpected error processing row {row}: {e}")
 
     # Create GeoDataFrame
-    gdf = gpd.GeoDataFrame(properties_list, geometry=geometries, crs="EPSG:4326")
-    gdf['centroid'] = centroids
+    try:
+        gdf = gpd.GeoDataFrame(properties_list, geometry=geometries, crs="EPSG:4326")
+        gdf['centroid'] = centroids
+    except Exception as e:
+        raise ValueError(f"Error creating GeoDataFrame: {e}")
 
     return gdf
 
-@app.get("/nwnodes")
-def get_geojsons(city_id: int = Query(...), max_park_meter:int = Query(...), max_supermarket_meter:int = Query(...), conn=Depends(get_connection)):
+@app.get("/analyze")
+def get_suitable_apartments(city_id: int = Query(...), max_park_meter:int = Query(...), max_supermarket_meter:int = Query(...), conn=Depends(get_connection)):
     """
     Return the nodes JSONB list from the network_nodes table based on city_id and name.
     """
@@ -187,23 +198,36 @@ def get_geojsons(city_id: int = Query(...), max_park_meter:int = Query(...), max
             supermarket_nnodes = nodes_dict.get('supermarket')
             park_nnodes = nodes_dict.get('park')
 
-            G = deserialize_graph(graphs_row)
+            try:
+                G = deserialize_graph(graphs_row)
+            except Exception as e:
+                print(f"Error deserializing graph: {e}")
+                raise HTTPException(status_code=500, detail=f"Error deserializing graph: {e}")
 
             start_time3 = time.time()
-            # Find suitable apartment network nodes
-            suitable_apartment_nnodes = find_suitable_apartment_network_nodes(
-                G, apartment_nnodes, park_nnodes, supermarket_nnodes, max_park_meter, max_supermarket_meter)
+            try:
+                # Find suitable apartment network nodes
+                suitable_apartment_nnodes = find_suitable_apartment_network_nodes(
+                    G, apartment_nnodes, park_nnodes, supermarket_nnodes, max_park_meter, max_supermarket_meter)
+            except Exception as e:
+                print(f"Error in find_suitable_apartment_network_nodes: {e}")
+                raise HTTPException(status_code=500, detail=f"Error in find_suitable_apartment_network_nodes: {e}")
             end_time3 = time.time()
             print(f"Execution time for find_suitable_apartment_network_nodes: {end_time3 - start_time3} seconds\n")
 
-            if geom_centroid_rows:
+            try:
                 apartment_gdf = create_geodataframe_with_centroid(geom_centroid_rows)
-            else:
-                raise HTTPException(status_code=404, detail="Apartment not found")
+            except Exception as e:
+                print(f"Error creating GeoDataFrame: {e}")
+                raise HTTPException(status_code=500, detail=f"Error creating GeoDataFrame: {e}")
             
             start_time4 = time.time()
-            # Retrieve suitable apartment areas from network nodes
-            suitable_apartment_gdf_with_geoms = retrieve_suitable_apartments(apartment_gdf, G, suitable_apartment_nnodes)
+            try:
+                # Retrieve suitable apartment areas from network nodes
+                suitable_apartment_gdf_with_geoms = retrieve_suitable_apartments(apartment_gdf, G, suitable_apartment_nnodes)
+            except Exception as e:
+                print(f"Error retrieving suitable apartments: {e}")
+                raise HTTPException(status_code=500, detail=f"Error retrieving suitable apartments: {e}")
             end_time4 = time.time()
             print(f"Execution time for retrieve_suitable_apartments: {end_time4 - start_time4} seconds\n")
 
