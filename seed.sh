@@ -40,7 +40,6 @@ CREATE TABLE IF NOT EXISTS network_graphs (
     graph JSONB NOT NULL
 );
 CREATE INDEX idx_network_graphs_city_id ON network_graphs (city_id);
-CREATE INDEX idx_network_graphs_graph ON network_graphs USING GIN (graph);
 
 DROP TABLE IF EXISTS network_nodes;
 CREATE TABLE IF NOT EXISTS network_nodes (
@@ -49,8 +48,6 @@ CREATE TABLE IF NOT EXISTS network_nodes (
     name VARCHAR(50) CHECK (name IN ('park', 'supermarket', 'apartment')) NOT NULL,
     nodes JSONB NOT NULL
 );
-CREATE INDEX idx_network_nodes_city_id ON network_nodes (city_id);
-CREATE INDEX idx_network_nodes_nodes ON network_nodes USING GIN (nodes);
 COMMIT;
 EOF
 

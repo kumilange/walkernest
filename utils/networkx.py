@@ -125,14 +125,21 @@ def retrieve_suitable_apartments(apartments, G, suitable_apartment_nnodes):
     Returns:
     gpd.GeoDataFrame: Filtered GeoDataFrame of suitable apartments.
     """
-    # Extract centroid coordinates
-    centroids = np.array([(geom.x, geom.y) for geom in apartments['centroid']])
-    
-    # Calculate nearest nodes for all centroids
-    nearest_nodes = ox.distance.nearest_nodes(G, centroids[:, 0], centroids[:, 1])
-    
-    apartments['nearest_node'] = nearest_nodes
-    filtered_apartments = apartments[apartments['nearest_node'].isin(suitable_apartment_nnodes)]
-    filtered_apartments = filtered_apartments.drop(columns=['nearest_node'])
-    
-    return filtered_apartments
+    try:
+        # Extract centroid coordinates
+        centroids = np.array([(geom.x, geom.y) for geom in apartments['centroid']])
+
+        # Ensure centroids array is 2-dimensional
+        if centroids.ndim != 2 or centroids.shape[1] != 2:
+            raise ValueError("Centroids array must be 2-dimensional with shape (n, 2)")
+
+        # Calculate nearest nodes for all centroids
+        nearest_nodes = ox.distance.nearest_nodes(G, centroids[:, 0], centroids[:, 1])
+
+        apartments['nearest_node'] = nearest_nodes
+        filtered_apartments = apartments[apartments['nearest_node'].isin(suitable_apartment_nnodes)]
+        filtered_apartments = filtered_apartments.drop(columns=['nearest_node'])
+
+        return filtered_apartments
+    except Exception as e:
+        raise ValueError(f"Error retrieving suitable apartments: {e}")

@@ -175,13 +175,26 @@ def get_suitable_apartments(city_id: int = Query(...), max_park_meter:int = Quer
             with ThreadPoolExecutor() as executor:
                 start_time1 = time.time()
 
+                # Measure time for fetch_nodes
+                start_time_nodes = time.time()
                 future_nodes = executor.submit(fetch_nodes, cur, city_id)
-                future_geom_and_centroid = executor.submit(fetch_geom_and_centroid, cur, city_id, "apartment")
-                future_graphs = executor.submit(fetch_network_graph, cur, city_id)
-
                 nodes_rows = future_nodes.result()
+                end_time_nodes = time.time()
+                print(f"Time taken for fetch_nodes: {end_time_nodes - start_time_nodes} seconds")
+
+                # Measure time for fetch_geom_and_centroid
+                start_time_geom_and_centroid = time.time()
+                future_geom_and_centroid = executor.submit(fetch_geom_and_centroid, cur, city_id, "apartment")
                 geom_centroid_rows = future_geom_and_centroid.result()
+                end_time_geom_and_centroid = time.time()
+                print(f"Time taken for fetch_geom_and_centroid: {end_time_geom_and_centroid - start_time_geom_and_centroid} seconds")
+
+                # Measure time for fetch_network_graph
+                start_time_graphs = time.time()
+                future_graphs = executor.submit(fetch_network_graph, cur, city_id)
                 graphs_row = future_graphs.result()
+                end_time_graphs = time.time()
+                print(f"Time taken for fetch_network_graph: {end_time_graphs - start_time_graphs} seconds")
                 
                 end_time1 = time.time()
                 print(f"Execution time for ThreadPoolExecutor: {end_time1 - start_time1} seconds\n")
