@@ -2,17 +2,10 @@ import requests
 import geopandas as gpd
 from utils.geometry import create_geometry, filter_properties
 
-def generate_query(bbox, key_value_pairs):
-    """
-    Generates an Overpass API query based on the bounding box and key-value pairs.
-    
-    :param bbox: The bounding box for the query.
-    :param key_value_pairs: A list of tuples containing key-value pairs for the query.
-    :return: A formatted Overpass API query string.
-    """
-    query = f"[out:json][timeout:25][bbox:{bbox}];\n(\n"
+def generate_query(poly_string, key_value_pairs):
+    query = f"[out:json][timeout:25];\n(\n"
     for key, value in key_value_pairs:
-        query += f'  nwr["{key}"="{value}"];\n'
+        query += f'  nwr["{key}"="{value}"](poly:"{poly_string}");\n'
     query += ");\nout geom;\n>;\nout skel qt;\n"
     return query
 

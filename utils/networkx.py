@@ -2,21 +2,49 @@ import json
 import numpy as np
 import osmnx as ox
 import networkx as nx
+from shapely import MultiPolygon, Polygon
 from shapely.geometry import shape, Point, LineString, MultiLineString
 
-def create_network_graph(bbox, network_type='walk'):
+# def create_network_graph(bbox, network_type='walk'):
+#     """
+#     Create a graph from a bounding box string.
+
+#     Parameters:
+#     bbox (str): The bounding box string in the format "south,west,north,east".
+#     network_type (str): The type of network to create (default is 'walk').
+
+#     Returns:
+#     networkx.Graph: The graph representing the road network within the bounding box.
+#     """
+#     south, west, north, east = map(float, bbox.split(','))
+#     return ox.graph_from_bbox(north, south, east, west, network_type=network_type)
+
+def create_network_graph(geometry):
     """
-    Create a graph from a bounding box string.
+    Create a network graph from a given geometry (Polygon or MultiPolygon).
 
     Parameters:
-    bbox (str): The bounding box string in the format "south,west,north,east".
-    network_type (str): The type of network to create (default is 'walk').
+    geometry (Polygon or MultiPolygon): The geometry to create the network graph from.
 
     Returns:
-    networkx.Graph: The graph representing the road network within the bounding box.
+    networkx.MultiDiGraph: The created network graph.
     """
-    south, west, north, east = map(float, bbox.split(','))
-    return ox.graph_from_bbox(north, south, east, west, network_type=network_type)
+    if isinstance(geometry, Polygon):
+        # Create network graph from Polygon
+        G = ox.graph_from_polygon(geometry, network_type='walk')
+    elif isinstance(geometry, MultiPolygon):
+        # Create network graph from MultiPolygon by combining graphs from each Polygon
+        G = None
+        for polygon in geometry.geoms:
+            if G is None:
+                G = ox.graph_from_polygon(polygon, network_type='walk')
+            else:
+                G_new = ox.graph_from_polygon(polygon, network_type='walk')
+                G = ox.utils_graph.graph_union(G, G_new)
+    else:
+        raise TypeError("Unsupported geometry type")
+
+    return G
 
 def deserialize_graph(graph_json_str):    
     # Ensure the input is a JSON string

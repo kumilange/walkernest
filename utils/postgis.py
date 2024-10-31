@@ -87,7 +87,7 @@ def insert_city_data(engine, city_data):
 
 # Insert data into the geojsons table
 def insert_geojson_data(engine, city_data):
-    geojson_dir = './geojson'
+    geojson_dir = 'data/geojson'
     with engine.connect() as conn:
         trans = conn.begin()  # Begin a transaction
         try:

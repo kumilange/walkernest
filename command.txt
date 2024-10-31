@@ -7,17 +7,7 @@ source venv/bin/activate
 deactivate
 (This command deactivates the virtual environment, returning the shell to its normal state.)
 
-python dataset.py --csv citylist.csv
-(This command runs the dataset script with the argument --csv citylist.csv. The script likely processes the citylist.csv file.)
-
-PostgreSQL
-### runs a Docker with PostgreSQL and PostGIS ###
-docker run --name postgis \
--e POSTGRES_DB=gis \
--e POSTGRES_USER=postgres \
--e POSTGRES_PASSWORD=postgres \
--p 5432:5432 \
--d kartoza/postgis:16-3.4
+python pregenerate-dataset.py --csv cdphe_open_data/target_citylist.csv --geojson cdphe_open_data/Colorado_City_Boundaries.geojson
 
 ### enter the shell on the running container
 docker exec -it postgis /bin/bash
