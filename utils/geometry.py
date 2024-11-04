@@ -86,8 +86,16 @@ def add_boundary(gdf):
             return geometry.boundary
         elif isinstance(geometry, LineString):
             return geometry
-        elif isinstance(geometry, (MultiPolygon, MultiLineString)):
-            return MultiLineString([part.boundary for part in geometry.geoms])
+        elif isinstance(geometry, MultiPolygon):
+            boundaries = []
+            for part in geometry.geoms:
+                if isinstance(part.boundary, MultiLineString):
+                    boundaries.extend(part.boundary.geoms)
+                else:
+                    boundaries.append(part.boundary)
+            return MultiLineString(boundaries)
+        elif isinstance(geometry, MultiLineString):
+            return MultiLineString([part for part in geometry.geoms])
         else:
             raise TypeError("Unsupported geometry type")
 

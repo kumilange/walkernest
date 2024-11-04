@@ -21,3 +21,6 @@ SELECT postgis_version();
 
 ### docker-compose
 docker-compose up --build
+
+### build docker file and run it
+docker build -t seed-image -f Dockerfile.seed . && docker run --rm -it seed-image

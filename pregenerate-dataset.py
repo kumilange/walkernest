@@ -41,10 +41,22 @@ def main(city, geometry):
     apartments = add_centroid(apartment_gdf)
     supermarkets = add_centroid(supermarket_gdf)
     parks = add_boundary(park_gdf)
+
     # Convert GeoDataFrames to network nodes
-    apartment_nnodes = convert_to_network_nodes(G, apartments)
+    start_time3 = time.time()
     supermarket_nnodes = convert_to_network_nodes(G, supermarkets)
+    end_time3 = time.time()
+    print(f"convert_to_network_nodes/supermarket : {end_time3 - start_time3} seconds")
+
+    start_time2 = time.time()
+    apartment_nnodes = convert_to_network_nodes(G, apartments)
+    end_time2 = time.time()
+    print(f"convert_to_network_nodes/apartment : {end_time2 - start_time2} seconds")
+
+    start_time4 = time.time()
     park_nnodes = convert_to_network_nodes(G, parks, use_centroid=False)
+    end_time4 = time.time()
+    print(f"convert_to_network_nodes/park : {end_time4 - start_time4} seconds")
     # Save different types of GeoDataFrames to their respective GeoJSON files
     save_list_to_json(apartment_nnodes, city, "apartment")
     save_list_to_json(supermarket_nnodes, city, "supermarket")
@@ -87,7 +99,7 @@ if __name__ == "__main__":
             objectid = row['OBJECTID'] 
             try:
                 geometry = get_geometry_by_objectid(geojson_data, objectid)
-                print(f"Execution start for {city}")
+                print(f"\nExecution start for {city}")
                 start_time = time.time()
                 main(city, geometry)  # Call the main function
                 citylist[city.lower()] = {

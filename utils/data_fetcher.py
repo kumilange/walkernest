@@ -20,7 +20,8 @@ def fetch_and_normalize_data(query):
     gpd.GeoDataFrame: A GeoDataFrame containing the normalized data.
     """
     overpass_url = "http://overpass-api.de/api/interpreter"
-    response = requests.get(overpass_url, params={'data': query})
+    payload = {"data": query}
+    response = requests.post(overpass_url, data=payload)
     response.raise_for_status()
     data = response.json()
 

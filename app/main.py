@@ -165,7 +165,7 @@ def create_geodataframe_with_centroid(rows):
     return gdf
 
 @app.get("/analyze")
-def get_suitable_apartments(city_id: int = Query(...), max_park_meter:int = Query(...), max_supermarket_meter:int = Query(...), conn=Depends(get_connection)):
+def analyze_suitable_apartments(city_id: int = Query(...), max_park_meter:int = Query(...), max_supermarket_meter:int = Query(...), conn=Depends(get_connection)):
     """
     Return the nodes JSONB list from the network_nodes table based on city_id and name.
     """
