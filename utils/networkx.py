@@ -23,21 +23,21 @@ def create_network_graph(geometry):
 
     return G
 
-def deserialize_graph(graph_data):    
-    # # Ensure the input is a JSON string
-    # if isinstance(graph_json_str, dict):
-    #     graph_json_str = json.dumps(graph_json_str)
+def deserialize_graph(graph_json_str):    
+    # Ensure the input is a JSON string
+    if isinstance(graph_json_str, dict):
+        graph_json_str = json.dumps(graph_json_str)
 
-    # # Deserialize the JSON string to a dictionary
-    # graph_data = json.loads(graph_json_str)
+    # Deserialize the JSON string to a dictionary
+    graph_data = json.loads(graph_json_str)
 
-    # # Convert GeoJSON-like dictionaries back to shapely geometries
-    # for node in graph_data['nodes']:
-    #     if 'geometry' in node:
-    #         node['geometry'] = shape(node['geometry'])
-    # for link in graph_data['links']:
-    #     if 'geometry' in link:
-    #         link['geometry'] = shape(link['geometry'])
+    # Convert GeoJSON-like dictionaries back to shapely geometries
+    for node in graph_data['nodes']:
+        if 'geometry' in node:
+            node['geometry'] = shape(node['geometry'])
+    for link in graph_data['links']:
+        if 'geometry' in link:
+            link['geometry'] = shape(link['geometry'])
 
     # Convert the dictionary to a MultiDiGraph
     G = nx.readwrite.json_graph.node_link_graph(graph_data, multigraph=True)

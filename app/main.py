@@ -11,8 +11,6 @@ from fastapi import Depends, FastAPI, FastAPI, Depends, Query, HTTPException
 from fastapi.responses import JSONResponse
 from fastapi.staticfiles import StaticFiles
 from shapely.wkt import loads as load_wkt
-# from neo4j import GraphDatabase, exceptions
-from py2neo import Graph
 from utils.geometry import set_centroid
 from utils.networkx import deserialize_graph, find_suitable_apartment_network_nodes, retrieve_suitable_apartments
 
@@ -32,7 +30,7 @@ NEO4J_PASSWORD = os.getenv('NEO4J_PASSWORD', 'testpassword')
 # Create a Neo4j driver instance
 # driver = GraphDatabase.driver(NEO4J_URI, auth=(NEO4J_USERNAME, NEO4J_PASSWORD))
 # Initialize Neo4j graph connection
-graph = Graph(NEO4J_URI, auth=(NEO4J_USERNAME, NEO4J_PASSWORD))
+# graph = Graph(NEO4J_URI, auth=(NEO4J_USERNAME, NEO4J_PASSWORD))
 
 # Dependency to get a database connection
 def get_connection():
@@ -101,7 +99,19 @@ def get_geojsons(city_id: int = Query(...), name: str = Query(...), conn=Depends
 
     except Exception as e:
         raise HTTPException(status_code=500, detail=f"An error occurred: {e}")
-        
+    
+def fetch_network_graph(cur, city_id):
+    cur.execute("""
+        SELECT graph
+        FROM network_graphs
+        WHERE city_id = %s
+    """, (city_id,))
+    row = cur.fetchone()
+    if row:
+        return row[0]
+    else:
+        raise HTTPException(status_code=404, detail="Network graph not found")
+
 def fetch_nodes(cur, city_id):
     cur.execute("""
         SELECT name, nodes
@@ -134,136 +144,7 @@ def fetch_geom_and_centroid(cur, city_id, name):
     """, (city_id, name))
     return cur.fetchall()
 
-def construct_graph_data(graph, city_id):
-    # Query to get all nodes for a given city
-    cypher_query_nodes = """
-    MATCH (n:Node {city_id: $city_id})
-    RETURN n.id AS id, n.latitude AS y, n.longitude AS x, 
-           n.street_count AS street_count, n.highway AS highway
-    """
-    nodes = graph.run(cypher_query_nodes, parameters={"city_id": city_id}).data()
 
-    # Convert the node data to the desired format
-    node_data = [
-        {
-            "id": node['id'],
-            "x": node['x'],
-            "y": node['y'],
-            "street_count": node['street_count'],
-            "highway": node.get('highway', None)
-        }
-        for node in nodes
-    ]
-
-    # Query to get all links for a given city
-    cypher_query_links = """
-    MATCH (source:Node)-[r:LINK]->(target:Node {city_id: $city_id})
-    RETURN r.osmid AS osmid, r.oneway AS oneway, r.lanes AS lanes, 
-           r.ref AS ref, r.name AS name, r.highway AS highway, 
-           r.maxspeed AS maxspeed, r.reversed AS reversed, 
-           r.length AS length, r.geometry AS geometry, 
-           source.id AS source, target.id AS target, r.key AS key
-    """
-    links = graph.run(cypher_query_links, parameters={"city_id": city_id}).data()
-
-    # Convert the link data to the desired format
-    link_data = [
-        {
-            "osmid": link['osmid'],
-            "oneway": link.get('oneway', None),
-            "lanes": link.get('lanes', None),
-            "ref": link.get('ref', None),
-            "name": link.get('name', None),
-            "highway": link.get('highway', None),
-            "maxspeed": link.get('maxspeed', None),
-            "reversed": link.get('reversed', None),
-            "length": link.get('length', None),
-            "geometry": link.get('geometry', {}),
-            "source": link['source'],
-            "target": link['target'],
-            "key": link['key']
-        }
-        for link in links
-    ]
-
-    # Construct the final graph data as a JSON object
-    graph_data = {
-        "directed": True,  # assuming the graph is directed
-        "multigraph": False,  # assuming it's not a multigraph
-        "graph": {
-            "created_date": "2024-11-05 22:03:37",  # can be dynamic if needed
-            "created_with": "CustomGraphBuilder",  # or any tool name you prefer
-            "crs": "epsg:4326",  # assuming coordinate reference system
-            "simplified": False  # or True, based on your graph processing
-        },
-        "nodes": node_data,
-        "links": link_data
-    }
-
-    return graph_data
-
-# Function to fetch nodes and links by city_id
-# def fetch_data_by_city_id(city_id: int, driver: GraphDatabase.driver):
-#     # Query for nodes
-#     query_nodes = """
-#     MATCH (n:NetworkNode {city_id: $city_id})
-#     RETURN n.id AS id, n.x AS x, n.y AS y, n.street_count AS street_count, n.highway AS highway
-#     """
-    
-#     # Query for links
-#     query_links = """
-#     MATCH (l:NetworkLink {city_id: $city_id})
-#     RETURN l.osmid AS osmid, l.oneway AS oneway, l.lanes AS lanes, l.name AS name, 
-#            l.highway AS highway, l.reversed AS reversed, l.length AS length, 
-#            l.geometry AS geometry, l.source AS source, l.target AS target, l.key AS key
-#     """
-    
-#     try:
-#         logger.debug(f"Fetching data for city_id: {city_id}")
-        
-#         with driver.session() as session:
-#             # Run queries for nodes and links
-#             logger.debug(f"Running query for nodes")
-#             nodes_data = session.run(query_nodes, city_id=city_id)
-#             nodes = [{
-#                 "id": node["id"], 
-#                 "x": node["x"], 
-#                 "y": node["y"], 
-#                 "street_count": node["street_count"], 
-#                 "highway": node["highway"]
-#             } for node in nodes_data]
-#             logger.debug(f"Nodes query executed successfully, fetched {len(nodes)} nodes")
-            
-#             # logger.debug(f"Running query for links")
-#             # links_data = session.run(query_links, city_id=city_id)
-#             # links = [{
-#             #     "source": link["source"],
-#             #     "target": link["target"],
-#             #     "osmid": link["osmid"],
-#             #     "highway": link["highway"],
-#             #     "length": link["length"],
-#             #     "oneway": link["oneway"],
-#             #     "lanes": link["lanes"],
-#             #     "name": link["name"],
-#             #     "reversed": link["reversed"],
-#             #     "geometry": link["geometry"],
-#             #     "key": link["key"]
-#             # } for link in links_data]
-#             # logger.debug(f"Links query executed successfully, fetched {len(links)} links")
-            
-#             # Construct the graph data into JSON format
-#             graph = {
-#                 "nodes": nodes,
-#                 # "links": links
-#             }
-
-#             logger.debug("Graph data successfully constructed")
-#             return json.dumps(graph)  # Returning graph data as a JSON string
-
-#     except Exception as e:
-#         logger.error(f"Error fetching data for city_id {city_id}: {str(e)}")
-#         raise HTTPException(status_code=500, detail=str(e))
-    
 def create_geodataframe_with_centroid(rows):    
     geometries = []
     centroids = []
@@ -326,9 +207,8 @@ def analyze_suitable_apartments(city_id: int = Query(...), max_park_meter:int = 
 
                 # Measure time for fetch_network_graph
                 start_time_graphs = time.time()
-                future_graphs = executor.submit(construct_graph_data, graph, city_id)
+                future_graphs = executor.submit(fetch_network_graph, cur, city_id)
                 graphs_data = future_graphs.result()
-                print(f"graphs_data: {graphs_data}")
                 end_time_graphs = time.time()
                 print(f"Time taken for fetch_network_graph: {end_time_graphs - start_time_graphs} seconds")
                 

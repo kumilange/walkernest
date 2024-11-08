@@ -62,6 +62,8 @@ def main(city, geometry):
     save_list_to_json(supermarket_nnodes, city, "supermarket")
     save_list_to_json(park_nnodes, city, "park")
 
+    return
+
     # Find suitable apartment network nodes
     suitable_apartment_nnodes = find_suitable_apartment_network_nodes(
         G, apartment_nnodes, park_nnodes, supermarket_nnodes, MAX_DISTANCE_PARK, MAX_DISTANCE_SUPERMARKET)

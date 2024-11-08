@@ -39,6 +39,14 @@ CREATE TABLE IF NOT EXISTS geojsons (
 );
 CREATE INDEX idx_geojsons_geom ON geojsons USING GIST (geom);
 
+DROP TABLE IF EXISTS network_graphs;
+CREATE TABLE IF NOT EXISTS network_graphs (
+    id SERIAL PRIMARY KEY,
+    city_id INTEGER NOT NULL,
+    graph JSONB NOT NULL
+);
+CREATE INDEX idx_network_graphs_city_id ON network_graphs (city_id);
+
 DROP TABLE IF EXISTS network_nodes;
 CREATE TABLE IF NOT EXISTS network_nodes (
     id SERIAL PRIMARY KEY,
@@ -90,6 +98,26 @@ INSERT INTO geojsons (city_id, name, geom, properties) VALUES ($CITY_ID, '$NAME'
 COMMIT;
 EOF
         done
+      fi
+    fi
+  done
+fi
+
+# Insert network graphs data
+log "Inserting network graphs data..."
+NETWORK_GRAPHS_DIR='/data/network_graphs'
+if [ -d "$NETWORK_GRAPHS_DIR" ] && [ "$(ls -A $NETWORK_GRAPHS_DIR)" ]; then
+  for FILE in $NETWORK_GRAPHS_DIR/*.json; do
+    if [ -f "$FILE" ]; then
+      CITY_NAME=$(basename "$FILE" .json | cut -d'_' -f1)
+      if echo "$CITY_DATA" | jq -e --arg CITY_NAME "$CITY_NAME" 'has($CITY_NAME)' > /dev/null; then
+        CITY_ID=$(echo "$CITY_DATA" | jq -r --arg CITY_NAME "$CITY_NAME" '.[$CITY_NAME].id')
+        GRAPH=$(cat "$FILE")
+        psql $CONNECTION_STRING <<EOF
+BEGIN;
+INSERT INTO network_graphs (city_id, graph) VALUES ($CITY_ID, \$\$${GRAPH}\$\$);
+COMMIT;
+EOF
       fi
     fi
   done

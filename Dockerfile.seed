@@ -14,13 +14,14 @@ ENV DB_NAME=gis
 RUN mkdir -p /data/geojson /data/network_graphs /data/network_nodes
 
 # Copy seed script and data files
-COPY seed-postgis.sh /usr/local/bin/seed-postgis.sh
+COPY seed.sh /usr/local/bin/seed.sh
 COPY data/citylist.json /data/citylist.json
 COPY data/geojson /data/geojson
+COPY data/network_graphs /data/network_graphs
 COPY data/network_nodes /data/network_nodes
 
 # Make the seed script executable
-RUN chmod +x /usr/local/bin/seed-postgis.sh
+RUN chmod +x /usr/local/bin/seed.sh
 
 # Run the seed script
-CMD ["/usr/local/bin/seed-postgis.sh"]
+CMD ["/usr/local/bin/seed.sh"]
