@@ -1,0 +1,17 @@
+# Use an official Python runtime as a parent image
+FROM python:3.9-slim
+
+# Set the working directory in the container
+WORKDIR /app
+
+# Copy the current directory contents into the container at /app
+COPY . /app
+
+# Install py2neo and pathlib
+RUN pip install py2neo pathlib
+
+# Make port 7474 and 7687 available to the world outside this container
+EXPOSE 7474 7687
+
+# Run seed-neo4j.py when the container launches
+CMD ["python", "seed-neo4j.py"]

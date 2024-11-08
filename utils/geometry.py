@@ -1,5 +1,10 @@
 from shapely.geometry import shape, Polygon, Point, LineString, MultiPolygon, MultiLineString
 
+# Function to set CRS if not already set
+def ensure_crs(gdf, crs="EPSG:4326"):
+    if gdf.crs is None:
+        gdf.set_crs(crs, inplace=True)
+    return gdf
 
 def get_geometry_by_objectid(geojson_data, objectid):
     """

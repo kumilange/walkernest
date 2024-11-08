@@ -1,0 +1,26 @@
+FROM osgeo/gdal:alpine-small-3.2.1
+
+# Install PostgreSQL client, jq, and dependencies for Neo4j client tools
+RUN apk add --no-cache postgresql-client jq
+
+# Set environment variables for database connection
+ENV DB_USERNAME=postgres
+ENV DB_PASSWORD=postgres
+ENV DB_HOST=postgis
+ENV DB_PORT=5432
+ENV DB_NAME=gis
+
+# Create directories
+RUN mkdir -p /data/geojson /data/network_graphs /data/network_nodes
+
+# Copy seed script and data files
+COPY seed-postgis.sh /usr/local/bin/seed-postgis.sh
+COPY data/citylist.json /data/citylist.json
+COPY data/geojson /data/geojson
+COPY data/network_nodes /data/network_nodes
+
+# Make the seed script executable
+RUN chmod +x /usr/local/bin/seed-postgis.sh
+
+# Run the seed script
+CMD ["/usr/local/bin/seed-postgis.sh"]

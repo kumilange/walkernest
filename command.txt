@@ -23,4 +23,4 @@ SELECT postgis_version();
 docker-compose up --build
 
 ### build docker file and run it
-docker build -t seed-image -f Dockerfile.seed . && docker run --rm -it seed-image
+docker build -t seed-image -f Dockerfile.seed-neo4j . && docker run --rm -it seed-image
