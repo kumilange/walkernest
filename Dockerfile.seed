@@ -4,11 +4,11 @@ FROM osgeo/gdal:alpine-small-3.2.1
 RUN apk add --no-cache postgresql-client jq
 
 # Set environment variables for database connection
-ENV DB_USERNAME=your_db_username
-ENV DB_PASSWORD=your_db_password
-ENV DB_HOST=your_db_host
-ENV DB_PORT=your_db_port
-ENV DB_NAME=your_db_name
+ENV DB_USERNAME=postgres
+ENV DB_PASSWORD=postgres
+ENV DB_HOST=postgis
+ENV DB_PORT=5432
+ENV DB_NAME=gis
 
 # Create directories
 RUN mkdir -p /data/geojson /data/network_graphs /data/network_nodes

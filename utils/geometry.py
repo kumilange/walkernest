@@ -1,6 +1,5 @@
 from shapely.geometry import shape, Polygon, Point, LineString, MultiPolygon, MultiLineString
 
-
 def get_geometry_by_objectid(geojson_data, objectid):
     """
     Get the geometry for a given OBJECTID from the GeoJSON data.

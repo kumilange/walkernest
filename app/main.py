@@ -1,14 +1,14 @@
 import json
 import time
-from concurrent.futures import ThreadPoolExecutor
-import geopandas as gpd
 import psycopg2.pool
-from shapely.geometry import Point, shape, mapping
+import geopandas as gpd
 from psycopg2 import DatabaseError
+from shapely.geometry import Point, shape
+from shapely.wkt import loads as load_wkt
+from concurrent.futures import ThreadPoolExecutor
 from fastapi import Depends, FastAPI, FastAPI, Depends, Query, HTTPException
 from fastapi.responses import JSONResponse
 from fastapi.staticfiles import StaticFiles
-from shapely.wkt import loads as load_wkt
 from utils.geometry import set_centroid
 from utils.networkx import deserialize_graph, find_suitable_apartment_network_nodes, retrieve_suitable_apartments
 
@@ -84,7 +84,7 @@ def get_geojsons(city_id: int = Query(...), name: str = Query(...), conn=Depends
 
     except Exception as e:
         raise HTTPException(status_code=500, detail=f"An error occurred: {e}")
-
+    
 def fetch_network_graph(cur, city_id):
     cur.execute("""
         SELECT graph
@@ -96,7 +96,7 @@ def fetch_network_graph(cur, city_id):
         return row[0]
     else:
         raise HTTPException(status_code=404, detail="Network graph not found")
-        
+
 def fetch_nodes(cur, city_id):
     cur.execute("""
         SELECT name, nodes
@@ -257,6 +257,5 @@ def analyze_suitable_apartments(city_id: int = Query(...), max_park_meter:int = 
 
     except Exception as e:
         raise HTTPException(status_code=500, detail=f"An error occurred: {e}")
-
 
 app.mount("/", StaticFiles(directory="static"), name="static")

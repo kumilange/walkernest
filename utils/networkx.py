@@ -15,18 +15,8 @@ def create_network_graph(geometry):
     Returns:
     networkx.MultiDiGraph: The created network graph.
     """
-    if isinstance(geometry, Polygon):
-        # Create network graph from Polygon
+    if isinstance(geometry, (Polygon, MultiPolygon)):
         G = ox.graph_from_polygon(geometry, network_type='walk')
-    elif isinstance(geometry, MultiPolygon):
-        # Create network graph from MultiPolygon by combining graphs from each Polygon
-        G = None
-        for polygon in geometry.geoms:
-            G_polygon = ox.graph_from_polygon(polygon, network_type='walk')
-            if G is None:
-                G = G_polygon
-            else:
-                G = nx.compose(G, G_polygon)
     else:
         raise TypeError("Unsupported geometry type")
 
@@ -97,33 +87,56 @@ def convert_to_network_nodes(G, gdf, use_centroid=True):
 
     return list(nodes)  # Convert the set back to a list before returning
 
+# def find_suitable_apartment_network_nodes(G, apartment_nnodes, park_nnodes, supermarket_nnodes, max_park_distance, max_supermarket_distance):
+#     """
+#     Find suitable apartment network nodes that are within specified distances from both park and supermarket nodes.
+
+#     Parameters:
+#     G (networkx.Graph): The graph representing the network.
+#     apartment_nnodes (list): List of apartment network nodes.
+#     park_nnodes (list): List of park network nodes.
+#     supermarket_nnodes (list): List of supermarket network nodes.
+#     max_park_distance (float): Maximum distance from park nodes to consider.
+#     max_supermarket_distance (float): Maximum distance from supermarket nodes to consider.
+
+#     Returns:
+#     list: List of suitable apartment network nodes within the specified distances from both park and supermarket nodes.
+#     """
+#     # Create subgraphs for parks and supermarkets within the specified distances
+#     park_subgraph_nnodes = set()
+#     for park_nnode in park_nnodes:
+#         park_subgraph_nnodes.update(nx.ego_graph(G, park_nnode, radius=max_park_distance, distance='length').nodes())
+
+#     supermarket_subgraph_nnodes = set()
+#     for supermarket_nnode in supermarket_nnodes:
+#         supermarket_subgraph_nnodes.update(nx.ego_graph(G, supermarket_nnode, radius=max_supermarket_distance, distance='length').nodes())
+    
+#     # Find suitable apartment network nodes
+#     apartment_nnodes_set = set(apartment_nnodes)
+#     suitable_apartment_nnodes = list(apartment_nnodes_set & park_subgraph_nnodes & supermarket_subgraph_nnodes)
+
+#     return suitable_apartment_nnodes
+
 def find_suitable_apartment_network_nodes(G, apartment_nnodes, park_nnodes, supermarket_nnodes, max_park_distance, max_supermarket_distance):
     """
-    Find suitable apartment network nodes that are within specified distances from both park and supermarket nodes.
+    Optimized function to find suitable apartment network nodes within specified distances from park and supermarket nodes.
 
-    Parameters:
-    G (networkx.Graph): The graph representing the network.
-    apartment_nnodes (list): List of apartment network nodes.
-    park_nnodes (list): List of park network nodes.
-    supermarket_nnodes (list): List of supermarket network nodes.
-    max_park_distance (float): Maximum distance from park nodes to consider.
-    max_supermarket_distance (float): Maximum distance from supermarket nodes to consider.
-
-    Returns:
-    list: List of suitable apartment network nodes within the specified distances from both park and supermarket nodes.
+    Explanation of Optimizations:
+    multi_source_dijkstra_path_length drastically reduces the number of calculations by finding shortest paths from all park or supermarket nodes at once, instead of generating separate subgraphs.
+    Cutoff Parameter: Setting cutoff to max_park_distance and max_supermarket_distance prevents unnecessary distance calculations, limiting search space to the needed distances.
+    This approach should significantly improve the execution time by reducing the number of graph traversals and focusing only on relevant nodes and edges.
     """
-    # Create subgraphs for parks and supermarkets within the specified distances
-    park_subgraph_nnodes = set()
-    for park_nnode in park_nnodes:
-        park_subgraph_nnodes.update(nx.ego_graph(G, park_nnode, radius=max_park_distance, distance='length').nodes())
+    # Step 1: Precompute distances from all park nodes
+    park_distances = nx.multi_source_dijkstra_path_length(G, park_nnodes, cutoff=max_park_distance, weight='length')
 
-    supermarket_subgraph_nnodes = set()
-    for supermarket_nnode in supermarket_nnodes:
-        supermarket_subgraph_nnodes.update(nx.ego_graph(G, supermarket_nnode, radius=max_supermarket_distance, distance='length').nodes())
-    
-    # Find suitable apartment network nodes
-    apartment_nnodes_set = set(apartment_nnodes)
-    suitable_apartment_nnodes = list(apartment_nnodes_set & park_subgraph_nnodes & supermarket_subgraph_nnodes)
+    # Step 2: Precompute distances from all supermarket nodes
+    supermarket_distances = nx.multi_source_dijkstra_path_length(G, supermarket_nnodes, cutoff=max_supermarket_distance, weight='length')
+
+    # Step 3: Find suitable apartment nodes within both distance constraints
+    suitable_apartment_nnodes = [
+        node for node in apartment_nnodes
+        if node in park_distances and node in supermarket_distances
+    ]
 
     return suitable_apartment_nnodes
 
