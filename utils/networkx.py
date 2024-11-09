@@ -4,7 +4,6 @@ import osmnx as ox
 import networkx as nx
 from shapely import MultiPolygon, Polygon
 from shapely.geometry import shape, Point, LineString, MultiLineString
-from utils.geometry import ensure_crs
 
 def create_network_graph(geometry):
     """
@@ -73,9 +72,6 @@ def convert_to_network_nodes(G, gdf, use_centroid=True):
                 add_nearest_nodes(part, nodes)
         else:
             raise TypeError("Unsupported geometry type")
-
-    # Ensure CRS is set
-    gdf = ensure_crs(gdf)
 
     if use_centroid:
         # Ensure the 'centroid' column exists

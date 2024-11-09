@@ -1,36 +1,21 @@
-import os
 import json
 import time
-import logging
-from concurrent.futures import ThreadPoolExecutor
-import geopandas as gpd
 import psycopg2.pool
-from shapely.geometry import Point, shape, mapping
+import geopandas as gpd
 from psycopg2 import DatabaseError
+from shapely.geometry import Point, shape
+from shapely.wkt import loads as load_wkt
+from concurrent.futures import ThreadPoolExecutor
 from fastapi import Depends, FastAPI, FastAPI, Depends, Query, HTTPException
 from fastapi.responses import JSONResponse
 from fastapi.staticfiles import StaticFiles
-from shapely.wkt import loads as load_wkt
 from utils.geometry import set_centroid
 from utils.networkx import deserialize_graph, find_suitable_apartment_network_nodes, retrieve_suitable_apartments
-
-# Setting up logging configuration
-logging.basicConfig(level=logging.DEBUG)
-logger = logging.getLogger(__name__)
 
 app = FastAPI()
 pool = psycopg2.pool.SimpleConnectionPool(
     dsn="postgresql://postgres:postgres@postgis:5432/gis", minconn=2, maxconn=4
 )
-# Neo4j connection details
-NEO4J_URI = f"bolt://{os.getenv('NEO4J_HOST', 'neo4j')}:{os.getenv('NEO4J_PORT', '7687')}"
-NEO4J_USERNAME = os.getenv('NEO4J_USERNAME', 'neo4j')
-NEO4J_PASSWORD = os.getenv('NEO4J_PASSWORD', 'testpassword')
-
-# Create a Neo4j driver instance
-# driver = GraphDatabase.driver(NEO4J_URI, auth=(NEO4J_USERNAME, NEO4J_PASSWORD))
-# Initialize Neo4j graph connection
-# graph = Graph(NEO4J_URI, auth=(NEO4J_USERNAME, NEO4J_PASSWORD))
 
 # Dependency to get a database connection
 def get_connection():
@@ -144,7 +129,6 @@ def fetch_geom_and_centroid(cur, city_id, name):
     """, (city_id, name))
     return cur.fetchall()
 
-
 def create_geodataframe_with_centroid(rows):    
     geometries = []
     centroids = []
@@ -208,7 +192,7 @@ def analyze_suitable_apartments(city_id: int = Query(...), max_park_meter:int = 
                 # Measure time for fetch_network_graph
                 start_time_graphs = time.time()
                 future_graphs = executor.submit(fetch_network_graph, cur, city_id)
-                graphs_data = future_graphs.result()
+                graphs_row = future_graphs.result()
                 end_time_graphs = time.time()
                 print(f"Time taken for fetch_network_graph: {end_time_graphs - start_time_graphs} seconds")
                 
@@ -228,7 +212,7 @@ def analyze_suitable_apartments(city_id: int = Query(...), max_park_meter:int = 
             park_nnodes = nodes_dict.get('park')
 
             try:
-                G = deserialize_graph(graphs_data)
+                G = deserialize_graph(graphs_row)
             except Exception as e:
                 print(f"Error deserializing graph: {e}")
                 raise HTTPException(status_code=500, detail=f"Error deserializing graph: {e}")
@@ -274,9 +258,4 @@ def analyze_suitable_apartments(city_id: int = Query(...), max_park_meter:int = 
     except Exception as e:
         raise HTTPException(status_code=500, detail=f"An error occurred: {e}")
 
-@app.on_event("shutdown")
-
-def shutdown_event():
-    pool.closeall()
-    
 app.mount("/", StaticFiles(directory="static"), name="static")

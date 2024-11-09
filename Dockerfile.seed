@@ -1,6 +1,6 @@
 FROM osgeo/gdal:alpine-small-3.2.1
 
-# Install PostgreSQL client, jq, and dependencies for Neo4j client tools
+# Install PostgreSQL client and jq
 RUN apk add --no-cache postgresql-client jq
 
 # Set environment variables for database connection
