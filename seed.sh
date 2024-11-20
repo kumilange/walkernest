@@ -94,7 +94,7 @@ if [ -d "$GEOJSON_DIR" ] && [ "$(ls -A $GEOJSON_DIR)" ]; then
           PROPERTIES=$(echo "$feature" | jq -c '.properties')
           psql $CONNECTION_STRING <<EOF
 BEGIN;
-INSERT INTO geojsons (city_id, name, geom, properties) VALUES ($CITY_ID, '$NAME', ST_GeomFromGeoJSON('$GEOM'), '$PROPERTIES');
+INSERT INTO geojsons (city_id, name, geom, properties) VALUES ($CITY_ID, '$NAME', ST_GeomFromGeoJSON('$GEOM'), \$\$${PROPERTIES}\$\$);
 COMMIT;
 EOF
         done

@@ -4,6 +4,8 @@ import osmnx as ox
 import networkx as nx
 from shapely import MultiPolygon, Polygon
 from shapely.geometry import shape, Point, LineString, MultiLineString
+from networkx.readwrite.json_graph import node_link_graph
+from typing import Union
 
 def create_network_graph(geometry):
     """
@@ -22,27 +24,52 @@ def create_network_graph(geometry):
 
     return G
 
-def deserialize_graph(graph_json_str):    
-    # Ensure the input is a JSON string
-    if isinstance(graph_json_str, dict):
-        graph_json_str = json.dumps(graph_json_str)
+# def deserialize_graph(graph_json_str):    
+#     # Ensure the input is a JSON string
+#     if isinstance(graph_json_str, dict):
+#         graph_json_str = json.dumps(graph_json_str)
 
-    # Deserialize the JSON string to a dictionary
-    graph_data = json.loads(graph_json_str)
+#     # Deserialize the JSON string to a dictionary
+#     graph_data = json.loads(graph_json_str)
 
-    # Convert GeoJSON-like dictionaries back to shapely geometries
-    for node in graph_data['nodes']:
-        if 'geometry' in node:
-            node['geometry'] = shape(node['geometry'])
-    for link in graph_data['links']:
-        if 'geometry' in link:
-            link['geometry'] = shape(link['geometry'])
+#     # Convert GeoJSON-like dictionaries back to shapely geometries
+#     for node in graph_data['nodes']:
+#         if 'geometry' in node:
+#             node['geometry'] = shape(node['geometry'])
+#     for link in graph_data['links']:
+#         if 'geometry' in link:
+#             link['geometry'] = shape(link['geometry'])
 
-    # Convert the dictionary to a MultiDiGraph
-    G = nx.readwrite.json_graph.node_link_graph(graph_data, multigraph=True)
+#     # Convert the dictionary to a MultiDiGraph
+#     G = nx.readwrite.json_graph.node_link_graph(graph_data, multigraph=True)
 
+#     return G
+
+def deserialize_graph(graph_json) -> nx.MultiDiGraph:
+    # If the input is a dictionary, use it directly; otherwise, parse the JSON string
+    if isinstance(graph_json, str):
+        graph_dict = json.loads(graph_json)
+    elif isinstance(graph_json, dict):
+        graph_dict = graph_json
+    else:
+        raise TypeError("The input must be a JSON string or a dictionary")
+    
+    # Convert shapely geometries for nodes and links in one pass
+    def restore_geometry(item):
+        """Helper function to restore shapely geometry."""
+        if 'geometry' in item and isinstance(item['geometry'], dict):
+            item['geometry'] = shape(item['geometry'])
+        return item
+
+    # Use list comprehensions for faster iteration
+    graph_dict['nodes'] = [restore_geometry(node) for node in graph_dict['nodes']]
+    graph_dict['links'] = [restore_geometry(link) for link in graph_dict['links']]
+
+    # Convert the dictionary back to a MultiDiGraph
+    G = nx.node_link_graph(graph_dict)
+    
     return G
-  
+
 def get_equally_distant_points(coords):
     total_points = len(coords)
 
@@ -170,3 +197,103 @@ def retrieve_suitable_apartments(apartments, G, suitable_apartment_nnodes):
         return filtered_apartments
     except Exception as e:
         raise ValueError(f"Error retrieving suitable apartments: {e}")
+
+def reduce_graph_size(G: nx.MultiDiGraph) -> nx.MultiDiGraph:
+    """
+    Reduces the size of a MultiDiGraph by removing specific attributes: 'name' and 'highway'.
+
+    Parameters:
+    G (nx.MultiDiGraph): The input graph.
+
+    Returns:
+    nx.MultiDiGraph: The reduced graph.
+    """
+    # Remove 'name' and 'highway' attributes from nodes
+    for _, node_data in G.nodes(data=True):
+        for attr in ['name', 'highway']:
+            node_data.pop(attr, None)  # Remove if the attribute exists
+
+    # Remove 'name' and 'highway' attributes from edges
+    for _, _, edge_data in G.edges(data=True):
+        for attr in ['name', 'highway']:
+            edge_data.pop(attr, None)  # Remove if the attribute exists
+
+    return G
+
+def simplify_edge_geometries(G: nx.MultiDiGraph, tolerance: float = 0.001) -> nx.MultiDiGraph:
+    """
+    Simplifies edge geometries in the graph to reduce size.
+
+    Parameters:
+    G (nx.MultiDiGraph): The input graph.
+    tolerance (float): The simplification tolerance.
+
+    Returns:
+    nx.MultiDiGraph: The graph with simplified geometries.
+    """
+    for _, _, edge_data in G.edges(data=True):
+        if 'geometry' in edge_data and isinstance(edge_data['geometry'], (LineString, MultiLineString)):
+            edge_data['geometry'] = edge_data['geometry'].simplify(tolerance)
+
+    return G
+
+def reduce_coordinate_precision(G: nx.MultiDiGraph, decimals: int = 5) -> nx.MultiDiGraph:
+    """
+    Reduces coordinate precision in the graph to save space.
+
+    Parameters:
+    G (nx.MultiDiGraph): The input graph.
+    decimals (int): The number of decimal places to keep.
+
+    Returns:
+    nx.MultiDiGraph: The graph with reduced coordinate precision.
+    """
+    for _, node_data in G.nodes(data=True):
+        if 'x' in node_data and 'y' in node_data:
+            node_data['x'] = round(node_data['x'], decimals)
+            node_data['y'] = round(node_data['y'], decimals)
+
+    for _, _, edge_data in G.edges(data=True):
+        if 'geometry' in edge_data:
+            coords = edge_data['geometry'].coords
+            edge_data['geometry'] = LineString([(round(x, decimals), round(y, decimals)) for x, y in coords])
+
+    return G
+
+def prune_graph(G: nx.MultiDiGraph, min_edge_length: float = 5.0) -> nx.MultiDiGraph:
+    """
+    Prunes the graph by removing short edges or isolated nodes.
+
+    Parameters:
+    G (nx.MultiDiGraph): The input graph.
+    min_edge_length (float): Minimum edge length to retain.
+
+    Returns:
+    nx.MultiDiGraph: The pruned graph.
+    """
+    edges_to_remove = [(u, v, k) for u, v, k, d in G.edges(keys=True, data=True) if d.get('length', 0) < min_edge_length]
+    G.remove_edges_from(edges_to_remove)
+
+    # Remove isolated nodes
+    isolated_nodes = [node for node in G.nodes if G.degree(node) == 0]
+    G.remove_nodes_from(isolated_nodes)
+
+    return G
+
+
+def compress_graph_to_json(G: nx.MultiDiGraph):
+    # Convert the graph to a dictionary
+    graph_dict = nx.node_link_data(G)
+    
+    # Convert LineString objects to a list of coordinates
+    for link in graph_dict['links']:
+        if 'geometry' in link and isinstance(link['geometry'], LineString):
+            link['geometry'] = {
+                "type": "LineString",
+                "coordinates": list(link['geometry'].coords)
+            }
+    
+    # Convert the dictionary to a JSON string
+    graph_json_str = json.dumps(graph_dict)
+    
+    return graph_json_str

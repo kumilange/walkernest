@@ -4,11 +4,11 @@ import psycopg2.pool
 import geopandas as gpd
 from psycopg2 import DatabaseError
 from shapely.geometry import Point, shape
-from shapely.wkt import loads as load_wkt
 from concurrent.futures import ThreadPoolExecutor
 from fastapi import Depends, FastAPI, FastAPI, Depends, Query, HTTPException
 from fastapi.responses import JSONResponse
 from fastapi.staticfiles import StaticFiles
+from fastapi.middleware.cors import CORSMiddleware
 from utils.geometry import set_centroid
 from utils.networkx import deserialize_graph, find_suitable_apartment_network_nodes, retrieve_suitable_apartments
 
@@ -16,75 +16,61 @@ app = FastAPI()
 pool = psycopg2.pool.SimpleConnectionPool(
     dsn="postgresql://postgres:postgres@postgis:5432/gis", minconn=2, maxconn=4
 )
+# Define the origins that should be allowed to make cross-origin requests
+origins = [
+    "http://localhost:5173",  # Your frontend URL
+    "http://localhost:3000",  # Your backend URL 
+]
+
+app.add_middleware(
+    CORSMiddleware,
+    allow_origins=origins,
+    allow_credentials=True,
+    allow_methods=["*"],
+    allow_headers=["*"],
+)
 
 # Dependency to get a database connection
 def get_connection():
     try:
         conn = pool.getconn()
-        yield conn
-    finally:
-        pool.putconn(conn)
+        try:
+            yield conn
+        finally:
+            pool.putconn(conn)
+    except pool.PoolError:
+        raise HTTPException(status_code=503, detail="Database connection pool exhausted")
 
-def polygon_to_bbox(polygon_wkt):
-    """
-    Convert a GEOMETRY(Polygon, 4326) to "south,west,north,east" format.
+def fetch_favorites(cur, ids):
+    # Convert ids to a tuple for the SQL IN clause
+    ids_tuple = tuple(ids)
     
-    Args:
-        polygon_wkt (str): The WKT representation of the polygon.
+    # Execute the query to fetch normal GeoJSON and properties
+    cur.execute("""
+        SELECT ST_AsGeoJSON(ST_Centroid(geom)) AS centroid, properties, city_id
+        FROM geojsons
+        WHERE (properties->>'id')::bigint IN %s
+    """, (ids_tuple,))
     
-    Returns:
-        str: The bounding box in "south,west,north,east" format.
-    """
-    # Load the polygon from WKT
-    polygon = load_wkt(polygon_wkt)
-    
-    # Get the bounding box (minx, miny, maxx, maxy)
-    minx, miny, maxx, maxy = polygon.bounds
-    
-    # Format as "south,west,north,east"
-    bbox_str = f"{miny},{minx},{maxy},{maxx}"
-    
-    return bbox_str
+    return cur.fetchall()
 
-@app.get("/health")
-def health():
-    return {"status": "ok"}
+def fetch_geojson(cur, city_id, name, is_centroid):
+    if is_centroid:
+        # Execute the query to fetch centroid GeoJSON and properties
+        cur.execute("""
+            SELECT ST_AsGeoJSON(ST_Centroid(geom)) AS centroid, properties
+            FROM geojsons
+            WHERE city_id = %s AND name = %s
+        """, (city_id, name))
+    else:
+        # Execute the query to fetch normal GeoJSON and properties
+        cur.execute("""
+            SELECT ST_AsGeoJSON(geom, 5) AS geom, properties
+            FROM geojsons
+            WHERE city_id = %s AND name = %s
+        """, (city_id, name))
+    return cur.fetchall()
 
-@app.get("/geojsons")
-def get_geojsons(city_id: int = Query(...), name: str = Query(...), conn=Depends(get_connection)):
-    """
-    Return GeoJSON features from the geojsons table based on city_id and name.
-    """
-    try:
-        with conn.cursor() as cur:
-            # Execute the query to fetch GeoJSON and properties
-            cur.execute("""
-                SELECT ST_AsGeoJSON(geom) AS geom, properties
-                FROM geojsons
-                WHERE city_id = %s AND name = %s
-            """, (city_id, name))
-            res = cur.fetchall()
-
-        # Merge properties
-        features = []
-        for row in res:
-            geojson = json.loads(row[0])
-            properties = row[1]
-            geojson['properties'] = properties
-            features.append(geojson)
-
-        # Return GeoJSON FeatureCollection
-        return {
-            "type": "FeatureCollection",
-            "features": features,
-        }
-
-    except DatabaseError as e:
-        raise HTTPException(status_code=500, detail=f"Database error: {e}")
-
-    except Exception as e:
-        raise HTTPException(status_code=500, detail=f"An error occurred: {e}")
-    
 def fetch_network_graph(cur, city_id):
     cur.execute("""
         SELECT graph
@@ -105,22 +91,6 @@ def fetch_nodes(cur, city_id):
     """, (city_id,))
     return cur.fetchall()
 
-def fetch_geom(cur, city_id):
-    cur.execute("""
-        SELECT ST_AsText(geom) as geom
-        FROM cities
-        WHERE id = %s
-    """, (city_id,))
-    return cur.fetchone()
-
-def fetch_centroids(cur, city_id):
-    cur.execute("""
-        SELECT ST_AsGeoJSON(ST_Centroid(geom)) AS centroid, properties
-        FROM geojsons
-        WHERE city_id = %s AND name = 'apartment'
-    """, (city_id,))
-    return cur.fetchall()
-
 def fetch_geom_and_centroid(cur, city_id, name):
     cur.execute("""
         SELECT ST_AsGeoJSON(geom) AS geom, ST_AsGeoJSON(ST_Centroid(geom)) AS centroid, properties
@@ -129,7 +99,7 @@ def fetch_geom_and_centroid(cur, city_id, name):
     """, (city_id, name))
     return cur.fetchall()
 
-def create_geodataframe_with_centroid(rows):    
+def create_gdf_with_centroid(rows):    
     geometries = []
     centroids = []
     properties_list = []
@@ -164,40 +134,96 @@ def create_geodataframe_with_centroid(rows):
 
     return gdf
 
+@app.get("/health")
+def health():
+    return {"status": "ok"}
+
+@app.get("/favorites")
+def get_favorites(ids: list = Query(...), conn=Depends(get_connection)):
+    """
+    Return List of feature from the geojsons table based on property IDs.
+    """
+    try:
+        with conn.cursor() as cur:
+            res = fetch_favorites(cur, ids)
+            
+            features = []
+            geojson = {}
+            for row in res:
+                geojson = {
+                    'type': "Feature",
+                    'geometry': json.loads(row[0]),
+                    'properties': row[1],
+                }
+                features.append(geojson)
+
+            return JSONResponse(content=features)
+
+    except DatabaseError as e:
+        raise HTTPException(status_code=500, detail=f"Database error: {e}")
+
+    except Exception as e:
+        raise HTTPException(status_code=500, detail=f"An error occurred: {e}")
+
+@app.get("/geojsons")
+def get_geojsons(city_id: int = Query(...), name: str = Query(...), is_centroid: bool = Query(False), conn=Depends(get_connection)):
+    """
+    Return GeoJSON FeatureCollection from the geojsons table based on city_id and name.
+    """
+    try:
+        with conn.cursor() as cur:
+            res = fetch_geojson(cur, city_id, name, is_centroid)
+
+            # Merge properties
+            features = []
+            geojson = {}
+            for row in res:
+                geojson = {
+                    'type': "Feature",
+                    'geometry': json.loads(row[0]),
+                    'properties': row[1]
+                }
+                features.append(geojson)
+                
+            # Return GeoJSON FeatureCollection
+            return {
+                "type": "FeatureCollection",
+                "features": features,
+            }
+
+    except DatabaseError as e:
+        raise HTTPException(status_code=500, detail=f"Database error: {e}")
+
+    except Exception as e:
+        raise HTTPException(status_code=500, detail=f"An error occurred: {e}")
+    
 @app.get("/analyze")
 def analyze_suitable_apartments(city_id: int = Query(...), max_park_meter:int = Query(...), max_supermarket_meter:int = Query(...), conn=Depends(get_connection)):
     """
     Return the nodes JSONB list from the network_nodes table based on city_id and name.
     """
     try:
+        start_time0 = time.time()
         with conn.cursor() as cur:
             # Use ThreadPoolExecutor to parallelize database queries
             with ThreadPoolExecutor() as executor:
                 start_time1 = time.time()
 
-                # Measure time for fetch_nodes
-                start_time_nodes = time.time()
-                future_nodes = executor.submit(fetch_nodes, cur, city_id)
-                nodes_rows = future_nodes.result()
-                end_time_nodes = time.time()
-                print(f"Time taken for fetch_nodes: {end_time_nodes - start_time_nodes} seconds")
-
-                # Measure time for fetch_geom_and_centroid
-                start_time_geom_and_centroid = time.time()
                 future_geom_and_centroid = executor.submit(fetch_geom_and_centroid, cur, city_id, "apartment")
                 geom_centroid_rows = future_geom_and_centroid.result()
-                end_time_geom_and_centroid = time.time()
-                print(f"Time taken for fetch_geom_and_centroid: {end_time_geom_and_centroid - start_time_geom_and_centroid} seconds")
+
+                future_nodes = executor.submit(fetch_nodes, cur, city_id)
+                nodes_rows = future_nodes.result()
 
                 # Measure time for fetch_network_graph
-                start_time_graphs = time.time()
+                # start_time_graphs = time.time()
                 future_graphs = executor.submit(fetch_network_graph, cur, city_id)
                 graphs_row = future_graphs.result()
-                end_time_graphs = time.time()
-                print(f"Time taken for fetch_network_graph: {end_time_graphs - start_time_graphs} seconds")
-                
+                # end_time_graphs = time.time()
+                # print(f"Execution time for fetch_network_graph: {end_time_graphs - start_time_graphs} seconds")
+
                 end_time1 = time.time()
-                print(f"Execution time for ThreadPoolExecutor: {end_time1 - start_time1} seconds\n")
+                print(f"Execution time for ThreadPoolExecutor: {end_time1 - start_time1} seconds")
 
             # Store the results in a dictionary {name: nodes}
             nodes_dict = {row[0]: row[1] for row in nodes_rows}
@@ -212,12 +238,14 @@ def analyze_suitable_apartments(city_id: int = Query(...), max_park_meter:int = 
             park_nnodes = nodes_dict.get('park')
 
             try:
+                start_time_deserialize_graph = time.time()
                 G = deserialize_graph(graphs_row)
+                end_time_deserialize_graph = time.time()
+                print(f"Execution time for deserialize_graph: {end_time_deserialize_graph - start_time_deserialize_graph} seconds")
             except Exception as e:
                 print(f"Error deserializing graph: {e}")
                 raise HTTPException(status_code=500, detail=f"Error deserializing graph: {e}")
 
-            start_time3 = time.time()
             try:
                 # Find suitable apartment network nodes
                 suitable_apartment_nnodes = find_suitable_apartment_network_nodes(
@@ -225,28 +253,26 @@ def analyze_suitable_apartments(city_id: int = Query(...), max_park_meter:int = 
             except Exception as e:
                 print(f"Error in find_suitable_apartment_network_nodes: {e}")
                 raise HTTPException(status_code=500, detail=f"Error in find_suitable_apartment_network_nodes: {e}")
-            end_time3 = time.time()
-            print(f"Execution time for find_suitable_apartment_network_nodes: {end_time3 - start_time3} seconds\n")
 
             try:
-                apartment_gdf = create_geodataframe_with_centroid(geom_centroid_rows)
+                apartment_gdf = create_gdf_with_centroid(geom_centroid_rows)
             except Exception as e:
                 print(f"Error creating GeoDataFrame: {e}")
                 raise HTTPException(status_code=500, detail=f"Error creating GeoDataFrame: {e}")
             
-            start_time4 = time.time()
             try:
                 # Retrieve suitable apartment areas from network nodes
                 suitable_apartment_gdf_with_geoms = retrieve_suitable_apartments(apartment_gdf, G, suitable_apartment_nnodes)
             except Exception as e:
                 print(f"Error retrieving suitable apartments: {e}")
                 raise HTTPException(status_code=500, detail=f"Error retrieving suitable apartments: {e}")
-            end_time4 = time.time()
-            print(f"Execution time for retrieve_suitable_apartments: {end_time4 - start_time4} seconds\n")
 
             suitable_apartment_polygon = (suitable_apartment_gdf_with_geoms.copy()).drop(columns=['centroid'])
             suitable_apartment_centroid = set_centroid(suitable_apartment_gdf_with_geoms.copy())
 
+            end_time0 = time.time()
+            print(f"Execution time for Analize Suitable Apartments: {end_time0 - start_time0} seconds")
+            
             return JSONResponse(content={
                 "polygon": json.loads(suitable_apartment_polygon.to_json()),
                 "centroid": json.loads(suitable_apartment_centroid.to_json())

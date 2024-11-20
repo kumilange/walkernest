@@ -7,7 +7,7 @@ from shapely.geometry import shape
 from utils.file import save_gdf_to_geojson, save_graph_to_json, save_list_to_json
 from utils.data_fetcher import fetch_and_normalize_data, generate_query
 from utils.geometry import add_boundary, add_centroid, get_geometry_by_objectid, generate_poly_string, set_centroid
-from utils.networkx import convert_to_network_nodes, create_network_graph, find_suitable_apartment_network_nodes, retrieve_suitable_apartments
+from utils.networkx import convert_to_network_nodes, create_network_graph, find_suitable_apartment_network_nodes, retrieve_suitable_apartments, reduce_graph_size, simplify_edge_geometries, reduce_coordinate_precision, prune_graph, compress_graph_to_json
 
 # Suppress FutureWarning
 warnings.simplefilter(action='ignore', category=FutureWarning)
@@ -19,23 +19,33 @@ MAX_DISTANCE_SUPERMARKET = 1000  # 12 minutes walk in meters
 def main(city, geometry):
     # Generate the poly string
     poly_string = generate_poly_string(geometry)
+
     # Generate the queries
     apartment_query = generate_query(poly_string, [("building", "apartments"), ("building", "residential")])
     supermarket_query = generate_query(poly_string, [("shop", "supermarket"), ("shop", "grocery")])
     park_query = generate_query(poly_string, [("leisure", "park"), ("leisure", "dog_park")])
+
     # Fetch data from the Overpass API
     apartment_gdf = fetch_and_normalize_data(apartment_query)
     supermarket_gdf = fetch_and_normalize_data(supermarket_query)
     park_gdf = fetch_and_normalize_data(park_query)
+
     # Save different types of GeoDataFrames to their respective GeoJSON files
     save_gdf_to_geojson(apartment_gdf, city, "apartment")
     save_gdf_to_geojson(supermarket_gdf, city, "supermarket")
     save_gdf_to_geojson(park_gdf, city, "park")
 
-	# Convert centroids and boundary to network nodes
+    # Create and optimize the network graph from the given geometry by reducing its size, simplifying edge geometries,
+    # reducing coordinate precision, and pruning redundant or isolated components
     G = create_network_graph(shape(geometry))
+    G = reduce_graph_size(G)
+    G = simplify_edge_geometries(G)
+    G = reduce_coordinate_precision(G)
+    G = prune_graph(G)
+
     # Save network graph to JSON file
-    save_graph_to_json(G, city)
+    graph_json_str = compress_graph_to_json(G)
+    save_graph_to_json(graph_json_str, city)
 
     # Add centroids and boundary to the DataFrames
     apartments = add_centroid(apartment_gdf)
@@ -43,20 +53,10 @@ def main(city, geometry):
     parks = add_boundary(park_gdf)
 
     # Convert GeoDataFrames to network nodes
-    start_time3 = time.time()
     supermarket_nnodes = convert_to_network_nodes(G, supermarkets)
-    end_time3 = time.time()
-    print(f"convert_to_network_nodes/supermarket : {end_time3 - start_time3} seconds")
-
-    start_time2 = time.time()
     apartment_nnodes = convert_to_network_nodes(G, apartments)
-    end_time2 = time.time()
-    print(f"convert_to_network_nodes/apartment : {end_time2 - start_time2} seconds")
-
-    start_time4 = time.time()
     park_nnodes = convert_to_network_nodes(G, parks, use_centroid=False)
-    end_time4 = time.time()
-    print(f"convert_to_network_nodes/park : {end_time4 - start_time4} seconds")
+    
     # Save different types of GeoDataFrames to their respective GeoJSON files
     save_list_to_json(apartment_nnodes, city, "apartment")
     save_list_to_json(supermarket_nnodes, city, "supermarket")

@@ -27,23 +27,11 @@ def save_list_to_json(list, city, data_type):
         json.dump(list, f, separators=(',', ':'))
 
 # Function to save list to a JSON file
-def save_graph_to_json(G, city):
-    os.makedirs('data/network_graphs', exist_ok=True)
-    city = city.lower()
-    # Serialize the MultiDiGraph to JSON-serializable format
-    graph_data = nx.readwrite.json_graph.node_link_data(G)
-    # Convert geometries to GeoJSON format
-    for node in graph_data['nodes']:
-        if 'geometry' in node:
-            node['geometry'] = mapping(node['geometry'])
-    for link in graph_data['links']:
-        if 'geometry' in link:
-            link['geometry'] = mapping(link['geometry'])
-
-    # Serialize the JSON-serializable format to a JSON string
-    graph_json_str = json.dumps(graph_data)
-
+def save_graph_to_json(graph_json_str: str, city):
     file_path = f"data/network_graphs/{city}_graph.json"
+    
+    # Ensure the directory exists
+    os.makedirs(os.path.dirname(file_path), exist_ok=True)
     
     with open(file_path, 'w') as f:
         f.write(graph_json_str)
