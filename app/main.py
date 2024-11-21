@@ -1,15 +1,12 @@
 import json
 import time
 import psycopg2.pool
-import geopandas as gpd
 from psycopg2 import DatabaseError
-from shapely.geometry import Point, shape
 from concurrent.futures import ThreadPoolExecutor
 from fastapi import Depends, FastAPI, FastAPI, Depends, Query, HTTPException
-from fastapi.responses import JSONResponse
-from fastapi.staticfiles import StaticFiles
+from fastapi.responses import JSONResponse, ORJSONResponse
 from fastapi.middleware.cors import CORSMiddleware
-from utils.geometry import set_centroid
+from utils.geometry import set_centroid, create_gdf_with_centroid
 from utils.networkx import deserialize_graph, find_suitable_apartment_network_nodes, retrieve_suitable_apartments
 
 app = FastAPI()
@@ -38,7 +35,7 @@ def get_connection():
             yield conn
         finally:
             pool.putconn(conn)
-    except pool.PoolError:
+    except DatabaseError:
         raise HTTPException(status_code=503, detail="Database connection pool exhausted")
 
 def fetch_favorites(cur, ids):
@@ -91,48 +88,13 @@ def fetch_nodes(cur, city_id):
     """, (city_id,))
     return cur.fetchall()
 
-def fetch_geom_and_centroid(cur, city_id, name):
+def fetch_geom_and_centroid(cur, city_id):
     cur.execute("""
         SELECT ST_AsGeoJSON(geom) AS geom, ST_AsGeoJSON(ST_Centroid(geom)) AS centroid, properties
         FROM geojsons
-        WHERE city_id = %s AND name = %s
-    """, (city_id, name))
+        WHERE city_id = %s AND name = 'apartment'
+    """, (city_id,))
     return cur.fetchall()
-
-def create_gdf_with_centroid(rows):    
-    geometries = []
-    centroids = []
-    properties_list = []
-
-    for row in rows:
-        try:
-            if row[0] is None or row[1] is None:
-                raise ValueError("Row contains None value")
-
-            geom_json = json.loads(row[0])
-            centroid_json = json.loads(row[1])
-            properties = row[2]
-
-            # Convert GeoJSON to shapely geometries
-            geometry = shape(geom_json)
-            centroid = Point(centroid_json['coordinates'])
-
-            geometries.append(geometry)
-            centroids.append(centroid)
-            properties_list.append(properties)
-        except (ValueError, TypeError) as e:
-            print(f"Error processing row {row}: {e}")
-        except Exception as e:
-            print(f"Unexpected error processing row {row}: {e}")
-
-    # Create GeoDataFrame
-    try:
-        gdf = gpd.GeoDataFrame(properties_list, geometry=geometries, crs="EPSG:4326")
-        gdf['centroid'] = centroids
-    except Exception as e:
-        raise ValueError(f"Error creating GeoDataFrame: {e}")
-
-    return gdf
 
 @app.get("/health")
 def health():
@@ -208,31 +170,18 @@ def analyze_suitable_apartments(city_id: int = Query(...), max_park_meter:int = 
             # Use ThreadPoolExecutor to parallelize database queries
             with ThreadPoolExecutor() as executor:
                 start_time1 = time.time()
-
-                future_geom_and_centroid = executor.submit(fetch_geom_and_centroid, cur, city_id, "apartment")
+                future_geom_and_centroid = executor.submit(fetch_geom_and_centroid, cur, city_id)
                 geom_centroid_rows = future_geom_and_centroid.result()
-
                 future_nodes = executor.submit(fetch_nodes, cur, city_id)
                 nodes_rows = future_nodes.result()
-
-                # Measure time for fetch_network_graph
-                # start_time_graphs = time.time()
                 future_graphs = executor.submit(fetch_network_graph, cur, city_id)
                 graphs_row = future_graphs.result()
-                # end_time_graphs = time.time()
-                # print(f"Execution time for fetch_network_graph: {end_time_graphs - start_time_graphs} seconds")
 
                 end_time1 = time.time()
                 print(f"Execution time for ThreadPoolExecutor: {end_time1 - start_time1} seconds")
 
             # Store the results in a dictionary {name: nodes}
             nodes_dict = {row[0]: row[1] for row in nodes_rows}
-
-            # Check if all required types are present
-            missing = [name for name in ['park', 'supermarket', 'apartment'] if name not in nodes_dict]
-            if missing:
-                raise HTTPException(status_code=404, detail=f"No data found for the given city_id for: {', '.join(missing)}")
-
             apartment_nnodes = nodes_dict.get('apartment')
             supermarket_nnodes = nodes_dict.get('supermarket')
             park_nnodes = nodes_dict.get('park')
@@ -248,21 +197,30 @@ def analyze_suitable_apartments(city_id: int = Query(...), max_park_meter:int = 
 
             try:
                 # Find suitable apartment network nodes
+                start_time_find_suitable_apartment = time.time()
                 suitable_apartment_nnodes = find_suitable_apartment_network_nodes(
                     G, apartment_nnodes, park_nnodes, supermarket_nnodes, max_park_meter, max_supermarket_meter)
+                end_time_find_suitable_apartment = time.time()
+                print(f"Execution time for find_suitable_apartment: {end_time_find_suitable_apartment - start_time_find_suitable_apartment} seconds")
             except Exception as e:
                 print(f"Error in find_suitable_apartment_network_nodes: {e}")
                 raise HTTPException(status_code=500, detail=f"Error in find_suitable_apartment_network_nodes: {e}")
 
             try:
+                start_time_create_gdf_with_centroid = time.time()
                 apartment_gdf = create_gdf_with_centroid(geom_centroid_rows)
+                end_time_create_gdf_with_centroid = time.time()
+                print(f"Execution time for create_gdf_with_centroid: {end_time_create_gdf_with_centroid - start_time_create_gdf_with_centroid} seconds")
             except Exception as e:
                 print(f"Error creating GeoDataFrame: {e}")
                 raise HTTPException(status_code=500, detail=f"Error creating GeoDataFrame: {e}")
             
             try:
                 # Retrieve suitable apartment areas from network nodes
+                start_time_retrieve_suitable_apartments = time.time()
                 suitable_apartment_gdf_with_geoms = retrieve_suitable_apartments(apartment_gdf, G, suitable_apartment_nnodes)
+                end_time_retrieve_suitable_apartments = time.time()
+                print(f"Execution time for retrieve_suitable_apartments: {end_time_retrieve_suitable_apartments - start_time_retrieve_suitable_apartments} seconds")
             except Exception as e:
                 print(f"Error retrieving suitable apartments: {e}")
                 raise HTTPException(status_code=500, detail=f"Error retrieving suitable apartments: {e}")
@@ -273,7 +231,7 @@ def analyze_suitable_apartments(city_id: int = Query(...), max_park_meter:int = 
             end_time0 = time.time()
             print(f"Execution time for Analize Suitable Apartments: {end_time0 - start_time0} seconds")
             
-            return JSONResponse(content={
+            return ORJSONResponse(content={
                 "polygon": json.loads(suitable_apartment_polygon.to_json()),
                 "centroid": json.loads(suitable_apartment_centroid.to_json())
             })
@@ -283,5 +241,3 @@ def analyze_suitable_apartments(city_id: int = Query(...), max_park_meter:int = 
 
     except Exception as e:
         raise HTTPException(status_code=500, detail=f"An error occurred: {e}")
-
-app.mount("/", StaticFiles(directory="static"), name="static")

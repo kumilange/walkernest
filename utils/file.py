@@ -1,7 +1,5 @@
 import os
 import json
-import networkx as nx
-from shapely.geometry import mapping
 
 def save_gdf_to_geojson(gdf, city, data_type):
     """

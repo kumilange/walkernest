@@ -33,22 +33,22 @@ services:
       interval: 10s
       timeout: 10s
       retries: 10
-  # seed:
-  #   build:
-  #     context: .
-  #     dockerfile: Dockerfile.seed
-  #   depends_on:
-  #     postgis:
-  #       condition: service_healthy
-  #   environment:
-  #     - DB_USERNAME=postgres
-  #     - DB_PASSWORD=postgres
-  #     - DB_HOST=postgis
-  #     - DB_PORT=5432
-  #     - DB_NAME=gis
-  #   volumes:
-  #     - ./data:/data
-  #   command: /usr/local/bin/seed.sh
+  seed:
+    build:
+      context: .
+      dockerfile: Dockerfile.seed
+    depends_on:
+      postgis:
+        condition: service_healthy
+    environment:
+      - DB_USERNAME=postgres
+      - DB_PASSWORD=postgres
+      - DB_HOST=postgis
+      - DB_PORT=5432
+      - DB_NAME=gis
+    volumes:
+      - ./data:/data
+    command: /usr/local/bin/seed.sh
 
 volumes:
   postgis-data:

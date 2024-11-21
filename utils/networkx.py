@@ -4,8 +4,6 @@ import osmnx as ox
 import networkx as nx
 from shapely import MultiPolygon, Polygon
 from shapely.geometry import shape, Point, LineString, MultiLineString
-from networkx.readwrite.json_graph import node_link_graph
-from typing import Union
 
 def create_network_graph(geometry):
     """
@@ -23,27 +21,6 @@ def create_network_graph(geometry):
         raise TypeError("Unsupported geometry type")
 
     return G
-
-# def deserialize_graph(graph_json_str):    
-#     # Ensure the input is a JSON string
-#     if isinstance(graph_json_str, dict):
-#         graph_json_str = json.dumps(graph_json_str)
-
-#     # Deserialize the JSON string to a dictionary
-#     graph_data = json.loads(graph_json_str)
-
-#     # Convert GeoJSON-like dictionaries back to shapely geometries
-#     for node in graph_data['nodes']:
-#         if 'geometry' in node:
-#             node['geometry'] = shape(node['geometry'])
-#     for link in graph_data['links']:
-#         if 'geometry' in link:
-#             link['geometry'] = shape(link['geometry'])
-
-#     # Convert the dictionary to a MultiDiGraph
-#     G = nx.readwrite.json_graph.node_link_graph(graph_data, multigraph=True)
-
-#     return G
 
 def deserialize_graph(graph_json) -> nx.MultiDiGraph:
     # If the input is a dictionary, use it directly; otherwise, parse the JSON string
@@ -180,21 +157,24 @@ def retrieve_suitable_apartments(apartments, G, suitable_apartment_nnodes):
     gpd.GeoDataFrame: Filtered GeoDataFrame of suitable apartments.
     """
     try:
-        # Extract centroid coordinates
-        centroids = np.array([(geom.x, geom.y) for geom in apartments['centroid']])
+        # Convert the list of suitable nodes to a set for faster lookups
+        suitable_nodes_set = set(suitable_apartment_nnodes)
 
-        # Ensure centroids array is 2-dimensional
+        # Extract centroid coordinates as a 2D NumPy array
+        centroids = np.array([(c.x, c.y) for c in apartments['centroid']])
+
+        # Ensure centroids array is valid
         if centroids.ndim != 2 or centroids.shape[1] != 2:
             raise ValueError("Centroids array must be 2-dimensional with shape (n, 2)")
 
-        # Calculate nearest nodes for all centroids
-        nearest_nodes = ox.distance.nearest_nodes(G, centroids[:, 0], centroids[:, 1])
+        # Calculate nearest nodes for all centroids in one vectorized operation
+        nearest_nodes = ox.distance.nearest_nodes(G, X=centroids[:, 0], Y=centroids[:, 1])
 
-        apartments['nearest_node'] = nearest_nodes
-        filtered_apartments = apartments[apartments['nearest_node'].isin(suitable_apartment_nnodes)]
-        filtered_apartments = filtered_apartments.drop(columns=['nearest_node'])
+        # Filter apartments based on whether their nearest node is in the suitable set
+        is_suitable = np.isin(nearest_nodes, list(suitable_nodes_set))
+        suitable_apartments = apartments.loc[is_suitable].copy()
 
-        return filtered_apartments
+        return suitable_apartments
     except Exception as e:
         raise ValueError(f"Error retrieving suitable apartments: {e}")
 
@@ -208,14 +188,15 @@ def reduce_graph_size(G: nx.MultiDiGraph) -> nx.MultiDiGraph:
     Returns:
     nx.MultiDiGraph: The reduced graph.
     """
+    remove_attributes = ['name', 'highway', 'maxspeed', 'lanes', 'service', 'ref', 'street_count', 'oimid', 'oneway', 'reversed', 'geometry', 'key']
     # Remove 'name' and 'highway' attributes from nodes
     for _, node_data in G.nodes(data=True):
-        for attr in ['name', 'highway']:
+        for attr in remove_attributes:
             node_data.pop(attr, None)  # Remove if the attribute exists
 
     # Remove 'name' and 'highway' attributes from edges
     for _, _, edge_data in G.edges(data=True):
-        for attr in ['name', 'highway']:
+        for attr in remove_attributes:
             edge_data.pop(attr, None)  # Remove if the attribute exists
 
     return G
@@ -279,7 +260,6 @@ def prune_graph(G: nx.MultiDiGraph, min_edge_length: float = 5.0) -> nx.MultiDiG
     G.remove_nodes_from(isolated_nodes)
 
     return G
-
 
 def compress_graph_to_json(G: nx.MultiDiGraph):
     # Convert the graph to a dictionary

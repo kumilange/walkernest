@@ -1,3 +1,5 @@
+import json
+import geopandas as gpd
 from shapely.geometry import shape, Polygon, Point, LineString, MultiPolygon, MultiLineString
 
 def get_geometry_by_objectid(geojson_data, objectid):
@@ -131,4 +133,59 @@ def create_geometry(element, nodes):
 def filter_properties(element):
     props = element['tags'] if 'tags' in element else {}
     return {k: v for k, v in props.items() if k in ['building', 'shop', 'leisure', 'name']}
+
+def create_gdf_with_centroid(geom_centroid_rows):
+    try:
+        # Parse rows with list comprehensions for better performance
+        parsed_data = [
+            (
+                shape(json.loads(row[0])),
+                Point(json.loads(row[1])['coordinates']),
+                row[2]
+            )
+            for row in geom_centroid_rows
+            if row[0] and row[1]  # Skip rows with None or empty strings
+        ]
+        
+        # Separate parsed data into respective columns
+        geometries, centroids, properties_list = zip(*parsed_data)
+
+        # Create GeoDataFrame in a single step
+        gdf = gpd.GeoDataFrame(
+            list(properties_list),
+            geometry=list(geometries),
+            crs="EPSG:4326"
+        )
+        gdf['centroid'] = list(centroids)
+
+        return gdf
+
+    except Exception as e:
+        raise ValueError(f"Error creating GeoDataFrame: {e}")
+    # try:
+    #     parsed_data = []
+    #     for row in geom_centroid_rows:
+    #         if len(row) < 3 or not row[0] or not row[1]:  # Validate row length and content
+    #             continue
+    #         geometry = shape(json.loads(row[0]))
+    #         centroid = Point(json.loads(row[1])['coordinates'])
+    #         properties = row[2]
+    #         parsed_data.append((geometry, centroid, properties))
+
+    #     if not parsed_data:
+    #         raise ValueError("No valid data to create GeoDataFrame")
+        
+    #     geometries, centroids, properties_list = zip(*parsed_data)
+
+    #     gdf = gpd.GeoDataFrame(
+    #         list(properties_list),
+    #         geometry=list(geometries),
+    #         crs="EPSG:4326"
+    #     )
+    #     gdf['centroid'] = list(centroids)
+
+    #     return gdf
+    # except Exception as e:
+    #     raise ValueError(f"Error creating GeoDataFrame: {e}")
+
 
