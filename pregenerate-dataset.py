@@ -64,21 +64,6 @@ def main(city, geometry):
 
     return
 
-    # Find suitable apartment network nodes
-    suitable_apartment_nnodes = find_suitable_apartment_network_nodes(
-        G, apartment_nnodes, park_nnodes, supermarket_nnodes, MAX_DISTANCE_PARK, MAX_DISTANCE_SUPERMARKET)
-
-    # Retrieve suitable apartment areas from network nodes
-    suitable_apartment_gdf_with_geoms = retrieve_suitable_apartments(apartments, G, suitable_apartment_nnodes)
-
-	# Save the suitable apartment areas as GeoJSON
-    suitable_apartment_gdf = (suitable_apartment_gdf_with_geoms.copy()).drop(columns=['centroid'])
-    save_gdf_to_geojson(suitable_apartment_gdf, city, "result")
-
-    # Save the suitable apartment GeoDataFrame for cluster presentation to a GeoJSON file
-    suitable_apartment_gdf_with_centroid = set_centroid(suitable_apartment_gdf_with_geoms.copy())
-    save_gdf_to_geojson(suitable_apartment_gdf_with_centroid, city, "result_centroid")
-
 if __name__ == "__main__":
     parser = argparse.ArgumentParser(description='Process city and bbox for main function')
     parser.add_argument('--csv', type=str, required=True, help='Path to the CSV file')
