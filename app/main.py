@@ -1,6 +1,6 @@
 from fastapi import FastAPI, FastAPI
 from fastapi.middleware.cors import CORSMiddleware
-from app.routers import geojson, favorites, analyze
+from app.routers import geojson, favorites, analyze, health
 
 origins = [
     "http://localhost:5173",  # Your frontend URL
@@ -18,7 +18,4 @@ app.add_middleware(
 app.include_router(geojson.router)
 app.include_router(favorites.router)
 app.include_router(analyze.router)
-
-@app.get("/health")
-def health():
-    return {"status": "ok"}
+app.include_router(health.router)

@@ -11,7 +11,6 @@ gdf = gpd.read_file(file_path)
 bounds = gdf.total_bounds  # [minx, miny, maxx, maxy]
 
 mid_x = (bounds[0] + bounds[2]) / 2
-# mid_y = bounds[1] + 3 * (bounds[3] - bounds[1]) / 7
 mid_y = (bounds[1] + bounds[3]) / 2
 
 # Define quadrants using bounding boxes
@@ -37,23 +36,15 @@ ne_gdf = ne_gdf[~ne_gdf.is_empty]
 sw_gdf = sw_gdf[~sw_gdf.is_empty]
 se_gdf = se_gdf[~se_gdf.is_empty]
 
-# Check if the file name contains "denver"
-if "denver" in os.path.basename(file_path):
-    # Merge southeast and southwest quadrants into one GeoDataFrame
-    south_gdf = gpd.GeoDataFrame(pd.concat([sw_gdf, se_gdf], ignore_index=True))
+# Merge southeast and southwest quadrants into one GeoDataFrame
+south_gdf = gpd.GeoDataFrame(pd.concat([sw_gdf, se_gdf], ignore_index=True))
 
-    # Update OBJECTID values
-    ne_gdf['OBJECTID'] = 244
-    nw_gdf['OBJECTID'] = 245
-    south_gdf['OBJECTID'] = 246
+# Update OBJECTID values
+ne_gdf['OBJECTID'] = 244
+nw_gdf['OBJECTID'] = 245
+south_gdf['OBJECTID'] = 246
 
-    # Save each quadrant as a separate GeoJSON
-    ne_gdf.to_file(f"split_city/denver/northeast_denver.geojson", driver="GeoJSON")
-    nw_gdf.to_file(f"split_city/denver/north_denver.geojson", driver="GeoJSON")
-    south_gdf.to_file(f"split_city/denver/south_denver.geojson", driver="GeoJSON")
-else:
-    # Save each quadrant as a separate GeoJSON without merging
-    nw_gdf.to_file(f"split_city/aurora/northwest_aurora.geojson", driver="GeoJSON")
-    ne_gdf.to_file(f"split_city/aurora/northeast_aurora.geojson", driver="GeoJSON")
-    sw_gdf.to_file(f"split_city/aurora/southwest_aurora.geojson", driver="GeoJSON")
-    se_gdf.to_file(f"split_city/aurora/southeast_aurora.geojson", driver="GeoJSON")
+# Save each quadrant as a separate GeoJSON
+ne_gdf.to_file(f"split_city/denver/northeast_denver.geojson", driver="GeoJSON")
+nw_gdf.to_file(f"split_city/denver/north_denver.geojson", driver="GeoJSON")
+south_gdf.to_file(f"split_city/denver/south_denver.geojson", driver="GeoJSON")

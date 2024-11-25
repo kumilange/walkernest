@@ -15,8 +15,8 @@ def save_gdf_to_geojson(gdf, city, data_type):
     
     gdf.to_file(file_path, driver='GeoJSON')
 
-# Function to save list to a JSON file
-def save_list_to_json(list, city, data_type):
+
+def save_network_nodes_to_json(list, city, data_type):
     os.makedirs('data/network_nodes', exist_ok=True)
     city = city.lower()
     file_path = f"data/network_nodes/{city}_{data_type}.json"

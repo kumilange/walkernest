@@ -30,3 +30,24 @@ def create_gdf_with_centroid(geom_centroid_rows):
 
     except Exception as e:
         raise ValueError(f"Error creating GeoDataFrame: {e}")
+
+
+def set_centroid(gdf):
+    """
+    Replace the geometry of each feature in the GeoDataFrame with its centroid.
+    """
+    # Re-project to a projected CRS (e.g., UTM)
+    projected_gdf = gdf.to_crs(epsg=3395)  # World Mercator projection
+
+    # Calculate centroids in the projected CRS
+    projected_gdf['geometry'] = projected_gdf.geometry.centroid
+
+    # Re-project back to the original CRS
+    gdf['geometry'] = projected_gdf.to_crs(gdf.crs).geometry
+
+    # Check if the 'centroid' column exists before dropping it
+    if 'centroid' in gdf.columns:
+        gdf = gdf.drop(columns=['centroid'])
+
+    return gdf
+

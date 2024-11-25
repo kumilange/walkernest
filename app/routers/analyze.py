@@ -6,9 +6,8 @@ from psycopg2 import DatabaseError
 from concurrent.futures import ThreadPoolExecutor
 from app.db import get_connection
 from app.crud import fetch_nodes, fetch_geom_and_centroid, fetch_network_graph
-from app.utils.geometry import create_gdf_with_centroid
+from app.utils.geometry import create_gdf_with_centroid, set_centroid
 from app.utils.networkx import deserialize_graph, find_suitable_apartment_network_nodes, retrieve_suitable_apartments
-from utils.geometry import set_centroid
 
 router = APIRouter()
 
