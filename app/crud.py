@@ -1,4 +1,4 @@
-from fastapi import HTTPException
+from fastapi import HTTPException 
 
 def fetch_favorites(cur, ids):
     # Convert ids to a tuple for the SQL IN clause
