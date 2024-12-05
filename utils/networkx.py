@@ -23,29 +23,13 @@ def create_network_graph(geometry):
     return G
 
 
-def get_equally_distant_points(coords):
-    total_points = len(coords)
-
-    if total_points < 10:
-        num_points = total_points
-    elif 10 <= total_points < 100:
-        num_points = 10
-    else:
-        num_points = total_points // 10
-
-    if total_points < num_points:
-        raise ValueError("Not enough points to select from")
-    
-    step = total_points // num_points
-    return [coords[i * step] for i in range(num_points)]
-
 def convert_to_network_nodes(G, gdf, use_centroid=True):
     def add_nearest_nodes(geometry, nodes):
         if isinstance(geometry, Point):
             nodes.add(ox.distance.nearest_nodes(G, geometry.x, geometry.y))
         elif isinstance(geometry, (LineString)):
-            selected_points = get_equally_distant_points(list(geometry.coords))
-            for point in selected_points:
+            all_points = list(geometry.coords)
+            for point in all_points:
                 nodes.add(ox.distance.nearest_nodes(G, point[0], point[1]))
         elif isinstance(geometry, (MultiLineString)):
             for part in geometry.geoms:
