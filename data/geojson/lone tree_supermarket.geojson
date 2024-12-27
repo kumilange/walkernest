@@ -1,8 +1,0 @@
-{
-"type": "FeatureCollection",
-"features": [
-{ "type": "Feature", "properties": { "name": "Safeway", "shop": "supermarket", "id": 736007273, "building": null }, "geometry": { "type": "Point", "coordinates": [ -104.883304, 39.5378276 ] } },
-{ "type": "Feature", "properties": { "name": "Sprouts Farmers Market", "shop": "supermarket", "id": 9888645862, "building": null }, "geometry": { "type": "Point", "coordinates": [ -104.879875, 39.5342877 ] } },
-{ "type": "Feature", "properties": { "name": "Target", "shop": "supermarket", "id": 327469517, "building": "yes" }, "geometry": { "type": "Polygon", "coordinates": [ [ [ -104.8848276, 39.5357812 ], [ -104.8848292, 39.5356501 ], [ -104.8850132, 39.5356514 ], [ -104.8850278, 39.5344501 ], [ -104.8847995, 39.5344485 ], [ -104.8848004, 39.5343687 ], [ -104.8836834, 39.5343606 ], [ -104.883678, 39.5347911 ], [ -104.8836701, 39.5354294 ], [ -104.8836692, 39.5355225 ], [ -104.8837204, 39.5355229 ], [ -104.8837198, 39.5355728 ], [ -104.8838233, 39.5355736 ], [ -104.8838209, 39.5357739 ], [ -104.8848276, 39.5357812 ] ] ] } }
-]
-}

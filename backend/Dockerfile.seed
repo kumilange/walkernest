@@ -1,0 +1,19 @@
+FROM osgeo/gdal:alpine-small-3.2.1
+
+# Install PostgreSQL client and jq
+RUN apk add --no-cache postgresql-client jq
+
+# Create directories
+RUN mkdir -p /data/geojson /data/network_graphs /data/network_nodes
+
+# Copy seed script and data files
+COPY backend/data/seed/seed.sh /usr/local/bin/seed.sh
+COPY backend/data/seed/geojson /data/geojson
+COPY backend/data/seed/network_graphs /data/network_graphs
+COPY backend/data/seed/network_nodes /data/network_nodes
+
+# Make the seed script executable
+RUN chmod +x /usr/local/bin/seed.sh
+
+# Run the seed script
+CMD ["/usr/local/bin/seed.sh"]
