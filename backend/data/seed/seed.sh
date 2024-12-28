@@ -1,5 +1,10 @@
 #!/bin/sh
 
+if [ "$RUN_SEED" != "true" ]; then
+    echo "Skipping seeding as RUN_SEED is not set to 'true'."
+    exit 0
+fi
+
 # Function to log messages
 log() {
     echo "$(date +'%Y-%m-%d %H:%M:%S') - $1"
