@@ -61,6 +61,7 @@ services:
       timeout: 10s
       retries: 10
 
+  # This service only runs when RUN_SEED environment variable is set to "true"
   seed:
     container_name: seed-db
     build:
