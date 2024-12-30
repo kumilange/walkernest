@@ -4,5 +4,4 @@ cache/
 venv/
 .vscode/
 command.txt
-node_modules/
 frontend/node_modules/
