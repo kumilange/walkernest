@@ -33,3 +33,6 @@ export FRONTEND_DOCKERFILE=frontend/Dockerfile.dev && export NODE_ENV=developmen
 
 ### run prod 
 export FRONTEND_DOCKERFILE=frontend/Dockerfile.prod && export NODE_ENV=production && docker-compose up --build
+
+### ssh 
+ssh -i walkernest-kay-pair.pem ec2-user@18.222.154.137
