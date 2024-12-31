@@ -23,4 +23,16 @@ SELECT postgis_version();
 docker-compose up --build
 
 ### build docker file and run it
-docker build -t seed-image -f Dockerfile.seed . && docker run --rm -it seed-image
+docker build -t seed-image -f backend/Dockerfile.seed . && docker run -e POSTGRES_HOST=postgis -e POSTGRES_PORT=5432 -e POSTGRES_USER=postgres -e POSTGRES_PASSWORD=postgres -e POSTGRES_DB=gis seed-image
+
+### run dev 
+export FRONTEND_DOCKERFILE=frontend/Dockerfile.dev && export NODE_ENV=development && docker-compose up --build
+
+### run dev with seed
+export FRONTEND_DOCKERFILE=frontend/Dockerfile.dev && export NODE_ENV=development && export RUN_SEED=true && docker-compose up --build
+
+### run prod 
+export FRONTEND_DOCKERFILE=frontend/Dockerfile.prod && export NODE_ENV=production && docker-compose up --build
+
+### ssh 
+ssh -i walkernest-kay-pair.pem ec2-user@18.222.154.137

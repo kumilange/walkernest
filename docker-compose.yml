@@ -1,54 +1,86 @@
 services:
-  app:
+  backend:
+    container_name: fastapi-backend
     build:
-      context: .
+      context: ./backend
       dockerfile: Dockerfile.api
     platform: linux/amd64
     ports:
-      - 3000:3000
+      - '3000:3000'
     command:
       - /bin/bash
       - -c
       - |
         exec uvicorn app.main:app --host 0.0.0.0 --port 3000 --reload --reload-dir /app
     volumes:
-      - .:/app
+      - ./backend:/app
     working_dir: /app
     depends_on:
       postgis:
         condition: service_healthy
+    environment:
+      - DB_USERNAME=${DB_USERNAME}
+      - DB_PASSWORD=${DB_PASSWORD}
+      - DB_HOST=${DB_HOST}
+      - DB_PORT=${DB_PORT}
+      - DB_NAME=${DB_NAME}
+      - NODE_ENV=${NODE_ENV:-development} # Default to 'development' if not set
+
+  frontend:
+    container_name: react-frontend
+    build:
+      context: .
+      dockerfile: ${FRONTEND_DOCKERFILE:-Dockerfile.dev}
+    platform: linux/amd64
+    ports:
+      - '5173:5173' # Development port
+      - '80:80' # Production port
+    volumes:
+      - ./frontend:/app
+      - ./shared:/shared
+      - /app/node_modules # Ensure node_modules is created fresh inside the container
+    depends_on:
+      - backend
+    environment:
+      - NODE_ENV=${NODE_ENV:-development} # Default to 'development' if not set
+
   postgis:
+    container_name: postgis-db
     image: kartoza/postgis:16-3.4
     environment:
-      - POSTGRES_USER=postgres
-      - POSTGRES_PASS=postgres
-      - POSTGRES_DB=gis
+      - POSTGRES_USER=${DB_USERNAME}
+      - POSTGRES_PASS=${DB_PASSWORD}
+      - POSTGRES_DB=${DB_NAME}
     ports:
       - '5432:5432'
     volumes:
       - postgis-data:/var/lib/postgresql
-      - ./postgis-init/:/docker-entrypoint-initdb.d/
     healthcheck:
       test: ['CMD-SHELL', 'pg_isready']
       interval: 10s
       timeout: 10s
       retries: 10
-  # seed:
-  #   build:
-  #     context: .
-  #     dockerfile: Dockerfile.seed
-  #   depends_on:
-  #     postgis:
-  #       condition: service_healthy
-  #   environment:
-  #     - DB_USERNAME=postgres
-  #     - DB_PASSWORD=postgres
-  #     - DB_HOST=postgis
-  #     - DB_PORT=5432
-  #     - DB_NAME=gis
-  #   volumes:
-  #     - ./data:/data
-  #   command: /usr/local/bin/seed.sh
+
+  # This service only runs when RUN_SEED environment variable is set to "true"
+  seed:
+    container_name: seed-db
+    build:
+      context: .
+      dockerfile: backend/Dockerfile.seed
+    depends_on:
+      postgis:
+        condition: service_healthy
+    environment:
+      - RUN_SEED=${RUN_SEED:-false}
+      - DB_USERNAME=${DB_USERNAME}
+      - DB_PASSWORD=${DB_PASSWORD}
+      - DB_HOST=${DB_HOST}
+      - DB_PORT=${DB_PORT}
+      - DB_NAME=${DB_NAME}
+    volumes:
+      - ./backend/data/seed:/data
+      - ./shared:/shared
+    command: /usr/local/bin/seed.sh
 
 volumes:
   postgis-data:

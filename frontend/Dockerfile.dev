@@ -1,0 +1,22 @@
+# Use the official Node.js image for development
+FROM node:20-alpine AS development
+
+# Set the working directory
+WORKDIR /app
+
+# Copy package.json and package-lock.json
+COPY frontend/package.json frontend/package-lock.json ./
+
+# Install dependencies in the container
+# Use 'ci' for a clean install to avoid platform-specific issues
+RUN npm ci --only=development 
+
+# Copy the rest of the application code
+COPY frontend/ ./
+COPY shared/ ../shared/
+
+# Expose the development port
+EXPOSE 5173
+
+# Start the Vite development server
+CMD ["npm", "run", "dev"]
