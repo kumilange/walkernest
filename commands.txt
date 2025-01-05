@@ -35,4 +35,18 @@ export FRONTEND_DOCKERFILE=frontend/Dockerfile.dev && export NODE_ENV=developmen
 export FRONTEND_DOCKERFILE=frontend/Dockerfile.prod && export NODE_ENV=production && docker-compose up --build
 
 ### ssh 
-ssh -i walkernest-kay-pair.pem ec2-user@18.222.154.137
+ssh -i walkernest-key-pair.pem ec2-user@18.216.217.247
+
+### How to initialize docker on EC2 after log in with ssh
+sudo yum update -y
+sudo yum install docker -y
+sudo service docker start
+sudo systemctl enable docker
+sudo usermod -aG docker ec2-user
+sudo curl -L "https://github.com/docker/compose/releases/download/$(curl -s https://api.github.com/repos/docker/compose/releases/latest | grep tag_name | cut -d '"' -f 4)/docker-compose-$(uname -s)-$(uname -m)" -o /usr/local/bin/docker-compose
+sudo chmod +x /usr/local/bin/docker-compose
+docker-compose --version
+mkdir walkernest
+chmod -R 755 /home/ec2-user/walkernest
+
+

@@ -4,14 +4,19 @@ FROM node:20-alpine AS build
 # Set the working directory
 WORKDIR /app
 
-# Install dependencies
-COPY frontend/package.json frontend/package-lock.json ./
-RUN npm install
+# # Install dependencies
+# COPY frontend/package.json frontend/package-lock.json ./
+# RUN npm install
 
-# Build the React app
-COPY frontend/ ./
+# # Build the React app
+# COPY frontend/ ./
+# COPY shared/ ../shared/
+# RUN npm run build
+
+
+# Copy shared data and built app
 COPY shared/ ../shared/
-RUN npm run build
+COPY frontend/dist/ ./
 
 # Use a lightweight server to serve the static files
 FROM nginx:stable-alpine

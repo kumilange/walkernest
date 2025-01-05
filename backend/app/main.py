@@ -3,12 +3,16 @@ from fastapi import FastAPI, FastAPI
 from fastapi.middleware.cors import CORSMiddleware
 from app.routers import geojson, favorites, analyze, health
 
-frontend_url = "http://localhost" if os.getenv("NODE_ENV") == "production" else "http://localhost:5173"
+DB_HOST = os.getenv('DB_HOST', 'postgis')
 
 origins = [
-    frontend_url, # frontend URL
-    "http://localhost:3000",  # backend URL 
+	"http://localhost", # local prod frontend URL
+	"http://localhost:5173", # local dev frontend URL
+	"http://localhost:3000", # local backend URL
+    f"http://{DB_HOST}", # aws frontend URL
+    f"http://{DB_HOST}:3000",  # aws backend URL 
 ]
+
 
 app = FastAPI()
 app.add_middleware(

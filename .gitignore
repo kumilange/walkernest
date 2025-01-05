@@ -5,3 +5,5 @@ venv/
 .vscode/
 command.txt
 frontend/node_modules/
+backend/data/
+backend/Dockerfile.seed
