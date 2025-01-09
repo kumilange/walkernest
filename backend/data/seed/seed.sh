@@ -1,5 +1,17 @@
 #!/bin/sh
 
+# Configuration Variables
+DB_USERNAME="postgres"
+DB_PASSWORD="postgres"
+DB_HOST="postgis"
+DB_PORT="5432"
+DB_NAME="gis"
+CITY_DATA=$(cat /shared/citylist.json)
+GEOJSON_DIR='/data/geojson'
+NETWORK_GRAPHS_DIR='/data/network_graphs'
+NETWORK_NODES_DIR='/data/network_nodes'
+BATCH_SIZE=100  # Number of rows to insert in a batch
+
 if [ "$RUN_SEED" != "true" ]; then
     echo "Skipping seeding as RUN_SEED is not set to 'true'."
     exit 0
@@ -19,20 +31,10 @@ fi
 # Connection string
 CONNECTION_STRING="postgresql://$DB_USERNAME:$DB_PASSWORD@$DB_HOST:$DB_PORT/$DB_NAME"
 
-# Load city data from JSON file
-CITY_DATA=$(cat /shared/citylist.json)
-
 # Initialize tables and create indexes
 log "Initializing tables and creating indexes..."
 psql $CONNECTION_STRING <<EOF
 BEGIN;
-DROP TABLE IF EXISTS cities;
-CREATE TABLE IF NOT EXISTS cities (
-    id SERIAL PRIMARY KEY,
-    name VARCHAR(50) NOT NULL,
-    geom GEOMETRY(Polygon, 4326)
-);
-CREATE INDEX idx_cities_geom ON cities USING GIST (geom);
 
 DROP TABLE IF EXISTS geojsons;
 CREATE TABLE IF NOT EXISTS geojsons (
@@ -62,47 +64,62 @@ CREATE TABLE IF NOT EXISTS network_nodes (
 COMMIT;
 EOF
 
-# Insert city data
-log "Inserting city data..."
-echo "$CITY_DATA" | jq -c 'to_entries[]' | while read -r city; do
-  CITY_NAME=$(echo "$city" | jq -r '.key')
-  CITY_ID=$(echo "$city" | jq -r '.value.id')
-  GEOMETRY=$(echo "$city" | jq -r '.value.geometry')
-  psql $CONNECTION_STRING <<EOF
+# Wait for a few seconds before starting the seeding process
+log "Waiting for 5 seconds before starting the seeding process..."
+sleep 5
+
+# Function to insert data in batches
+insert_data_in_batches() {
+  local table=$1
+  local columns=$2
+  local values=$3
+
+  if [ -n "$values" ]; then
+    values=${values%,}
+    psql "$CONNECTION_STRING" <<EOF
 BEGIN;
-INSERT INTO cities (id, name, geom) VALUES ($CITY_ID, '$CITY_NAME', ST_GeomFromGeoJSON('$GEOMETRY'));
+INSERT INTO $table ($columns) VALUES $values;
 COMMIT;
 EOF
-done
+    if [ $? -ne 0 ]; then
+      echo "Error inserting batch into $table. Aborting."
+      exit 1
+    fi
+  fi
+}
 
-# Insert geojson data
-log "Inserting geojson data..."
-GEOJSON_DIR='/data/geojson'
+# Insert GeoJSON data in batches
+log "Inserting GeoJSON data in batches..."
 if [ -d "$GEOJSON_DIR" ] && [ "$(ls -A $GEOJSON_DIR)" ]; then
-  for FILE in $GEOJSON_DIR/*.geojson; do
+  for FILE in "$GEOJSON_DIR"/*.geojson; do
     if [ -f "$FILE" ]; then
       CITY_NAME=$(basename "$FILE" .geojson | cut -d'_' -f1)
       if echo "$CITY_DATA" | jq -e --arg CITY_NAME "$CITY_NAME" 'has($CITY_NAME)' > /dev/null; then
         CITY_ID=$(echo "$CITY_DATA" | jq -r --arg CITY_NAME "$CITY_NAME" '.[$CITY_NAME].id')
-        if echo "$FILE" | grep -q 'apartment'; then
-          NAME='apartment'
-        elif echo "$FILE" | grep -q 'supermarket'; then
-          NAME='supermarket'
-        elif echo "$FILE" | grep -q 'park'; then
-          NAME='park'
-        else
-          continue
-        fi
-        GEOJSON=$(cat "$FILE")
-        echo "$GEOJSON" | jq -c '.features[]' | while read -r feature; do
-          GEOM=$(echo "$feature" | jq -c '.geometry')
-          PROPERTIES=$(echo "$feature" | jq -c '.properties')
-          psql $CONNECTION_STRING <<EOF
-BEGIN;
-INSERT INTO geojsons (city_id, name, geom, properties) VALUES ($CITY_ID, '$NAME', ST_GeomFromGeoJSON('$GEOM'), \$\$${PROPERTIES}\$\$);
-COMMIT;
-EOF
-        done
+        NAME=$(basename "$FILE" .geojson | cut -d'_' -f2)
+
+        INSERT_VALUES=""
+        COUNT=0
+
+        echo "Processing file: $FILE for city: $CITY_NAME (ID: $CITY_ID), type: $NAME"
+
+        jq -c '.features[]' "$FILE" > temp_features.json
+        while read -r feature; do
+          GEOM=$(echo "$feature" | jq -c '.geometry' | sed "s/'/''/g")
+          PROPERTIES=$(echo "$feature" | jq -c '.properties' | sed "s/'/''/g")
+
+          INSERT_VALUES="$INSERT_VALUES($CITY_ID, '$NAME', ST_GeomFromGeoJSON('$GEOM'), '$PROPERTIES'),"
+          COUNT=$((COUNT + 1))
+
+          if [ "$COUNT" -ge "$BATCH_SIZE" ]; then
+            insert_data_in_batches "geojsons" "city_id, name, geom, properties" "$INSERT_VALUES"
+            INSERT_VALUES=""
+            COUNT=0
+          fi
+        done < temp_features.json
+        rm -f temp_features.json
+
+        insert_data_in_batches "geojsons" "city_id, name, geom, properties" "$INSERT_VALUES"
       fi
     fi
   done
@@ -110,17 +127,16 @@ fi
 
 # Insert network graphs data
 log "Inserting network graphs data..."
-NETWORK_GRAPHS_DIR='/data/network_graphs'
 if [ -d "$NETWORK_GRAPHS_DIR" ] && [ "$(ls -A $NETWORK_GRAPHS_DIR)" ]; then
   for FILE in $NETWORK_GRAPHS_DIR/*.json; do
     if [ -f "$FILE" ]; then
       CITY_NAME=$(basename "$FILE" .json | cut -d'_' -f1)
       if echo "$CITY_DATA" | jq -e --arg CITY_NAME "$CITY_NAME" 'has($CITY_NAME)' > /dev/null; then
         CITY_ID=$(echo "$CITY_DATA" | jq -r --arg CITY_NAME "$CITY_NAME" '.[$CITY_NAME].id')
-        GRAPH=$(cat "$FILE")
+        GRAPH=$(cat "$FILE" | sed "s/'/''/g") # Escape single quotes for PostgreSQL
         psql $CONNECTION_STRING <<EOF
 BEGIN;
-INSERT INTO network_graphs (city_id, graph) VALUES ($CITY_ID, \$\$${GRAPH}\$\$);
+INSERT INTO network_graphs (city_id, graph) VALUES ($CITY_ID, '$GRAPH');
 COMMIT;
 EOF
       fi
@@ -128,25 +144,32 @@ EOF
   done
 fi
 
-# Insert network nodes data
-log "Inserting network nodes data..."
-NETWORK_NODES_DIR='/data/network_nodes'
+# Insert network nodes data in batches
+log "Inserting network nodes data in batches..."
 if [ -d "$NETWORK_NODES_DIR" ] && [ "$(ls -A $NETWORK_NODES_DIR)" ]; then
-  for FILE in $NETWORK_NODES_DIR/*.json; do
+  INSERT_VALUES=""
+  COUNT=0
+  for FILE in "$NETWORK_NODES_DIR"/*.json; do
     if [ -f "$FILE" ]; then
       CITY_NAME=$(basename "$FILE" .json | cut -d'_' -f1)
       if echo "$CITY_DATA" | jq -e --arg CITY_NAME "$CITY_NAME" 'has($CITY_NAME)' > /dev/null; then
         CITY_ID=$(echo "$CITY_DATA" | jq -r --arg CITY_NAME "$CITY_NAME" '.[$CITY_NAME].id')
         NAME=$(basename "$FILE" .json | cut -d'_' -f2)
-        NODES=$(cat "$FILE")
-        psql $CONNECTION_STRING <<EOF
-BEGIN;
-INSERT INTO network_nodes (city_id, name, nodes) VALUES ($CITY_ID, '$NAME', '$NODES');
-COMMIT;
-EOF
+        NODES=$(cat "$FILE" | sed "s/'/''/g")  # Escape single quotes
+
+        INSERT_VALUES="$INSERT_VALUES($CITY_ID, '$NAME', '$NODES'),"
+        COUNT=$((COUNT + 1))
+
+        if [ "$COUNT" -ge "$BATCH_SIZE" ]; then
+          insert_data_in_batches "network_nodes" "city_id, name, nodes" "$INSERT_VALUES"
+          INSERT_VALUES=""
+          COUNT=0
+        fi
       fi
     fi
   done
+
+  insert_data_in_batches "network_nodes" "city_id, name, nodes" "$INSERT_VALUES"
 fi
 
-echo "Data loading completed."
+log "✅ Data loading completed."

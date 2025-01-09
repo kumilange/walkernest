@@ -28,14 +28,14 @@ docker build -t seed-image -f backend/Dockerfile.seed . && docker run -e POSTGRE
 ### run dev 
 export FRONTEND_DOCKERFILE=frontend/Dockerfile.dev && export NODE_ENV=development && docker-compose up --build
 
-### run dev with seed
-export FRONTEND_DOCKERFILE=frontend/Dockerfile.dev && export NODE_ENV=development && export RUN_SEED=true && docker-compose up --build
+### run prod with seed
+export FRONTEND_DOCKERFILE=frontend/Dockerfile.prod && export NODE_ENV=production && export RUN_SEED=true && docker-compose up --build
 
 ### run prod 
 export FRONTEND_DOCKERFILE=frontend/Dockerfile.prod && export NODE_ENV=production && docker-compose up --build
 
 ### ssh 
-ssh -i walkernest-key-pair.pem ec2-user@18.216.217.247
+ssh -i walkernest-key-pair.pem ec2-user@18.188.247.251
 
 ### How to initialize docker on EC2 after log in with ssh
 sudo yum update -y
@@ -49,4 +49,21 @@ docker-compose --version
 mkdir walkernest
 chmod -R 755 /home/ec2-user/walkernest
 
+### How to configure postgis on EC2
+docker cp postgis-db:/etc/postgresql/16/main/postgresql.conf ./postgresql.conf
+localhost'/listen_addresses = '*'
+docker cp ./postgresql.conf postgis-db:/etc/postgresql/16/main/postgresql.conf
 
+docker cp postgis-db:/etc/postgresql/16/main/pg_hba.conf ./pg_hba.conf
+host    all             all             0.0.0.0/0               md5
+host    all             all             ::/0                    md5
+docker cp ./pg_hba.conf postgis-db:/etc/postgresql/16/main/pg_hba.conf
+
+docker restart postgis-db
+
+### run built docker images together using docker-compose.yml on ssh
+docker-compose up -d
+
+### login psql from EC2 on ssh
+docker exec -it postgis-db bash
+psql -U postgres -d gis -h 18.188.247.251 -W

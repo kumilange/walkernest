@@ -1,28 +1,15 @@
-# Use the official Node.js image for building the app
-FROM node:20-alpine AS build
+FROM nginx:stable-alpine AS build
 
-# Set the working directory
-WORKDIR /app
+# Set the working directory inside the container
+WORKDIR /usr/share/nginx/html
 
-# # Install dependencies
-# COPY frontend/package.json frontend/package-lock.json ./
-# RUN npm install
+# Remove the default Nginx static files
+RUN rm -rf ./*
 
-# # Build the React app
-# COPY frontend/ ./
-# COPY shared/ ../shared/
-# RUN npm run build
+# Copy the React build output from the dist directory
+COPY frontend/dist /usr/share/nginx/html
 
-
-# Copy shared data and built app
-COPY shared/ ../shared/
-COPY frontend/dist/ ./
-
-# Use a lightweight server to serve the static files
-FROM nginx:stable-alpine
-COPY --from=build /app/dist /usr/share/nginx/html
-
-# Expose the frontend port
+# Expose port 80
 EXPOSE 80
 
 # Start Nginx

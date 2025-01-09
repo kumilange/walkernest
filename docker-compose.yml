@@ -36,9 +36,7 @@ services:
       - '5173:5173' # Development port
       - '80:80' # Production port
     volumes:
-      - ./frontend:/app
       - ./shared:/shared
-      - /app/node_modules # Ensure node_modules is created fresh inside the container
     depends_on:
       - backend
     environment:
