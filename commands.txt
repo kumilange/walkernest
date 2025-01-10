@@ -35,7 +35,7 @@ export FRONTEND_DOCKERFILE=frontend/Dockerfile.prod && export NODE_ENV=productio
 export FRONTEND_DOCKERFILE=frontend/Dockerfile.prod && export NODE_ENV=production && docker-compose up --build
 
 ### ssh 
-ssh -i walkernest-key-pair.pem ec2-user@18.188.247.251
+ssh -i walkernest-key-pair.pem ec2-user@3.147.92.139
 
 ### How to initialize docker on EC2 after log in with ssh
 sudo yum update -y
@@ -55,6 +55,7 @@ localhost'/listen_addresses = '*'
 docker cp ./postgresql.conf postgis-db:/etc/postgresql/16/main/postgresql.conf
 
 docker cp postgis-db:/etc/postgresql/16/main/pg_hba.conf ./pg_hba.conf
+local   all             all                                     md5
 host    all             all             0.0.0.0/0               md5
 host    all             all             ::/0                    md5
 docker cp ./pg_hba.conf postgis-db:/etc/postgresql/16/main/pg_hba.conf
@@ -66,4 +67,4 @@ docker-compose up -d
 
 ### login psql from EC2 on ssh
 docker exec -it postgis-db bash
-psql -U postgres -d gis -h 18.188.247.251 -W
+psql -U postgres -d gis -h 3.147.92.139 -W

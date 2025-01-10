@@ -2,10 +2,11 @@
 
 # Variables
 EC2_USER="ec2-user"
-EC2_HOST="18.188.247.251"
+EC2_HOST="3.147.92.139"
 KEY_PAIR="walkernest-key-pair.pem"
 REMOTE_DIR="/home/ec2-user/walkernest"
 NGINX_STATIC_DIR="frontend/dist"
+ENV_FILE=".env"
 DOCKER_COMPOSE_FILE="docker-compose.yml"
 
 echo "🚀 Starting deployment process..."
@@ -21,6 +22,7 @@ echo "✅ Frontend build completed."
 # Step 2: Copy the built static files to the EC2 instance
 echo "📂 Copying built files to EC2 instance..."
 scp -i $KEY_PAIR -r $NGINX_STATIC_DIR/ $EC2_USER@$EC2_HOST:$REMOTE_DIR/frontend
+scp -i $KEY_PAIR $ENV_FILE $EC2_USER@$EC2_HOST:$REMOTE_DIR/frontend
 echo "✅ Files copied successfully."
 
 # Step 3: SSH into the EC2 instance and run Docker Compose
