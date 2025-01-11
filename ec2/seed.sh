@@ -10,10 +10,10 @@ DB_PASSWORD="postgres"
 DB_HOST="3.147.92.139"
 DB_PORT="5432"
 DB_NAME="gis"
-CITYLIST_PATH="shared/citylist.json"
-GEOJSON_DIR="backend/data/seed/geojson"
-NETWORK_GRAPHS_DIR="backend/data/seed/network_graphs"
-NETWORK_NODES_DIR="backend/data/seed/network_nodes"
+CITYLIST_PATH="../shared/citylist.json"
+GEOJSON_DIR="../backend/data/seed/geojson"
+NETWORK_GRAPHS_DIR="../backend/data/seed/network_graphs"
+NETWORK_NODES_DIR="../backend/data/seed/network_nodes"
 BATCH_SIZE=100  # Number of rows to insert in a batch
 
 # Check if environment variables are set
