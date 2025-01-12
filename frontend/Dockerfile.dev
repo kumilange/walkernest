@@ -9,7 +9,7 @@ COPY frontend/package.json frontend/package-lock.json ./
 
 # Install dependencies in the container
 # Use 'ci' for a clean install to avoid platform-specific issues
-RUN npm ci --only=development 
+RUN npm install
 
 # Copy the rest of the application code
 COPY frontend/ ./

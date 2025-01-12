@@ -1,6 +1,0 @@
-# Ignore 
-backend/data/utils
-backend/data/cdphe_open_data
-backend/data/seed/geojson
-backend/data/seed/network_graphs
-backend/data/seed/network_nodes

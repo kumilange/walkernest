@@ -1,39 +1,48 @@
-#!/bin/sh
+#!/bin/bash
+
+# Exit immediately if a command exits with a non-zero status
+set -euo pipefail
+trap 'echo "❌ Script failed at line $LINENO with exit code $?"' ERR
 
 # Configuration Variables
 DB_USERNAME="postgres"
 DB_PASSWORD="postgres"
-DB_HOST="postgis"
+DB_HOST="3.147.92.139"
 DB_PORT="5432"
 DB_NAME="gis"
-CITY_DATA=$(cat /shared/citylist.json)
-GEOJSON_DIR='/data/geojson'
-NETWORK_GRAPHS_DIR='/data/network_graphs'
-NETWORK_NODES_DIR='/data/network_nodes'
+CITYLIST_PATH="../shared/citylist.json"
+GEOJSON_DIR="../backend/data/seed/geojson"
+NETWORK_GRAPHS_DIR="../backend/data/seed/network_graphs"
+NETWORK_NODES_DIR="../backend/data/seed/network_nodes"
 BATCH_SIZE=100  # Number of rows to insert in a batch
-
-if [ "$RUN_SEED" != "true" ]; then
-    echo "Skipping seeding as RUN_SEED is not set to 'true'."
-    exit 0
-fi
-
-# Function to log messages
-log() {
-    echo "$(date +'%Y-%m-%d %H:%M:%S') - $1"
-}
 
 # Check if environment variables are set
 if [ -z "$DB_USERNAME" ] || [ -z "$DB_PASSWORD" ] || [ -z "$DB_HOST" ] || [ -z "$DB_PORT" ] || [ -z "$DB_NAME" ]; then
-  echo "Database connection parameters are not fully set."
+  echo "❌ Database connection parameters are not fully set."
   exit 1
 fi
 
 # Connection string
 CONNECTION_STRING="postgresql://$DB_USERNAME:$DB_PASSWORD@$DB_HOST:$DB_PORT/$DB_NAME"
 
+# Function to log messages
+log() {
+    echo "$(date +'%Y-%m-%d %H:%M:%S') - $1"
+}
+
+# Start the seeding process
+log "Starting the seeding process..."
+
+# Load city data
+if [ ! -f "$CITYLIST_PATH" ]; then
+  echo "❌ City list file not found at $CITYLIST_PATH"
+  exit 1
+fi
+CITY_DATA=$(cat "$CITYLIST_PATH")
+
 # Initialize tables and create indexes
 log "Initializing tables and creating indexes..."
-psql $CONNECTION_STRING <<EOF
+psql "$CONNECTION_STRING" <<EOF
 BEGIN;
 
 DROP TABLE IF EXISTS geojsons;
@@ -46,6 +55,14 @@ CREATE TABLE IF NOT EXISTS geojsons (
 );
 CREATE INDEX idx_geojsons_geom ON geojsons USING GIST (geom);
 
+DROP TABLE IF EXISTS network_nodes;
+CREATE TABLE IF NOT EXISTS network_nodes (
+    id SERIAL PRIMARY KEY,
+    city_id INTEGER NOT NULL,
+    name VARCHAR(50) CHECK (name IN ('park', 'supermarket', 'apartment')) NOT NULL,
+    nodes JSONB NOT NULL
+);
+
 DROP TABLE IF EXISTS network_graphs;
 CREATE TABLE IF NOT EXISTS network_graphs (
     id SERIAL PRIMARY KEY,
@@ -54,38 +71,35 @@ CREATE TABLE IF NOT EXISTS network_graphs (
 );
 CREATE INDEX idx_network_graphs_city_id ON network_graphs (city_id);
 
-DROP TABLE IF EXISTS network_nodes;
-CREATE TABLE IF NOT EXISTS network_nodes (
-    id SERIAL PRIMARY KEY,
-    city_id INTEGER NOT NULL,
-    name VARCHAR(50) CHECK (name IN ('park', 'supermarket', 'apartment')) NOT NULL,
-    nodes JSONB NOT NULL
-);
 COMMIT;
 EOF
-
-# Wait for a few seconds before starting the seeding process
-log "Waiting for 5 seconds before starting the seeding process..."
-sleep 5
 
 # Function to insert data in batches
 insert_data_in_batches() {
-  local table=$1
-  local columns=$2
-  local values=$3
+    local table=$1
+    local columns=$2
+    local values=$3
+    local retries=5
+    local count=0
 
-  if [ -n "$values" ]; then
-    values=${values%,}
-    psql "$CONNECTION_STRING" <<EOF
+    while [ $count -lt $retries ]; do
+        psql $CONNECTION_STRING <<EOF
 BEGIN;
-INSERT INTO $table ($columns) VALUES $values;
+INSERT INTO $table ($columns) VALUES ${values%,};
 COMMIT;
 EOF
-    if [ $? -ne 0 ]; then
-      echo "Error inserting batch into $table. Aborting."
-      exit 1
-    fi
-  fi
+        if [ $? -eq 0 ]; then
+            log "Batch inserted successfully."
+            return 0
+        else
+            log "Error inserting batch. Retrying... ($((count+1))/$retries)"
+            count=$((count + 1))
+            sleep 2
+        fi
+    done
+
+    log "Failed to insert batch after $retries retries."
+    exit 1
 }
 
 # Insert GeoJSON data in batches
@@ -125,25 +139,6 @@ if [ -d "$GEOJSON_DIR" ] && [ "$(ls -A $GEOJSON_DIR)" ]; then
   done
 fi
 
-# Insert network graphs data
-log "Inserting network graphs data..."
-if [ -d "$NETWORK_GRAPHS_DIR" ] && [ "$(ls -A $NETWORK_GRAPHS_DIR)" ]; then
-  for FILE in $NETWORK_GRAPHS_DIR/*.json; do
-    if [ -f "$FILE" ]; then
-      CITY_NAME=$(basename "$FILE" .json | cut -d'_' -f1)
-      if echo "$CITY_DATA" | jq -e --arg CITY_NAME "$CITY_NAME" 'has($CITY_NAME)' > /dev/null; then
-        CITY_ID=$(echo "$CITY_DATA" | jq -r --arg CITY_NAME "$CITY_NAME" '.[$CITY_NAME].id')
-        GRAPH=$(cat "$FILE" | sed "s/'/''/g") # Escape single quotes for PostgreSQL
-        psql $CONNECTION_STRING <<EOF
-BEGIN;
-INSERT INTO network_graphs (city_id, graph) VALUES ($CITY_ID, '$GRAPH');
-COMMIT;
-EOF
-      fi
-    fi
-  done
-fi
-
 # Insert network nodes data in batches
 log "Inserting network nodes data in batches..."
 if [ -d "$NETWORK_NODES_DIR" ] && [ "$(ls -A $NETWORK_NODES_DIR)" ]; then
@@ -170,6 +165,25 @@ if [ -d "$NETWORK_NODES_DIR" ] && [ "$(ls -A $NETWORK_NODES_DIR)" ]; then
   done
 
   insert_data_in_batches "network_nodes" "city_id, name, nodes" "$INSERT_VALUES"
+fi
+
+# Insert network graphs data
+log "Inserting network graphs data..."
+if [ -d "$NETWORK_GRAPHS_DIR" ] && [ "$(ls -A $NETWORK_GRAPHS_DIR)" ]; then
+  for FILE in $NETWORK_GRAPHS_DIR/*.json; do
+    if [ -f "$FILE" ]; then
+      CITY_NAME=$(basename "$FILE" .json | cut -d'_' -f1)
+      if echo "$CITY_DATA" | jq -e --arg CITY_NAME "$CITY_NAME" 'has($CITY_NAME)' > /dev/null; then
+        CITY_ID=$(echo "$CITY_DATA" | jq -r --arg CITY_NAME "$CITY_NAME" '.[$CITY_NAME].id')
+        GRAPH=$(cat "$FILE" | sed "s/'/''/g") # Escape single quotes for PostgreSQL
+        psql $CONNECTION_STRING <<EOF
+BEGIN;
+INSERT INTO network_graphs (city_id, graph) VALUES ($CITY_ID, '$GRAPH');
+COMMIT;
+EOF
+      fi
+    fi
+  done
 fi
 
 log "✅ Data loading completed."

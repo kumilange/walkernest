@@ -8,7 +8,7 @@ export default function Heading() {
 					className="inline-block w-6 h-6 bg-contain bg-no-repeat"
 					style={{ backgroundImage: `url(${houseImage})` }}
 				/>
-				<span className="hidden sm:inline ml-2">Pawment</span>
+				<span className="hidden sm:inline ml-2">Walkernest</span>
 			</a>
 		</h1>
 	);

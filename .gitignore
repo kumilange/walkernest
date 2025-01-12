@@ -3,6 +3,6 @@ __pycache__
 cache/
 venv/
 .vscode/
-command.txt
+commands.txt
 frontend/node_modules/
-frontent/dist/
+frontend/dist/

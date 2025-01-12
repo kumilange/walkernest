@@ -4,10 +4,6 @@ from fastapi.middleware.cors import CORSMiddleware
 from app.routers import geojson, favorites, analyze, health
 
 DB_HOST = os.getenv('DB_HOST', 'postgis')
-DB_PORT = os.getenv('DB_PORT', '5432')
-NODE_ENV = os.getenv('NODE_ENV', 'production')
-
-frontend_url = f"http://{DB_HOST}" if NODE_ENV == "production" else "http://localhost:5173"
 
 origins = [
 	"http://localhost", # local prod frontend URL

@@ -3,7 +3,7 @@ services:
     container_name: fastapi-backend
     build:
       context: ./backend
-      dockerfile: Dockerfile.api
+      dockerfile: Dockerfile
     platform: linux/amd64
     ports:
       - '3000:3000'
@@ -24,32 +24,30 @@ services:
       - DB_HOST=${DB_HOST}
       - DB_PORT=${DB_PORT}
       - DB_NAME=${DB_NAME}
-      - NODE_ENV=${NODE_ENV:-development} # Default to 'development' if not set
+      - NODE_ENV=production
 
   frontend:
     container_name: react-frontend
     build:
       context: .
-      dockerfile: ${FRONTEND_DOCKERFILE:-Dockerfile.dev}
+      dockerfile: frontend/Dockerfile
     platform: linux/amd64
     ports:
       - '5173:5173' # Development port
       - '80:80' # Production port
     volumes:
-      - ./frontend:/app
       - ./shared:/shared
-      - /app/node_modules # Ensure node_modules is created fresh inside the container
     depends_on:
       - backend
     environment:
-      - NODE_ENV=${NODE_ENV:-development} # Default to 'development' if not set
+      - NODE_ENV=production
 
   postgis:
     container_name: postgis-db
     image: kartoza/postgis:16-3.4
     environment:
       - POSTGRES_USER=${DB_USERNAME}
-      - POSTGRES_PASS=${DB_PASSWORD}
+      - POSTGRES_PASSWORD=${DB_PASSWORD}
       - POSTGRES_DB=${DB_NAME}
     ports:
       - '5432:5432'
@@ -60,27 +58,6 @@ services:
       interval: 10s
       timeout: 10s
       retries: 10
-
-  # This service only runs when RUN_SEED environment variable is set to "true"
-  # seed:
-  #   container_name: seed-db
-  #   build:
-  #     context: .
-  #     dockerfile: backend/Dockerfile.seed
-  #   depends_on:
-  #     postgis:
-  #       condition: service_healthy
-  #   environment:
-  #     - RUN_SEED=${RUN_SEED:-false}
-  #     - DB_USERNAME=${DB_USERNAME}
-  #     - DB_PASSWORD=${DB_PASSWORD}
-  #     - DB_HOST=${DB_HOST}
-  #     - DB_PORT=${DB_PORT}
-  #     - DB_NAME=${DB_NAME}
-  #   volumes:
-  #     - ./backend/data/seed:/data
-  #     - ./shared:/shared
-  #   command: /usr/local/bin/seed.sh
 
 volumes:
   postgis-data:

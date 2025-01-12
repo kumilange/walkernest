@@ -1,9 +1,9 @@
 import { QueryClient, useQuery } from '@tanstack/react-query';
 import { FeatureCollection } from 'geojson';
 
-const BASE_STATIC_URL = 'http://localhost:3000/geojsons';
-const BASE_DYNAMIC_URL = 'http://localhost:3000/analyze';
-const BASE_FAVORITES_URL = 'http://localhost:3000/favorites';
+const BASE_STATIC_URL = `http://${import.meta.env.VITE_APP_HOST}:3000/geojsons`;
+const BASE_DYNAMIC_URL = `http://${import.meta.env.VITE_APP_HOST}:3000/analyze`;
+const BASE_FAVORITES_URL = `http://${import.meta.env.VITE_APP_HOST}:3000/favorites`;
 
 export const queryClient = new QueryClient({});
 
