@@ -17,7 +17,7 @@ import {
 	PopoverContent,
 	PopoverTrigger,
 } from '@/components/ui/popover';
-import { CITY_LIST_ARRAY } from './constants';
+import { CITY_LIST_ARRAY } from '@/constants';
 import useEventHandlers from './use-event-handlers';
 
 export default function CityCombobox() {
