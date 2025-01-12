@@ -13,7 +13,6 @@ origins = [
     f"http://{DB_HOST}:3000",  # aws backend URL 
 ]
 
-
 app = FastAPI()
 app.add_middleware(
     CORSMiddleware,

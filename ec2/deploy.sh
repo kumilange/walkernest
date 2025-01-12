@@ -63,4 +63,3 @@ ssh -i $KEY_PAIR $USER@$INSTANCE_IP <<EOF
 EOF
 
 echo "📦 Deployment completed successfully! ✅"
-
