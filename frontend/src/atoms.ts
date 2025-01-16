@@ -1,10 +1,24 @@
 import { atom } from 'jotai';
 import type { FavoriteItem, LayersVisibility } from '@/types';
+import { LngLat } from 'maplibre-gl';
+
+type RoutePoint = {
+	lngLat: LngLat;
+	name: string;
+}
 
 export const cityAtom = atom<string | null>(null);
 export const isFavPopupOpenAtom = atom(false);
 export const favItemsAtom = atom<FavoriteItem[]>([]);
 export const lastLayerIdAtom = atom<string>('');
+
+export const isStartingPointSelectingAtom = atom(false);
+export const isEndingPointSelectingAtom = atom(false);
+export const startingPointAtom = atom<RoutePoint | null>(null);
+export const endingPointAtom = atom<RoutePoint | null>({
+	lngLat: new LngLat(0, 0),
+	name: 'test test, test, test, test, test',
+});
 
 export const walkingDistanceAtom = atom<any>({
 	park: 320,

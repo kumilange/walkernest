@@ -1,6 +1,6 @@
-import { isFavPopupOpenAtom, lastLayerIdAtom } from '@/atoms';
-import { useAtom, useSetAtom } from 'jotai';
 import { useCallback, useState } from 'react';
+import { useAtom, useSetAtom } from 'jotai';
+import { isFavPopupOpenAtom, lastLayerIdAtom } from '@/atoms';
 import { MapLayerMouseEvent, LngLat, useMap } from 'react-map-gl/maplibre';
 
 export default function useEventHandlers() {

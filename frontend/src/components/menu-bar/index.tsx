@@ -8,6 +8,7 @@ import {
 	FavoritesList,
 	CheckRoute,
 } from '@/components/card-content';
+import { setCursorStyle } from '@/lib/misc';
 
 export default function MenuBar() {
 	return (
@@ -33,17 +34,17 @@ export default function MenuBar() {
 				actionIcon={<Heart className="h-4 w-4" />}
 				content={<FavoritesList />}
 			/>
-			{/* TODO: Implement Check Route feature */}
-			{/* <MenuItem
+			<MenuItem
 				tooltip="Check route"
 				title="Check route"
 				actionIcon={<Route className="h-4 w-4" />}
 				hasOpenState={true}
 				closeCallback={() => {
+					setCursorStyle({ isSelecting: false });
 					console.log('delete route');
 				}}
 				content={<CheckRoute />}
-			/> */}
+			/>
 		</div>
 	);
 }
