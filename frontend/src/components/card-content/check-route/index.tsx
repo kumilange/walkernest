@@ -1,15 +1,18 @@
 import { CircleX, Locate, LocateFixed, ArrowDownUp } from 'lucide-react';
+import { setCursorStyle } from '@/lib/misc';
 import { Button } from '@/components/ui/button';
 import { Input } from '@/components/ui/input';
-import { useAtom, useAtomValue, useSetAtom } from 'jotai';
-import { startingPointAtom, endingPointAtom, isStartingPointSelectingAtom, isEndingPointSelectingAtom } from '@/atoms';
-import { setCursorStyle } from '@/lib/misc';
+import useCheckRoutes from '@/hooks/use-check-routes';
 
 export default function CheckRoute() {
-	const [startingPoint, setStartingPoint] = useAtom(startingPointAtom)
-	const [endingPoint, setEndingPoint] = useAtom(endingPointAtom)
-	const setIsStartingPointSelecting = useSetAtom(isStartingPointSelectingAtom)
-	const setIsEndingPointSelecting = useSetAtom(isEndingPointSelectingAtom)
+	const { startingPoint,
+		endingPoint,
+		isStartingPointSelecting,
+		isEndingPointSelecting,
+		setStartingPoint,
+		setEndingPoint,
+		setIsStartingPointSelecting,
+		setIsEndingPointSelecting } = useCheckRoutes();
 
 	return (
 		<>
@@ -23,7 +26,7 @@ export default function CheckRoute() {
 							?
 							<Input className="w-[180px] overflow-hidden text-ellipsis whitespace-nowrap" value={startingPoint.name} onChange={() => { setStartingPoint(null) }} />
 							:
-							<Button variant="outline" className="w-[180px] overflow-hidden text-ellipsis whitespace-nowrap" onClick={() => {
+							<Button variant="outline" className={`w-[180px] ${isStartingPointSelecting ? 'animate-blink' : ''}`} onClick={() => {
 								setIsStartingPointSelecting(true)
 								setCursorStyle({ isSelecting: true })
 							}}>Click starting point...</Button>
@@ -37,6 +40,7 @@ export default function CheckRoute() {
 								/>}
 						</button>
 					</div>
+
 					<div className="flex w-full items-center">
 						<div className="w-[24px]">
 							<LocateFixed className="w-[16px]" />
@@ -45,7 +49,7 @@ export default function CheckRoute() {
 							?
 							<Input className="w-[180px] overflow-hidden text-ellipsis whitespace-nowrap" value={endingPoint.name} onChange={() => { setEndingPoint(null) }} />
 							:
-							<Button variant="outline" className="w-[180px] overflow-hidden text-ellipsis whitespace-nowrap" onClick={() => {
+							<Button variant="outline" className={`w-[180px] ${isEndingPointSelecting ? 'animate-blink' : ''}`} onClick={() => {
 								setIsEndingPointSelecting(true)
 								setCursorStyle({ isSelecting: true })
 							}}>Click ending point...</Button>
@@ -60,6 +64,7 @@ export default function CheckRoute() {
 						</button>
 					</div>
 				</div>
+
 				{
 					(startingPoint || endingPoint) && <div className="flex items-center">
 						<ArrowDownUp className="w-[16px] cursor-pointer" onClick={() => { const swap = startingPoint; setStartingPoint(endingPoint); setEndingPoint(swap) }} />

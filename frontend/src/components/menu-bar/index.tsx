@@ -9,8 +9,11 @@ import {
 	CheckRoute,
 } from '@/components/card-content';
 import { setCursorStyle } from '@/lib/misc';
+import useCheckRoutes from '@/hooks/use-check-routes';
 
 export default function MenuBar() {
+	const { clearAllRouteStates } = useCheckRoutes();
+
 	return (
 		<div className="w-full h-full flex items-center justify-center sm:gap-3 gap-2 ml-7">
 			<CityCombobox />
@@ -40,7 +43,7 @@ export default function MenuBar() {
 				actionIcon={<Route className="h-4 w-4" />}
 				hasOpenState={true}
 				closeCallback={() => {
-					setCursorStyle({ isSelecting: false });
+					clearAllRouteStates();
 					console.log('delete route');
 				}}
 				content={<CheckRoute />}

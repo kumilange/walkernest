@@ -1,9 +1,11 @@
 import { QueryClient, useQuery } from '@tanstack/react-query';
 import { FeatureCollection } from 'geojson';
+import { LngLat } from 'react-map-gl/maplibre';
 
 const BASE_STATIC_URL = `http://${import.meta.env.VITE_APP_HOST}:3000/geojsons`;
 const BASE_DYNAMIC_URL = `http://${import.meta.env.VITE_APP_HOST}:3000/analyze`;
 const BASE_FAVORITES_URL = `http://${import.meta.env.VITE_APP_HOST}:3000/favorites`;
+const NOMINATIM_URL = `https://nominatim.openstreetmap.org/reverse`;
 
 export const queryClient = new QueryClient({});
 
@@ -114,6 +116,21 @@ export async function fetchFavoritesData(favIds: number[]) {
 		return data;
 	} catch (error) {
 		console.error('Error fetching favorites data', error);
+		throw error;
+	}
+}
+
+export async function fetchAddressName(lngLat: LngLat) {
+	const url = `${NOMINATIM_URL}?lat=${lngLat.lat}&lon=${lngLat.lng}&format=json`;
+	try {
+		const response = await fetch(url);
+		if (!response.ok) {
+			throw new Error('Network response was not ok');
+		}
+		const data = await response.json();
+		return data?.display_name;
+	} catch (error) {
+		console.error('Error fetching address name', error);
 		throw error;
 	}
 }
