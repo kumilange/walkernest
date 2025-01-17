@@ -1,12 +1,23 @@
+import { FeatureCollection } from 'geojson';
 import locateIconPath from '@/assets/locate-icon.png';
 import locateFixedIconPath from '@/assets/locate-fixed-icon.png';
 import useCheckRoutes from '@/hooks/use-check-routes';
 import { generateFeatureCollection } from './helper';
 import IconLayer from './custom-layer/icon-layer';
 
-export default function RoutePointsLayer() {
+type LayerData = {
+	id: string;
+	icon: string;
+	geojson: FeatureCollection;
+}
+
+export default function RoutePointsLayer({
+	lastLayerId,
+}: {
+	lastLayerId: string;
+}) {
 	const { startingPoint, endingPoint } = useCheckRoutes();
-	const data = [];
+	const data: LayerData[] = [];
 
 	if (startingPoint?.lngLat) {
 		data.push({
@@ -31,13 +42,16 @@ export default function RoutePointsLayer() {
 
 	return (
 		<>
-			{data.map(({ id, icon, geojson }) => {
+			{data.map(({ id, icon, geojson }, index) => {
+				const beforeId = index === 0 ? lastLayerId : `${data[index - 1].id}-icon-layer`;
+
 				return (<IconLayer
 					key={id}
 					data={geojson}
 					defaultImageId={id}
 					defaultImagePath={icon}
 					imageOffset={[0, 0]}
+					beforeId={beforeId}
 				/>)
 			})}
 		</>

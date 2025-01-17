@@ -1,11 +1,16 @@
 import { useAtom } from 'jotai';
 import { endingPointAtom, isEndingPointSelectingAtom, isStartingPointSelectingAtom, routeAtom, startingPointAtom } from '@/atoms';
-import { LngLat } from 'react-map-gl/maplibre';
+import { bbox } from '@turf/turf';
+import { LngLat, LngLatBoundsLike } from 'react-map-gl/maplibre';
 import { setCursorStyle } from '@/lib/misc';
 import { fetchAddressName } from '@/lib/fetcher';
 import { toast } from '@/hooks/use-toast';
+import { useCallback } from 'react';
+import { Route } from '@/types';
+import useCityMap from '@/hooks/use-city-map';
 
 export default function useCheckRoutes() {
+	const { map, fitBounds } = useCityMap();
 	const [route, setRoute] = useAtom(routeAtom);
 	const [startingPoint, setStartingPoint] = useAtom(startingPointAtom)
 	const [endingPoint, setEndingPoint] = useAtom(endingPointAtom)
@@ -45,14 +50,43 @@ export default function useCheckRoutes() {
 		setCursorStyle({ isSelecting: false })
 	}
 
-	const clearAllRouteStates = () => {
+	const handleFitBoundsForRoute = useCallback((data: Route) => {
+		if (map === undefined) return;
+
+		const boundingBox = bbox(data.geometry);
+		const lngLatBounds: LngLatBoundsLike = [
+			[boundingBox[0], boundingBox[1]],
+			[boundingBox[2], boundingBox[3]],
+		];
+
+		// if route geometry is outside of the screen, run fitBounds
+		if (!map.getBounds().contains(lngLatBounds[0]) || !map.getBounds().contains(lngLatBounds[1])) {
+			fitBounds({
+				bounds: lngLatBounds,
+				padding: {
+					top: 100,
+					right: 100,
+					bottom: 100,
+					left: 100,
+				}
+			});
+		}
+	}, [map, fitBounds])
+
+	const clearAllRouteStates = useCallback(() => {
 		setRoute(null);
 		setStartingPoint(null);
 		setEndingPoint(null);
 		setIsStartingPointSelecting(false);
 		setIsEndingPointSelecting(false);
 		setCursorStyle({ isSelecting: false })
-	}
+	}, [])
+
+	const reversePoints = useCallback(() => {
+		const swap = startingPoint;
+		setStartingPoint(endingPoint);
+		setEndingPoint(swap);
+	}, [startingPoint, endingPoint])
 
 	return {
 		route,
@@ -68,6 +102,8 @@ export default function useCheckRoutes() {
 		setIsStartingPointSelecting,
 		setIsEndingPointSelecting,
 		clearAllRouteStates,
-		handleAddressName
+		reversePoints,
+		handleAddressName,
+		handleFitBoundsForRoute,
 	}
 }

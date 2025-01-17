@@ -8,7 +8,6 @@ import {
 	FavoritesList,
 	CheckRoute,
 } from '@/components/card-content';
-import { setCursorStyle } from '@/lib/misc';
 import useCheckRoutes from '@/hooks/use-check-routes';
 
 export default function MenuBar() {

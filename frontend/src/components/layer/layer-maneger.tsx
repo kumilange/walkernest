@@ -18,8 +18,6 @@ export default function LayerManager({
 
 	return (
 		<>
-			<RouteLayer />
-			<RoutePointsLayer />
 			{city && <BoundaryLayer city={city} />}
 			{cityId && (
 				<>
@@ -27,7 +25,13 @@ export default function LayerManager({
 					<DynamicDataLayers cityId={cityId} />
 				</>
 			)}
-			{lastLayerId && <FavoritesLayer lastLayerId={lastLayerId} />}
+			{lastLayerId &&
+				<>
+					<FavoritesLayer lastLayerId={lastLayerId} />
+					<RoutePointsLayer lastLayerId={lastLayerId} />
+				</>
+			}
+			<RouteLayer />
 		</>
 	);
 }

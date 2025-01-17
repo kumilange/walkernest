@@ -15,7 +15,7 @@ export default function CheckRoute() {
 		setStartingPoint,
 		setEndingPoint,
 		setIsStartingPointSelecting,
-		setIsEndingPointSelecting } = useCheckRoutes();
+		setIsEndingPointSelecting, reversePoints } = useCheckRoutes();
 
 	return (
 		<>
@@ -75,14 +75,14 @@ export default function CheckRoute() {
 				</div>
 				{
 					(startingPoint || endingPoint) && <div className="flex items-center">
-						<ArrowDownUp className="w-[16px] cursor-pointer" onClick={() => { const swap = startingPoint; setStartingPoint(endingPoint); setEndingPoint(swap) }} />
+						<ArrowDownUp className="w-[16px] cursor-pointer" onClick={() => { reversePoints() }} />
 					</div>
 				}
 			</div >
 			{isBothSelected && route &&
-				<div className="mt-6 w-full flex gap-2 items-center">
-					<CarFront className="w-[24px]" />
-					<div className='ml-2'><span className='font-bold text-xl text-green-600'>{Math.ceil(route?.duration / 60)}</span><span className='ml-1'>mins</span></div>
+				<div className="relative mt-6 w-full h-[28px] flex gap-2 items-baseline">
+					<CarFront className="absolute top-1 w-[20px] h-[20px]" />
+					<div className='ml-9'><span className='font-bold text-xl text-green-600'>{Math.ceil(route?.duration / 60)}</span><span className='ml-1'>mins</span></div>
 					<div className='ml-2'><span className=''>{(route?.distance / 1000).toFixed(1)}</span><span className='ml-1'>km</span></div>
 				</div >
 			}
