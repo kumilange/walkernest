@@ -25,7 +25,7 @@ const layerStyle: LayerProps = {
 };
 
 export default function RouteLayer() {
-	const { animatedRoute, startingPoint, endingPoint, isBothSelected, setRoute, animateRoute, handleFitBoundsForRoute } = useCheckRoutes();
+	const { animatedRoute, startingPoint, endingPoint, isBothSelected, setRoute, setAnimatedRoute, animateRoute, handleFitBoundsForRoute } = useCheckRoutes();
 
 	useEffect(() => {
 		if (!isBothSelected) return;
@@ -40,7 +40,7 @@ export default function RouteLayer() {
 				setRoute(data);
 				handleFitBoundsForRoute(data);
 				// Start animation
-				animateRoute(data.geometry, 300);
+				animateRoute(data.geometry, 1000);
 			} catch (error) {
 				toast({
 					variant: 'destructive',
@@ -51,6 +51,7 @@ export default function RouteLayer() {
 			}
 		};
 
+		setAnimatedRoute(null);
 		handleRoute();
 	}, [startingPoint, endingPoint, isBothSelected]);
 

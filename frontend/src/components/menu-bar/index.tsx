@@ -41,10 +41,7 @@ export default function MenuBar() {
 				title="Check route"
 				actionIcon={<Route className="h-4 w-4" />}
 				hasOpenState={true}
-				closeCallback={() => {
-					clearAllRouteStates();
-					console.log('delete route');
-				}}
+				closeCallback={clearAllRouteStates}
 				content={<CheckRoute />}
 			/>
 		</div>

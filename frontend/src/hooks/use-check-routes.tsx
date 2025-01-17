@@ -93,24 +93,28 @@ export default function useCheckRoutes() {
 	const animateRoute = (geometry: GeoJSON.LineString, duration: number) => {
 		const coordinates = geometry.coordinates;
 		const totalCoordinates = coordinates.length;
-		const intervalDuration = duration / totalCoordinates; // Calculate interval dynamically
-		let progress = 0;
+		let startTime: number | null = null;
 
-		const animationInterval = setInterval(() => {
-			progress++;
+		const animate = (timestamp: number) => {
+			if (!startTime) startTime = timestamp;
+			const elapsed = timestamp - startTime;
 
-			// If we reach the end of the route, clear the interval
-			if (progress > totalCoordinates) {
-				clearInterval(animationInterval);
-				return;
-			}
+			// Calculate progress based on elapsed time
+			const progress = Math.min(elapsed / duration, 1);
+			const segmentCount = Math.floor(progress * totalCoordinates);
 
-			// Update the animated route
 			setAnimatedRoute({
 				type: 'LineString',
-				coordinates: coordinates.slice(0, progress),
+				coordinates: coordinates.slice(0, segmentCount),
 			});
-		}, intervalDuration);
+
+			// Continue animation if not yet complete
+			if (progress < 1) {
+				requestAnimationFrame(animate);
+			}
+		};
+
+		requestAnimationFrame(animate);
 	};
 
 	return {
@@ -124,6 +128,7 @@ export default function useCheckRoutes() {
 		isEndingPointSelecting,
 		setRoute,
 		animateRoute,
+		setAnimatedRoute,
 		setStartingPoint,
 		setEndingPoint,
 		setIsStartingPointSelecting,
