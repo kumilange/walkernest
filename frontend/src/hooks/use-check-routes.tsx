@@ -1,3 +1,4 @@
+import { useCallback } from 'react';
 import { useAtom } from 'jotai';
 import { endingPointAtom, isEndingPointSelectingAtom, isStartingPointSelectingAtom, routeAtom, startingPointAtom } from '@/atoms';
 import { bbox } from '@turf/turf';
@@ -5,7 +6,6 @@ import { LngLat, LngLatBoundsLike } from 'react-map-gl/maplibre';
 import { setCursorStyle } from '@/lib/misc';
 import { fetchAddressName } from '@/lib/fetcher';
 import { toast } from '@/hooks/use-toast';
-import { useCallback } from 'react';
 import { Route } from '@/types';
 import useCityMap from '@/hooks/use-city-map';
 

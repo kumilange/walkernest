@@ -137,8 +137,8 @@ export async function fetchAddressName(lngLat: LngLat) {
 	}
 }
 
-export async function fetchRoute(coords: string) {
-	const url = `${BASE_OSRM_ROUTE_URL}/driving/${coords}?overview=full&geometries=geojson&steps=true`;
+export async function fetchRoute(coordinates: string) {
+	const url = `${BASE_OSRM_ROUTE_URL}/driving/${coordinates}?overview=full&geometries=geojson&steps=true`;
 
 	try {
 		const response = await fetch(url);

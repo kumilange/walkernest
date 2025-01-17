@@ -1,17 +1,15 @@
-import { useCallback, useEffect, useMemo } from 'react';
+import { useEffect } from 'react';
 import {
 	Layer,
 	LayerProps,
 	Source,
-	LngLatBoundsLike
 } from 'react-map-gl/maplibre';
-import { bbox } from '@turf/turf';
 import { fetchRoute } from '@/lib/fetcher';
 import { toast } from '@/hooks/use-toast';
 import useCheckRoutes from '@/hooks/use-check-routes';
-import { Route, RoutePoint } from '@/types';
-import useCityMap from '@/hooks/use-city-map';
+import { RoutePoint } from '@/types';
 
+// TODO: Add animation to the route
 const layerStyle: LayerProps = {
 	id: 'route',
 	type: 'line',
@@ -32,26 +30,30 @@ export default function RouteLayer() {
 	useEffect(() => {
 		if (!isBothSelected) return;
 
-		const startingLngLat = (startingPoint as RoutePoint).lngLat;
-		const endingLngLat = (endingPoint as RoutePoint).lngLat;
-		const coords = `${startingLngLat.lng},${startingLngLat.lat};${endingLngLat.lng},${endingLngLat.lat}`;
+		const handleRoute = async () => {
+			try {
+				const startingLngLat = (startingPoint as RoutePoint).lngLat;
+				const endingLngLat = (endingPoint as RoutePoint).lngLat;
+				const coords = `${startingLngLat.lng},${startingLngLat.lat};${endingLngLat.lng},${endingLngLat.lat}`;
 
-		// Fetch the route from the OSRM API
-		fetchRoute(coords).then((data) => {
-			setRoute(data);
-			handleFitBoundsForRoute(data)
-		}).catch(() => {
-			toast({
-				variant: 'destructive',
-				title: 'Get routes failed.',
-				description: 'There was a problem with your request.',
-				duration: 10000,
-			});
-		});
+				// Fetch the route from the OSRM API
+				const data = await fetchRoute(coords);
+				setRoute(data);
+				handleFitBoundsForRoute(data);
+			} catch (error) {
+				toast({
+					variant: 'destructive',
+					title: 'Get routes failed.',
+					description: 'There was a problem with your request.',
+					duration: 10000,
+				});
+			}
+		};
+
+		handleRoute();
 	}, [startingPoint, endingPoint, isBothSelected, handleFitBoundsForRoute]);
 
-
-
+	// TODO: create a custom layer for the route
 	return (
 		<>
 			{isBothSelected && route?.geometry && (
