@@ -1,4 +1,4 @@
-import { useCallback } from 'react';
+import { useCallback, useState } from 'react';
 import { useAtom } from 'jotai';
 import { endingPointAtom, isEndingPointSelectingAtom, isStartingPointSelectingAtom, routeAtom, startingPointAtom } from '@/atoms';
 import { bbox } from '@turf/turf';
@@ -10,6 +10,7 @@ import { Route } from '@/types';
 import useCityMap from '@/hooks/use-city-map';
 
 export default function useCheckRoutes() {
+	const [animatedRoute, setAnimatedRoute] = useState<GeoJSON.LineString | null>(null);
 	const { map, fitBounds } = useCityMap();
 	const [route, setRoute] = useAtom(routeAtom);
 	const [startingPoint, setStartingPoint] = useAtom(startingPointAtom)
@@ -51,7 +52,7 @@ export default function useCheckRoutes() {
 	}
 
 	const handleFitBoundsForRoute = useCallback((data: Route) => {
-		if (map === undefined) return;
+		if (!map) return;
 
 		const boundingBox = bbox(data.geometry);
 		const lngLatBounds: LngLatBoundsLike = [
@@ -75,6 +76,7 @@ export default function useCheckRoutes() {
 
 	const clearAllRouteStates = useCallback(() => {
 		setRoute(null);
+		setAnimatedRoute(null);
 		setStartingPoint(null);
 		setEndingPoint(null);
 		setIsStartingPointSelecting(false);
@@ -88,8 +90,32 @@ export default function useCheckRoutes() {
 		setEndingPoint(swap);
 	}, [startingPoint, endingPoint])
 
+	const animateRoute = (geometry: GeoJSON.LineString, duration: number) => {
+		const coordinates = geometry.coordinates;
+		const totalCoordinates = coordinates.length;
+		const intervalDuration = duration / totalCoordinates; // Calculate interval dynamically
+		let progress = 0;
+
+		const animationInterval = setInterval(() => {
+			progress++;
+
+			// If we reach the end of the route, clear the interval
+			if (progress > totalCoordinates) {
+				clearInterval(animationInterval);
+				return;
+			}
+
+			// Update the animated route
+			setAnimatedRoute({
+				type: 'LineString',
+				coordinates: coordinates.slice(0, progress),
+			});
+		}, intervalDuration);
+	};
+
 	return {
 		route,
+		animatedRoute,
 		startingPoint,
 		endingPoint,
 		isBothSelected,
@@ -97,6 +123,7 @@ export default function useCheckRoutes() {
 		isStartingPointSelecting,
 		isEndingPointSelecting,
 		setRoute,
+		animateRoute,
 		setStartingPoint,
 		setEndingPoint,
 		setIsStartingPointSelecting,

@@ -9,23 +9,23 @@ import { toast } from '@/hooks/use-toast';
 import useCheckRoutes from '@/hooks/use-check-routes';
 import { RoutePoint } from '@/types';
 
-// TODO: Add animation to the route
 const layerStyle: LayerProps = {
 	id: 'route',
 	type: 'line',
-	source: 'route',
+	source: 'route-source',
 	layout: {
 		'line-join': 'round',
 		'line-cap': 'round',
 	},
 	paint: {
-		'line-color': '#3887be',
+		'line-color': '#166534',
 		'line-width': 5,
+		'line-dasharray': [0, 1],
 	},
 };
 
 export default function RouteLayer() {
-	const { route, setRoute, startingPoint, endingPoint, isBothSelected, handleFitBoundsForRoute } = useCheckRoutes();
+	const { animatedRoute, startingPoint, endingPoint, isBothSelected, setRoute, animateRoute, handleFitBoundsForRoute } = useCheckRoutes();
 
 	useEffect(() => {
 		if (!isBothSelected) return;
@@ -35,11 +35,12 @@ export default function RouteLayer() {
 				const startingLngLat = (startingPoint as RoutePoint).lngLat;
 				const endingLngLat = (endingPoint as RoutePoint).lngLat;
 				const coords = `${startingLngLat.lng},${startingLngLat.lat};${endingLngLat.lng},${endingLngLat.lat}`;
-
 				// Fetch the route from the OSRM API
 				const data = await fetchRoute(coords);
 				setRoute(data);
 				handleFitBoundsForRoute(data);
+				// Start animation
+				animateRoute(data.geometry, 300);
 			} catch (error) {
 				toast({
 					variant: 'destructive',
@@ -51,14 +52,15 @@ export default function RouteLayer() {
 		};
 
 		handleRoute();
-	}, [startingPoint, endingPoint, isBothSelected, handleFitBoundsForRoute]);
+	}, [startingPoint, endingPoint, isBothSelected]);
 
-	// TODO: create a custom layer for the route
 	return (
 		<>
-			{isBothSelected && route?.geometry && (
-				<Source id={'route-source'} type="geojson" data={route.geometry}>
-					<Layer id={'route-layer'} {...layerStyle} />
+			{isBothSelected && animatedRoute && (
+				<Source id={'route-source'} type="geojson" data={animatedRoute}>
+					<Layer id={'route-layer'}
+						{...layerStyle}
+					/>
 				</Source>
 			)}
 		</>

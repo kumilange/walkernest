@@ -38,4 +38,4 @@ export type RoutePoint = {
 	name: string;
 }
 
-export type Route = { geometry: Feature<LineString | MultiLineString>, distance: number, duration: number }
+export type Route = { geometry: Feature<LineString | MultiLineString> & { coordinates: number[][] | number[][][] }, distance: number, duration: number }
