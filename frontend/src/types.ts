@@ -1,11 +1,8 @@
 import { ReactNode } from 'react';
 import { LngLat } from 'maplibre-gl';
-import { Feature, GeoJsonProperties, Point } from 'geojson';
+import { Feature, GeoJsonProperties, Point, LineString, MultiLineString } from 'geojson';
 
-export type RoutePoint = {
-	lngLat: LngLat;
-	name: string;
-}
+
 
 export type FavoriteItem = {
 	id: number;
@@ -30,3 +27,15 @@ export type LayerItem = {
 	label: string;
 	icon: ReactNode;
 };
+
+export type WalkingDistance = {
+	park: number;
+	supermarket: number;
+};
+
+export type RoutePoint = {
+	lngLat: LngLat;
+	name: string;
+}
+
+export type Route = { geometry: Feature<LineString | MultiLineString>, distance: number, duration: number }

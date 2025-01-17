@@ -1,16 +1,18 @@
 import { useAtom } from 'jotai';
-import { endingPointAtom, isEndingPointSelectingAtom, isStartingPointSelectingAtom, startingPointAtom } from '@/atoms';
+import { endingPointAtom, isEndingPointSelectingAtom, isStartingPointSelectingAtom, routeAtom, startingPointAtom } from '@/atoms';
 import { LngLat } from 'react-map-gl/maplibre';
 import { setCursorStyle } from '@/lib/misc';
 import { fetchAddressName } from '@/lib/fetcher';
 import { toast } from '@/hooks/use-toast';
 
 export default function useCheckRoutes() {
+	const [route, setRoute] = useAtom(routeAtom);
 	const [startingPoint, setStartingPoint] = useAtom(startingPointAtom)
 	const [endingPoint, setEndingPoint] = useAtom(endingPointAtom)
 	const [isStartingPointSelecting, setIsStartingPointSelecting] = useAtom(isStartingPointSelectingAtom)
 	const [isEndingPointSelecting, setIsEndingPointSelecting] = useAtom(isEndingPointSelectingAtom)
 	const isSelectingPoint = isStartingPointSelecting || isEndingPointSelecting;
+	const isBothSelected = !!(startingPoint?.lngLat && endingPoint?.lngLat);
 
 	const handleAddressName = async (lngLat: LngLat) => {
 		try {
@@ -44,6 +46,7 @@ export default function useCheckRoutes() {
 	}
 
 	const clearAllRouteStates = () => {
+		setRoute(null);
 		setStartingPoint(null);
 		setEndingPoint(null);
 		setIsStartingPointSelecting(false);
@@ -52,11 +55,14 @@ export default function useCheckRoutes() {
 	}
 
 	return {
+		route,
 		startingPoint,
 		endingPoint,
+		isBothSelected,
 		isSelectingPoint,
 		isStartingPointSelecting,
 		isEndingPointSelecting,
+		setRoute,
 		setStartingPoint,
 		setEndingPoint,
 		setIsStartingPointSelecting,

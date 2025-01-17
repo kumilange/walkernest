@@ -4,6 +4,8 @@ import BoundaryLayer from './custom-layer/boundary-layer';
 import StaticDataLayers from './static-data-layers';
 import DynamicDataLayers from './dynamic-data-layers';
 import FavoritesLayer from './favorites-layer';
+import RoutePointsLayer from './route-points-layer';
+import RouteLayer from './route-layer';
 
 export default function LayerManager({
 	city,
@@ -16,6 +18,8 @@ export default function LayerManager({
 
 	return (
 		<>
+			<RouteLayer />
+			<RoutePointsLayer />
 			{city && <BoundaryLayer city={city} />}
 			{cityId && (
 				<>

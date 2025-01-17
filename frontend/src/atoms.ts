@@ -1,17 +1,18 @@
 import { atom } from 'jotai';
-import type { FavoriteItem, LayersVisibility, RoutePoint } from '@/types';
+import type { FavoriteItem, LayersVisibility, Route, RoutePoint, WalkingDistance } from '@/types';
 
 export const cityAtom = atom<string | null>(null);
 export const isFavPopupOpenAtom = atom(false);
 export const favItemsAtom = atom<FavoriteItem[]>([]);
 export const lastLayerIdAtom = atom<string>('');
 
+export const routeAtom = atom<Route | null>(null)
 export const isStartingPointSelectingAtom = atom(false);
 export const isEndingPointSelectingAtom = atom(false);
 export const startingPointAtom = atom<RoutePoint | null>(null);
 export const endingPointAtom = atom<RoutePoint | null>(null);
 
-export const walkingDistanceAtom = atom<any>({
+export const walkingDistanceAtom = atom<WalkingDistance>({
 	park: 320,
 	supermarket: 800,
 });
