@@ -1,5 +1,5 @@
 import { Car } from 'lucide-react';
-import useCheckRoutes from '@/hooks/use-check-routes';
+import { useCheckRoutes } from '@/hooks';
 import { formatDistance, formatDurationInMins } from './helper';
 
 export default function RouteResult() {

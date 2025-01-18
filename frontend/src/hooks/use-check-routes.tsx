@@ -5,9 +5,8 @@ import { bbox } from '@turf/turf';
 import { LngLat, LngLatBoundsLike } from 'react-map-gl/maplibre';
 import { setCursorStyle } from '@/lib/misc';
 import { fetchAddressName } from '@/lib/fetcher';
-import { toast } from '@/hooks/use-toast';
+import { toast, useCityMap } from '@/hooks';
 import { Route } from '@/types';
-import useCityMap from '@/hooks/use-city-map';
 
 export default function useCheckRoutes() {
 	const [animatedRoute, setAnimatedRoute] = useState<GeoJSON.LineString | null>(null);

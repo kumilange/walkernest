@@ -5,9 +5,8 @@ import {
 	Source,
 } from 'react-map-gl/maplibre';
 import { fetchRoute } from '@/lib/fetcher';
-import { toast } from '@/hooks/use-toast';
-import useCheckRoutes from '@/hooks/use-check-routes';
 import { RoutePoint } from '@/types';
+import { toast, useCheckRoutes } from '@/hooks';
 
 const layerStyle: LayerProps = {
 	id: 'route',

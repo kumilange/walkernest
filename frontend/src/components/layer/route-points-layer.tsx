@@ -1,7 +1,7 @@
 import { FeatureCollection } from 'geojson';
 import locateIconPath from '@/assets/locate-icon.png';
 import locateFixedIconPath from '@/assets/locate-fixed-icon.png';
-import useCheckRoutes from '@/hooks/use-check-routes';
+import { useCheckRoutes } from '@/hooks';
 import { generateFeatureCollection } from './helper';
 import IconLayer from './custom-layer/icon-layer';
 

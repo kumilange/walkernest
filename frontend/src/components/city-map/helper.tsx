@@ -1,6 +1,6 @@
 import { useAtomValue } from 'jotai';
 import { favItemsAtom } from '@/atoms';
-import useCheckRoutes from '@/hooks/use-check-routes';
+import { useCheckRoutes } from '@/hooks';
 
 /**
  * Generates an array of interactive layer IDs based on the provided city ID and the current state.

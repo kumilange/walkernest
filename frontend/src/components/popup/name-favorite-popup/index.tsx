@@ -16,10 +16,10 @@ import {
 } from '@/components/ui/form';
 import { CloseButton } from '@/components/button';
 import { ToastAction } from '@/components/ui/toast';
-import { useToast } from '@/hooks/use-toast';
 import { addToLocalStorageList } from '@/lib/localstorage';
 import { favItemsAtom } from '@/atoms';
 import { fetchFavoritesData } from '@/lib/fetcher';
+import { useToast } from '@/hooks';
 import type { FavoriteItem } from '@/types';
 
 type NameFavoritePopupProps = {

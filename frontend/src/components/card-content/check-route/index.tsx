@@ -1,14 +1,12 @@
 import { ArrowDownUp } from 'lucide-react';
-import useCheckRoutes from '@/hooks/use-check-routes';
+import { useCheckRoutes } from '@/hooks';
 import SelectPoint from './select-point';
 import RouteResult from './route-result';
 
 export default function CheckRoute() {
 	const {
-		route,
 		startingPoint,
 		endingPoint,
-		isBothSelected,
 		isStartingPointSelecting,
 		isEndingPointSelecting,
 		setStartingPoint,

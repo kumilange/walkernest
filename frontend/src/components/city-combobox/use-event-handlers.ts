@@ -2,9 +2,9 @@ import { useCallback } from 'react';
 import { useMap, LngLatBoundsLike } from 'react-map-gl/maplibre';
 import { useSetAtom } from 'jotai';
 import { bbox } from '@turf/turf';
-import useCityMap from '@/hooks/use-city-map';
+import { useCityMap } from '@/hooks';
 import { cityAtom } from '@/atoms';
-import type { CityArrayItem } from './type';
+import type { CityArrayItem } from '@/types';
 
 export default function useEventHandlers() {
 	const { map } = useMap();

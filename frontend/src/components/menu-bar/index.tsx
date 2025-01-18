@@ -8,7 +8,7 @@ import {
 	FavoritesList,
 	CheckRoute,
 } from '@/components/card-content';
-import useCheckRoutes from '@/hooks/use-check-routes';
+import { useCheckRoutes } from '@/hooks';
 
 export default function MenuBar() {
 	const { clearAllRouteStates } = useCheckRoutes();

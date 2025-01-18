@@ -1,7 +1,7 @@
 import { useEffect } from 'react';
+import { useToast } from '@/hooks';
 import { useStaticCityData } from '@/lib/fetcher';
 import supermarketIconPath from '@/assets/supermarket-icon.png';
-import { useToast } from '@/hooks/use-toast';
 import GeoJsonLayer from './custom-layer/geojson-layer';
 import IconLayer from './custom-layer/icon-layer';
 
@@ -17,7 +17,7 @@ export default function StaticDataLayers({ cityId }: { cityId: number }) {
 				duration: 10000,
 			});
 		}
-	}, [data, error, toast]);
+	}, [error, toast]);
 
 	return (
 		<>

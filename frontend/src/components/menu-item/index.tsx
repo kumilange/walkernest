@@ -5,7 +5,6 @@ import { Popover, PopoverContent } from '@/components/ui/popover';
 import MenuActionTrigger from './menu-action-trigger';
 import PopoverCloseButton from './popover-close-button';
 import CustomCard from './custom-card';
-import { setCursorStyle } from '@/lib/misc';
 
 type MenuItemProps = {
 	// for action trigger

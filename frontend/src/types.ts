@@ -1,8 +1,20 @@
 import { ReactNode } from 'react';
 import { LngLat } from 'maplibre-gl';
-import { Feature, GeoJsonProperties, Point, LineString, MultiLineString } from 'geojson';
+import { Feature, GeoJsonProperties, Geometry, Point, LineString, MultiLineString } from 'geojson';
 
+export type CityArrayItem = {
+	id: number;
+	value: string;
+	label: string;
+	geometry: Geometry;
+};
 
+export type CityMapItem = {
+	[key: string]: {
+		id: number;
+		geometry: Geometry;
+	};
+};
 
 export type FavoriteItem = {
 	id: number;
