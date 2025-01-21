@@ -1,6 +1,16 @@
 import { type ClassValue, clsx } from 'clsx';
 import { twMerge } from 'tailwind-merge';
+import type { CityMapItem, CityArrayItem } from '@/types';
 
+/**
+ * Combines multiple class names into a single string.
+ *
+ * This function takes any number of class name inputs, merges them using `clsx`,
+ * and then further processes them with `twMerge` to handle Tailwind CSS class conflicts.
+ *
+ * @param {...ClassValue[]} inputs - The class names to combine. These can be strings, arrays, or objects.
+ * @returns {string} The combined class names as a single string.
+ */
 export function cn(...inputs: ClassValue[]) {
 	return twMerge(clsx(inputs));
 }
@@ -14,3 +24,52 @@ export function cn(...inputs: ClassValue[]) {
 export function capitalize(str: string): string {
 	return str.charAt(0).toUpperCase() + str.slice(1).toLowerCase();
 }
+
+
+/**
+ * Sets the cursor style of the canvas element based on the selection state.
+ *
+ * @param {Object} param - The parameter object.
+ * @param {boolean} param.isSelecting - Indicates whether the selection mode is active.
+ */
+export const setCursorStyle = ({ isSelecting }: { isSelecting: boolean }) => {
+	const canvasElement = document.querySelector('.maplibregl-canvas') as HTMLElement;
+	if (!canvasElement) return;
+
+	if (isSelecting) {
+		canvasElement.style.cursor = 'crosshair';
+	} else {
+		canvasElement.style.cursor = 'default';
+	}
+}
+
+/**
+ * Transforms a map of city items into an array of city items with additional properties.
+ *
+ * @param cityLisMap - A map where the key is a string representing the city name and the value is an object containing city details.
+ * @returns An array of city items, each containing an id, value, label, and geometry, sorted alphabetically by the label property.
+ *
+ * @remarks
+ * The function capitalizes each word in the city name and replaces underscores with spaces to create the label property.
+ */
+export const transformToCityListArray = (cityLisMap: CityMapItem): CityArrayItem[] => {
+	// Function to capitalize each word
+	function capitalize(str: string): string {
+		return str.replace(/\b\w/g, (char: string) => char.toUpperCase());
+	}
+
+	// Transform the data to match the CityArrayItem type
+	const cityListArray: CityArrayItem[] = Object.entries(cityLisMap).map(
+		([key, value]) => ({
+			id: value.id,
+			value: key,
+			label: capitalize(key.replace(/_/g, ' ')),
+			geometry: value.geometry,
+		})
+	);
+
+	// Sort the array in alphabetical order based on the label property
+	cityListArray.sort((a, b) => a.label.localeCompare(b.label));
+
+	return cityListArray;
+};

@@ -10,9 +10,9 @@ import useEventHandlers from './hooks/use-event-handlers';
 import useSyncFavorites from './hooks/use-sync-favorites';
 
 export default function CityMap() {
-	useSyncFavorites();
 	const city = useAtomValue(cityAtom);
 	const cityId = city ? CITY_LIST_MAP[city].id : null;
+	useSyncFavorites();
 	const {
 		lngLat,
 		properties,

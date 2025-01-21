@@ -1,9 +1,11 @@
 import { useAtomValue } from 'jotai';
 import { lastLayerIdAtom } from '@/atoms';
 import BoundaryLayer from './custom-layer/boundary-layer';
+import RouteLayer from './custom-layer/route-layer';
 import StaticDataLayers from './static-data-layers';
 import DynamicDataLayers from './dynamic-data-layers';
 import FavoritesLayer from './favorites-layer';
+import RoutePointsLayer from './route-points-layer';
 
 export default function LayerManager({
 	city,
@@ -23,7 +25,13 @@ export default function LayerManager({
 					<DynamicDataLayers cityId={cityId} />
 				</>
 			)}
-			{lastLayerId && <FavoritesLayer lastLayerId={lastLayerId} />}
+			{lastLayerId &&
+				<>
+					<FavoritesLayer lastLayerId={lastLayerId} />
+					<RoutePointsLayer lastLayerId={lastLayerId} />
+				</>
+			}
+			<RouteLayer />
 		</>
 	);
 }

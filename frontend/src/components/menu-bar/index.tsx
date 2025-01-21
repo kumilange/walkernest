@@ -8,8 +8,11 @@ import {
 	FavoritesList,
 	CheckRoute,
 } from '@/components/card-content';
+import { useCheckRoutes } from '@/hooks';
 
 export default function MenuBar() {
+	const { clearAllRouteStates } = useCheckRoutes();
+
 	return (
 		<div className="w-full h-full flex items-center justify-center sm:gap-3 gap-2 ml-7">
 			<CityCombobox />
@@ -33,17 +36,14 @@ export default function MenuBar() {
 				actionIcon={<Heart className="h-4 w-4" />}
 				content={<FavoritesList />}
 			/>
-			{/* TODO: Implement Check Route feature */}
-			{/* <MenuItem
+			<MenuItem
 				tooltip="Check route"
 				title="Check route"
 				actionIcon={<Route className="h-4 w-4" />}
 				hasOpenState={true}
-				closeCallback={() => {
-					console.log('delete route');
-				}}
+				closeCallback={clearAllRouteStates}
 				content={<CheckRoute />}
-			/> */}
+			/>
 		</div>
 	);
 }

@@ -24,7 +24,7 @@ export default function MenuItem(props: MenuItemProps) {
 
 	const handleOpenChange = (isOpen: boolean) => {
 		// Prevent the Popover from closing when clicking outside
-		if (!isOpen) return;
+		if (!isOpen) return
 		setOpen(isOpen);
 	};
 

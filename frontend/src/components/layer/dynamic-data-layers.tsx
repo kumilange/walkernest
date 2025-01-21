@@ -6,7 +6,7 @@ import { favItemsAtom, walkingDistanceAtom } from '@/atoms';
 import ClusterLayer from './custom-layer/cluster-layer';
 import GeoJsonLayer from './custom-layer/geojson-layer';
 import IconLayer from './custom-layer/icon-layer';
-import { useToast } from '@/hooks/use-toast';
+import { useToast } from '@/hooks';
 import { ToastAction } from '@/components/ui/toast';
 
 export default function DynamicDataLayers({ cityId }: { cityId: number }) {
