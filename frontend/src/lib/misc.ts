@@ -105,3 +105,22 @@ export function convertKeysToSnakeCase(obj: { [key: string]: any }): { [key: str
 
 	return result;
 }
+
+/**
+ * Generates parameters for dynamic city data based on the provided maximum distances and amenity availability.
+ *
+ * @param {Object} params - The parameters for generating city data.
+ * @param {Object} params.maxDistance - The maximum distances for amenities.
+ * @param {number} params.maxDistance.park - The maximum distance for parks.
+ * @param {number} params.maxDistance.supermarket - The maximum distance for supermarkets.
+ * @param {Object} params.isAmenityOn - The availability of amenities.
+ * @param {boolean} params.isAmenityOn.park - Whether parks are available.
+ * @param {boolean} params.isAmenityOn.supermarket - Whether supermarkets are available.
+ * @returns {Object} The generated parameters including maximum distances for available amenities.
+ */
+export function generateCityDataParams({ maxDistance, isAmenityOn }: { maxDistance: { park: number; supermarket: number; }, isAmenityOn: { park: boolean, supermarket: boolean } },) {
+	return {
+		...(isAmenityOn.park ? { maxMeterPark: maxDistance.park } : {}),
+		...(isAmenityOn.supermarket ? { maxMeterSupermarket: maxDistance.supermarket } : {}),
+	};
+}

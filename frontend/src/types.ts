@@ -40,7 +40,7 @@ export type LayerItem = {
 	icon: ReactNode;
 };
 
-export type WalkingDistance = {
+export type MaxDistance = {
 	park: number;
 	supermarket: number;
 };

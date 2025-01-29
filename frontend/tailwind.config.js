@@ -1,5 +1,8 @@
 /** @type {import('tailwindcss').Config} */
+import tailwindcssAnimate from 'tailwindcss-animate';
+
 const config = {
+  darkMode: ['class'],
   content: ['./src/**/*.{js,ts,jsx,tsx}', './index.html'],
   prefix: '',
   theme: {
@@ -64,16 +67,28 @@ const config = {
       },
       keyframes: {
         'accordion-down': {
-          from: { height: '0' },
-          to: { height: 'var(--radix-accordion-content-height)' },
+          from: {
+            height: '0',
+          },
+          to: {
+            height: 'var(--radix-accordion-content-height)',
+          },
         },
         'accordion-up': {
-          from: { height: 'var(--radix-accordion-content-height)' },
-          to: { height: '0' },
+          from: {
+            height: 'var(--radix-accordion-content-height)',
+          },
+          to: {
+            height: '0',
+          },
         },
         blink: {
-          '0%, 100%': { opacity: 1 },
-          '50%': { opacity: 0.5 },
+          '0%, 100%': {
+            opacity: 1,
+          },
+          '50%': {
+            opacity: 0.5,
+          },
         },
       },
       animation: {
@@ -86,7 +101,7 @@ const config = {
       },
     },
   },
-  plugins: [import('tailwindcss-animate')],
+  plugins: [tailwindcssAnimate],
 };
 
 export default config;

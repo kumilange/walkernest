@@ -23,7 +23,7 @@ export default function SelectPoint({ isStarting, point, setPoint, isPointSelect
 	}, []);
 
 	return (
-		<div className="flex w-full items-center">
+		<div className="flex items-center w-[250px]">
 			<div className="w-[24px]">
 				{isStarting
 					? <Locate className={classes} />
@@ -31,9 +31,9 @@ export default function SelectPoint({ isStarting, point, setPoint, isPointSelect
 			</div>
 			{point
 				?
-				<Input className="w-[180px] overflow-hidden text-ellipsis whitespace-nowrap" value={point.name} onChange={() => { setPoint(null) }} />
+				<Input className="mx-1 overflow-hidden text-ellipsis whitespace-nowrap" value={point.name} onChange={() => { setPoint(null) }} />
 				:
-				<Button variant="outline" className={`w-[180px] ${isPointSelecting ? 'animate-blink' : ''}`} onClick={handleSelectPoint}>{`Click ${isStarting ? "starg" : "end"}ing point...`}</Button>
+				<Button variant="outline" className={`w-full mx-1 ${isPointSelecting ? 'animate-blink' : ''}`} onClick={handleSelectPoint}>{`Click ${isStarting ? "starg" : "end"}ing point...`}</Button>
 			}
 			<button className="w-[24px] flex justify-end">
 				<CircleX

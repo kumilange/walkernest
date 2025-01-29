@@ -2,20 +2,23 @@ import { useEffect } from 'react';
 import { useAtomValue } from 'jotai';
 import { useDynamicCityData } from '@/lib/fetcher';
 import apartmentIconPath from '@/assets/apartment-icon.png';
-import { favItemsAtom, walkingDistanceAtom } from '@/atoms';
+import { isAmenityOnAtom, favItemsAtom, maxDistanceAtom } from '@/atoms';
 import ClusterLayer from './custom-layer/cluster-layer';
 import GeoJsonLayer from './custom-layer/geojson-layer';
 import IconLayer from './custom-layer/icon-layer';
 import { useToast } from '@/hooks';
 import { ToastAction } from '@/components/ui/toast';
+import { generateCityDataParams } from '@/lib/misc';
 
 export default function DynamicDataLayers({ cityId }: { cityId: number }) {
 	const { toast } = useToast();
-	const { park, supermarket } = useAtomValue(walkingDistanceAtom);
+	const maxDistance = useAtomValue(maxDistanceAtom);
+	const isAmenityOn = useAtomValue(isAmenityOnAtom);
+	const params = generateCityDataParams({ maxDistance, isAmenityOn });
+
 	const { data, error } = useDynamicCityData({
 		cityId,
-		maxMeterPark: park,
-		maxMeterSupermarket: supermarket,
+		...params
 	});
 	const favItems = useAtomValue(favItemsAtom);
 	const favIds = favItems.map((item) => item.id);
