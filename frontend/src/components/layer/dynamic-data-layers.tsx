@@ -14,8 +14,8 @@ export default function DynamicDataLayers({ cityId }: { cityId: number }) {
 	const { park, supermarket } = useAtomValue(walkingDistanceAtom);
 	const { data, error } = useDynamicCityData({
 		cityId,
-		maxParkMeter: park,
-		maxSupermarketMeter: supermarket,
+		maxMeterPark: park,
+		maxMeterSupermarket: supermarket,
 	});
 	const favItems = useAtomValue(favItemsAtom);
 	const favIds = favItems.map((item) => item.id);

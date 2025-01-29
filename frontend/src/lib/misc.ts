@@ -73,3 +73,35 @@ export const transformToCityListArray = (cityLisMap: CityMapItem): CityArrayItem
 
 	return cityListArray;
 };
+export function convertQueryParamsToTypes(queryParams: string[]): string[] {
+	return queryParams.map((param) => {
+		const urlParams = new URLSearchParams(param);
+		const cityId = urlParams.get('city_id');
+		const name = urlParams.get('name');
+		const isCentroid = urlParams.get('is_centroid');
+
+		if (isCentroid) {
+			return `${cityId}_${name}_centroid`;
+		}
+
+		return `${cityId}_${name}`;
+	});
+}
+
+/**
+ * Convert camel case keys in an object to snake case keys.
+ * @param obj - The object with camel case keys.
+ * @returns A new object with snake case keys.
+ */
+export function convertKeysToSnakeCase(obj: { [key: string]: any }): { [key: string]: any } {
+	const result: { [key: string]: any } = {};
+
+	for (const key in obj) {
+		if (obj.hasOwnProperty(key)) {
+			const snakeCaseKey = key.replace(/([A-Z])/g, '_$1').toLowerCase();
+			result[snakeCaseKey] = obj[key];
+		}
+	}
+
+	return result;
+}

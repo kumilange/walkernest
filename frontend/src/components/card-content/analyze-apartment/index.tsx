@@ -50,8 +50,8 @@ export default function AnalyzeApartment() {
 
 	const { isFetching } = useDynamicCityData({
 		cityId: cityId as number,
-		maxParkMeter: walkingDistance.park,
-		maxSupermarketMeter: walkingDistance.supermarket,
+		maxMeterPark: walkingDistance.park,
+		maxMeterSupermarket: walkingDistance.supermarket,
 	});
 
 	const form = useForm<z.infer<typeof FormSchema>>({
@@ -69,11 +69,11 @@ export default function AnalyzeApartment() {
 		!form.formState.isValid;
 
 	const onSubmit = (data: z.infer<typeof FormSchema>) => {
-		const park_meter =
+		const parkMeter =
 			MINS_TO_METERS_IN_WALK[data.park as keyof MinutesToMeters];
-		const supermarket_meter =
+		const supermarketMeter =
 			MINS_TO_METERS_IN_WALK[data.supermarket as keyof MinutesToMeters];
-		setWalkingDistance({ park: park_meter, supermarket: supermarket_meter });
+		setWalkingDistance({ park: parkMeter, supermarket: supermarketMeter });
 	};
 
 	return (
