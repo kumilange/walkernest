@@ -25,6 +25,7 @@ const config = {
         supermarket: '#90e0ef',
         park: '#abc32f',
         cafe: '#B399D4',
+        route: '#166534',
         boundaryLine: '#deb887',
         boundaryFill: '#eedc82',
         clusterCircle: '#ffffff',

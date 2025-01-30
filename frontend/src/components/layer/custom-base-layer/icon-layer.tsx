@@ -4,6 +4,16 @@ import { filterFeaturesByIds, filterFeaturesByType } from '../helper';
 import useImageLoader from '../hooks/use-image-loader';
 import useLayerVisibility from '../hooks/use-layer-visibility';
 
+type IconLayerProps = {
+	data: FeatureCollection;
+	defaultImageId: string;
+	defaultImagePath: string;
+	skipIds?: number[];
+	imageSize?: number;
+	imageOffset?: [number, number];
+	beforeId?: string;
+}
+
 export default function IconLayer({
 	data,
 	defaultImageId,
@@ -12,15 +22,7 @@ export default function IconLayer({
 	imageSize = 1,
 	imageOffset = [0, -8],
 	beforeId,
-}: {
-	data: FeatureCollection;
-	defaultImageId: string;
-	defaultImagePath: string;
-	skipIds?: number[];
-	imageSize?: number;
-	imageOffset?: [number, number];
-	beforeId?: string;
-}) {
+}: IconLayerProps) {
 	useImageLoader(defaultImagePath, defaultImageId);
 
 	const isHidden = useLayerVisibility(defaultImageId);
