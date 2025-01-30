@@ -1,10 +1,9 @@
 import { ReactNode } from 'react';
 import { House, ShoppingCart, Trees, Coffee } from 'lucide-react';
-import resolveConfig from 'tailwindcss/resolveConfig';
 import tailwindConfig from '../../../tailwind.config';
 
-const twConfig = resolveConfig(tailwindConfig);
-export const twColors = twConfig.theme.colors as any;
+export const twColors = tailwindConfig.theme.extend.colors;
+
 export const colorMappings: { [key: string]: { point: string; lineString: string; polygon: string } } = {
 	apartment: {
 		point: twColors.apartment,
@@ -34,6 +33,7 @@ type ValidPropertyPairs = {
 		icon: ReactNode;
 	};
 };
+
 export const VALID_PROPERTY_PAIRS: ValidPropertyPairs = {
 	leisure: { text: ['dog_park', 'park'], icon: <Trees size="20px" /> },
 	shop: { text: ['supermarket'], icon: <ShoppingCart size="20px" /> },
