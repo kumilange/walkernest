@@ -1,5 +1,7 @@
 {
 "type": "FeatureCollection",
+"name": "boulder_supermarket",
+"crs": { "type": "name", "properties": { "name": "urn:ogc:def:crs:OGC:1.3:CRS84" } },
 "features": [
 { "type": "Feature", "properties": { "name": "King Soopers", "shop": "supermarket", "id": 25757229, "building": null }, "geometry": { "type": "Point", "coordinates": [ -105.251465, 39.9834044 ] } },
 { "type": "Feature", "properties": { "name": "Whole Foods Market", "shop": "supermarket", "id": 564835927, "building": null }, "geometry": { "type": "Point", "coordinates": [ -105.255938, 40.0240242 ] } },

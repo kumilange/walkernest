@@ -29,25 +29,34 @@ def deserialize_graph(graph_json) -> nx.MultiDiGraph:
     
     return G
 
-def find_suitable_apartment_network_nodes(G, apartment_nnodes, park_nnodes, supermarket_nnodes, max_park_distance, max_supermarket_distance):
+def find_suitable_apartment_network_nodes(G, apartment_nnodes, **kwargs):
     """
-    Optimized function to find suitable apartment network nodes within specified distances from park and supermarket nodes.
+    Find apartments within the specified distances to various amenities.
 
-    Explanation of Optimizations:
-    multi_source_dijkstra_path_length drastically reduces the number of calculations by finding shortest paths from all park or supermarket nodes at once, instead of generating separate subgraphs.
-    Cutoff Parameter: Setting cutoff to max_park_distance and max_supermarket_distance prevents unnecessary distance calculations, limiting search space to the needed distances.
-    This approach should significantly improve the execution time by reducing the number of graph traversals and focusing only on relevant nodes and edges.
+    Parameters:
+    - G: The networkx graph representing the area.
+    - apartment_nnodes: A list of apartment nodes.
+    - kwargs: A dictionary where values are tuples of (nodes, max_distance).
+
+    Returns:
+    - A list of apartments that meet the distance criteria.
     """
-    # Step 1: Precompute distances from all park nodes
-    park_distances = nx.multi_source_dijkstra_path_length(G, park_nnodes, cutoff=max_park_distance, weight='length')
+    # If no dictionary is provided, return all apartments
+    if not kwargs:
+        return apartment_nnodes
 
-    # Step 2: Precompute distances from all supermarket nodes
-    supermarket_distances = nx.multi_source_dijkstra_path_length(G, supermarket_nnodes, cutoff=max_supermarket_distance, weight='length')
+    distance_constraints = []
 
-    # Step 3: Find suitable apartment nodes within both distance constraints
+    # Precompute distances from each node if parameters are provided
+    for _, (nodes, max_distance) in kwargs.items():
+        if nodes is not None and max_distance is not None:
+            distances = nx.multi_source_dijkstra_path_length(G, nodes, cutoff=max_distance, weight='length')
+            distance_constraints.append(distances)
+
+    # Find suitable apartment nodes that meet all distance constraints
     suitable_apartment_nnodes = [
         node for node in apartment_nnodes
-        if node in park_distances and node in supermarket_distances
+        if all(node in distances for distances in distance_constraints)
     ]
 
     return suitable_apartment_nnodes

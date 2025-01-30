@@ -29,6 +29,7 @@ export function getInteractiveLayerIds(cityId: number | null): string[] {
 		`${cityId}_park-polygon-layer`,
 		`${cityId}_result_centroid-icon-layer`,
 		`${cityId}_supermarket_centroid-icon-layer`,
+		`${cityId}_cafe_centroid-icon-layer`,
 		...favLayerIds,
 	];
 }

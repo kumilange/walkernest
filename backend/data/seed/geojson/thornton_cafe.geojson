@@ -1,0 +1,20 @@
+{
+"type": "FeatureCollection",
+"name": "thornton_cafe",
+"crs": { "type": "name", "properties": { "name": "urn:ogc:def:crs:OGC:1.3:CRS84" } },
+"features": [
+{ "type": "Feature", "properties": { "amenity": "cafe", "name": "Starbucks", "id": 2704379416, "building": null }, "geometry": { "type": "Point", "coordinates": [ -104.9409241, 39.9442094 ] } },
+{ "type": "Feature", "properties": { "amenity": "cafe", "name": "Allegro Coffee", "id": 2742403578, "building": null }, "geometry": { "type": "Point", "coordinates": [ -104.9665594, 39.9271533 ] } },
+{ "type": "Feature", "properties": { "amenity": "cafe", "name": "Starbucks", "id": 4459784280, "building": null }, "geometry": { "type": "Point", "coordinates": [ -104.9433918, 39.9149664 ] } },
+{ "type": "Feature", "properties": { "amenity": "cafe", "name": "Starbucks", "id": 4459811121, "building": null }, "geometry": { "type": "Point", "coordinates": [ -104.9425134, 39.8835281 ] } },
+{ "type": "Feature", "properties": { "amenity": "cafe", "name": "Starbucks", "id": 5222624016, "building": null }, "geometry": { "type": "Point", "coordinates": [ -104.9755901, 39.8840101 ] } },
+{ "type": "Feature", "properties": { "amenity": "cafe", "name": "Starbucks", "id": 6430997315, "building": null }, "geometry": { "type": "Point", "coordinates": [ -104.9225147, 39.9136126 ] } },
+{ "type": "Feature", "properties": { "amenity": "cafe", "name": "Starbucks", "id": 7593095576, "building": null }, "geometry": { "type": "Point", "coordinates": [ -104.9840119, 39.8807342 ] } },
+{ "type": "Feature", "properties": { "amenity": "cafe", "name": "Starbucks", "id": 11896171116, "building": null }, "geometry": { "type": "Point", "coordinates": [ -104.9763575, 39.8724678 ] } },
+{ "type": "Feature", "properties": { "amenity": "cafe", "name": "Starbucks", "id": 53256303, "building": "yes" }, "geometry": { "type": "Polygon", "coordinates": [ [ [ -104.9878858, 39.9146227 ], [ -104.9878843, 39.9145413 ], [ -104.9879102, 39.914541 ], [ -104.9879096, 39.9145095 ], [ -104.9877871, 39.9145109 ], [ -104.9877868, 39.9144974 ], [ -104.9877003, 39.9144984 ], [ -104.9877016, 39.9145685 ], [ -104.9877153, 39.9145683 ], [ -104.9877156, 39.9145866 ], [ -104.9877842, 39.9145858 ], [ -104.9877849, 39.9146238 ], [ -104.9878858, 39.9146227 ] ] ] } },
+{ "type": "Feature", "properties": { "amenity": "cafe", "name": "Starbucks", "id": 168942886, "building": "yes" }, "geometry": { "type": "Polygon", "coordinates": [ [ [ -104.976978, 39.9997318 ], [ -104.977019, 39.999629 ], [ -104.977036, 39.9996331 ], [ -104.977055, 39.9995859 ], [ -104.977037, 39.9995826 ], [ -104.97705, 39.9995464 ], [ -104.976751, 39.9994696 ], [ -104.976677, 39.9996573 ], [ -104.976978, 39.9997318 ] ] ] } },
+{ "type": "Feature", "properties": { "amenity": "cafe", "name": "Starbucks", "id": 597503387, "building": "yes" }, "geometry": { "type": "Polygon", "coordinates": [ [ [ -104.9791369, 39.8709816 ], [ -104.9790348, 39.8709803 ], [ -104.9790303, 39.8711784 ], [ -104.9791325, 39.8711797 ], [ -104.9791369, 39.8709816 ] ] ] } },
+{ "type": "Feature", "properties": { "amenity": "cafe", "name": "Starbucks", "id": 1039264660, "building": "yes" }, "geometry": { "type": "Polygon", "coordinates": [ [ [ -104.9773176, 39.957928 ], [ -104.9773177, 39.9578578 ], [ -104.9770367, 39.9578576 ], [ -104.9770366, 39.9579277 ], [ -104.9773176, 39.957928 ] ] ] } },
+{ "type": "Feature", "properties": { "amenity": "cafe", "name": "Dutch Bros. Coffee", "id": 1290816556, "building": "yes" }, "geometry": { "type": "Polygon", "coordinates": [ [ [ -104.9756988, 39.9990077 ], [ -104.9756396, 39.99898 ], [ -104.975719, 39.9988804 ], [ -104.9757782, 39.9989081 ], [ -104.9756988, 39.9990077 ] ] ] } }
+]
+}

@@ -36,7 +36,7 @@ export default function MenuItem(props: MenuItemProps) {
 		<Popover {...popoverProps}>
 			<MenuActionTrigger icon={props.actionIcon} tooltip={props.tooltip} />
 			<PopoverContent
-				className="relative w-[300px]"
+				className="relative w-[320px]"
 				// onCloseAutoFocus called when focus moves to the trigger after closing. Prevent it by calling event.preventDefault
 				onCloseAutoFocus={(e) => {
 					e.preventDefault();

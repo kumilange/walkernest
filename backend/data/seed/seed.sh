@@ -40,7 +40,7 @@ DROP TABLE IF EXISTS geojsons;
 CREATE TABLE IF NOT EXISTS geojsons (
     id SERIAL PRIMARY KEY,
     city_id INTEGER NOT NULL,
-    name VARCHAR(50) CHECK (name IN ('park', 'supermarket', 'apartment')) NOT NULL,
+    name VARCHAR(50) CHECK (name IN ('park', 'supermarket', 'cafe', 'apartment')) NOT NULL,
     geom GEOMETRY,
     properties JSONB
 );
@@ -58,7 +58,7 @@ DROP TABLE IF EXISTS network_nodes;
 CREATE TABLE IF NOT EXISTS network_nodes (
     id SERIAL PRIMARY KEY,
     city_id INTEGER NOT NULL,
-    name VARCHAR(50) CHECK (name IN ('park', 'supermarket', 'apartment')) NOT NULL,
+    name VARCHAR(50) CHECK (name IN ('park', 'supermarket', 'cafe', 'apartment')) NOT NULL,
     nodes JSONB NOT NULL
 );
 COMMIT;

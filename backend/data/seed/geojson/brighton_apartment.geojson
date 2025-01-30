@@ -1,5 +1,7 @@
 {
 "type": "FeatureCollection",
+"name": "brighton_apartment",
+"crs": { "type": "name", "properties": { "name": "urn:ogc:def:crs:OGC:1.3:CRS84" } },
 "features": [
 { "type": "Feature", "properties": { "building": "apartments", "id": 266253872 }, "geometry": { "type": "Polygon", "coordinates": [ [ [ -104.8240599, 39.9800086 ], [ -104.8241368, 39.979749 ], [ -104.8240274, 39.979731 ], [ -104.8239768, 39.9799277 ], [ -104.8237002, 39.9799239 ], [ -104.8236991, 39.9800046 ], [ -104.8240599, 39.9800086 ] ] ] } },
 { "type": "Feature", "properties": { "building": "apartments", "id": 543482282 }, "geometry": { "type": "Polygon", "coordinates": [ [ [ -104.8244955, 39.9875421 ], [ -104.8245379, 39.987445 ], [ -104.8253788, 39.9876608 ], [ -104.8253364, 39.9877578 ], [ -104.8244955, 39.9875421 ] ] ] } },

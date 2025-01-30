@@ -1,6 +1,7 @@
 import { QueryClient, useQuery } from '@tanstack/react-query';
 import { FeatureCollection } from 'geojson';
 import { LngLat } from 'react-map-gl/maplibre';
+import { convertKeysToSnakeCase, transformQueryParams } from '@/lib/misc';
 
 const BASE_STATIC_URL = `http://${import.meta.env.VITE_APP_HOST}:3000/geojsons`;
 const BASE_DYNAMIC_URL = `http://${import.meta.env.VITE_APP_HOST}:3000/analyze`;
@@ -15,26 +16,14 @@ type CityData = {
 	types: string[];
 };
 
-function convertQueryParamsToTypes(queryParams: string[]): string[] {
-	return queryParams.map((param) => {
-		const urlParams = new URLSearchParams(param);
-		const cityId = urlParams.get('city_id');
-		const name = urlParams.get('name');
-		const isCentroid = urlParams.get('is_centroid');
-
-		if (isCentroid) {
-			return `${cityId}_${name}_centroid`;
-		}
-
-		return `${cityId}_${name}`;
-	});
-}
 
 async function fetchStaticData(cityId: number): Promise<CityData> {
 	const queryParams = [
 		`?city_id=${cityId}&name=park`,
 		`?city_id=${cityId}&name=supermarket`,
 		`?city_id=${cityId}&name=supermarket&is_centroid=true`,
+		`?city_id=${cityId}&name=cafe`,
+		`?city_id=${cityId}&name=cafe&is_centroid=true`,
 	];
 	const urls = queryParams.map((type) => `${BASE_STATIC_URL}${type}`);
 
@@ -50,7 +39,7 @@ async function fetchStaticData(cityId: number): Promise<CityData> {
 			}),
 		);
 
-		return { geojsons, types: convertQueryParamsToTypes(queryParams) };
+		return { geojsons, types: transformQueryParams(queryParams) };
 	} catch (error) {
 		console.error('Error fetching static city data', error);
 		throw error;
@@ -63,16 +52,15 @@ export function useStaticCityData(cityId: number) {
 	});
 }
 
-async function fetchDynamicData({
-	cityId,
-	maxParkMeter,
-	maxSupermarketMeter,
-}: {
+type FetchDynamicDataParams = {
 	cityId: number;
-	maxParkMeter: number;
-	maxSupermarketMeter: number;
-}) {
-	const url = `${BASE_DYNAMIC_URL}?city_id=${cityId}&max_park_meter=${maxParkMeter}&max_supermarket_meter=${maxSupermarketMeter}`;
+	[key: string]: number;
+}
+async function fetchDynamicData(params: FetchDynamicDataParams) {
+	const { cityId, ...kwargs } = params;
+	const kwargsInSnake = convertKeysToSnakeCase(kwargs);
+	const url = `${BASE_DYNAMIC_URL}?city_id=${cityId}&kwargs=${encodeURIComponent(JSON.stringify(kwargsInSnake))}`;
+
 	try {
 		const response = await fetch(url);
 		if (!response.ok) {
@@ -86,21 +74,14 @@ async function fetchDynamicData({
 		throw error;
 	}
 }
-export function useDynamicCityData({
-	cityId,
-	maxParkMeter,
-	maxSupermarketMeter,
-}: {
-	cityId: number;
-	maxParkMeter: number;
-	maxSupermarketMeter: number;
-}) {
+export function useDynamicCityData(params: FetchDynamicDataParams) {
+	const { cityId, ...kwargs } = params;
 	if (cityId === null) { return { data: null, error: null, isFetching: false }; }
 
 	return useQuery({
-		queryKey: [`dynamic-city-data`, cityId, maxParkMeter, maxSupermarketMeter],
+		queryKey: [`dynamic-city-data`, cityId, ...Object.values(kwargs)],
 		queryFn: () =>
-			fetchDynamicData({ cityId, maxParkMeter, maxSupermarketMeter }),
+			fetchDynamicData(params),
 		staleTime: Infinity,
 	});
 }

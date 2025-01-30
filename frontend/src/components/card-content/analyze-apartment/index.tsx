@@ -1,8 +1,8 @@
 import { useForm } from 'react-hook-form';
-import { useAtom, useAtomValue } from 'jotai';
-import { cityAtom, walkingDistanceAtom } from '@/atoms';
 import { z } from 'zod';
 import { zodResolver } from '@hookform/resolvers/zod';
+import { useAtom, useAtomValue } from 'jotai';
+import { cityAtom, maxDistanceAtom, isAmenityOnAtom, isTmpAmenityOnAtom } from '@/atoms';
 import { useDynamicCityData } from '@/lib/fetcher';
 import { Form } from '@/components/ui/form';
 import { Button } from '@/components/ui/button';
@@ -11,54 +11,32 @@ import { LoadingButton } from '@/components/button';
 import { CITY_LIST_MAP } from '@/constants';
 import { getMinutesByDistance } from './helper';
 import { MINS_TO_METERS_IN_WALK } from './constants';
+import { FormSchema, MinutesToMeters } from './types';
 import FormFieldItem from './form-field-item';
-
-export type MinutesToMeters = {
-	[key in
-	| 1
-	| 2
-	| 3
-	| 4
-	| 5
-	| 6
-	| 7
-	| 8
-	| 9
-	| 10
-	| 11
-	| 12
-	| 13
-	| 14
-	| 15]: number;
-};
-
-const FormSchema = z.object({
-	park: z.preprocess(
-		(value) => (value === '' ? undefined : Number(value)),
-		z.number().min(1).max(15),
-	),
-	supermarket: z.preprocess(
-		(value) => (value === '' ? undefined : Number(value)),
-		z.number().min(1).max(15),
-	),
-});
+import { generateCityDataParams } from '@/lib/misc';
 
 export default function AnalyzeApartment() {
 	const city = useAtomValue(cityAtom);
 	const cityId = city ? CITY_LIST_MAP[city].id : null;
-	const [walkingDistance, setWalkingDistance] = useAtom(walkingDistanceAtom);
+	const [maxDistance, setMaxDistance] = useAtom(maxDistanceAtom);
+	const [isAmenityOn, setIsAmenityOn] = useAtom(isAmenityOnAtom);
+	const isTmpAmenityOn = useAtomValue(isTmpAmenityOnAtom);
+	const params = generateCityDataParams({ maxDistance, isAmenityOn });
 
 	const { isFetching } = useDynamicCityData({
 		cityId: cityId as number,
-		maxParkMeter: walkingDistance.park,
-		maxSupermarketMeter: walkingDistance.supermarket,
+		...params
 	});
 
 	const form = useForm<z.infer<typeof FormSchema>>({
 		resolver: zodResolver(FormSchema),
 		defaultValues: {
-			park: getMinutesByDistance(walkingDistance.park),
-			supermarket: getMinutesByDistance(walkingDistance.supermarket),
+			park: getMinutesByDistance(maxDistance.park),
+			supermarket: getMinutesByDistance(maxDistance.supermarket),
+			cafe: getMinutesByDistance(maxDistance.cafe),
+			parkCheckbox: isTmpAmenityOn.park,
+			supermarketCheckbox: isTmpAmenityOn.supermarket,
+			cafeCheckbox: isTmpAmenityOn.cafe,
 		},
 	});
 
@@ -66,14 +44,19 @@ export default function AnalyzeApartment() {
 		!city ||
 		!form.getValues().park ||
 		!form.getValues().supermarket ||
+		!form.getValues().cafe ||
 		!form.formState.isValid;
 
 	const onSubmit = (data: z.infer<typeof FormSchema>) => {
-		const park_meter =
-			MINS_TO_METERS_IN_WALK[data.park as keyof MinutesToMeters];
-		const supermarket_meter =
-			MINS_TO_METERS_IN_WALK[data.supermarket as keyof MinutesToMeters];
-		setWalkingDistance({ park: park_meter, supermarket: supermarket_meter });
+		const { park, supermarket, cafe, parkCheckbox, supermarketCheckbox, cafeCheckbox } = data;
+		const parkMeter =
+			MINS_TO_METERS_IN_WALK[park as keyof MinutesToMeters];
+		const supermarketMeter =
+			MINS_TO_METERS_IN_WALK[supermarket as keyof MinutesToMeters];
+		const cafeMeter =
+			MINS_TO_METERS_IN_WALK[cafe as keyof MinutesToMeters];
+		setMaxDistance({ park: parkMeter, supermarket: supermarketMeter, cafe: cafeMeter });
+		setIsAmenityOn({ park: parkCheckbox, supermarket: supermarketCheckbox, cafe: cafeCheckbox });
 	};
 
 	return (
@@ -87,6 +70,7 @@ export default function AnalyzeApartment() {
 						<h3 className="font-bold">Walking Distance</h3>
 						<FormFieldItem control={form.control} name="park" />
 						<FormFieldItem control={form.control} name="supermarket" />
+						<FormFieldItem control={form.control} name="cafe" />
 					</div>
 					{/* Footer */}
 					<div className="w-full flex justify-between">

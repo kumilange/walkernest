@@ -1,0 +1,21 @@
+{
+"type": "FeatureCollection",
+"name": "parker_cafe",
+"crs": { "type": "name", "properties": { "name": "urn:ogc:def:crs:OGC:1.3:CRS84" } },
+"features": [
+{ "type": "Feature", "properties": { "amenity": "cafe", "name": "Nomelie Cupcakes", "id": 592391211, "building": null }, "geometry": { "type": "Point", "coordinates": [ -104.7605342, 39.5183835 ] } },
+{ "type": "Feature", "properties": { "amenity": "cafe", "name": "Bagel Stop Cafe", "id": 2630175725, "building": null }, "geometry": { "type": "Point", "coordinates": [ -104.7668784, 39.5278055 ] } },
+{ "type": "Feature", "properties": { "amenity": "cafe", "name": "Starbucks", "id": 2768513802, "building": null }, "geometry": { "type": "Point", "coordinates": [ -104.766131, 39.512179 ] } },
+{ "type": "Feature", "properties": { "amenity": "cafe", "name": "Starbucks", "id": 4178437019, "building": null }, "geometry": { "type": "Point", "coordinates": [ -104.768252, 39.5388049 ] } },
+{ "type": "Feature", "properties": { "amenity": "cafe", "name": "Starbucks", "id": 4191790068, "building": null }, "geometry": { "type": "Point", "coordinates": [ -104.7904181, 39.5346435 ] } },
+{ "type": "Feature", "properties": { "amenity": "cafe", "name": "Fika Coffee House", "id": 4231880361, "building": null }, "geometry": { "type": "Point", "coordinates": [ -104.7622932, 39.5185687 ] } },
+{ "type": "Feature", "properties": { "amenity": "cafe", "name": "Starbucks", "id": 5926916404, "building": null }, "geometry": { "type": "Point", "coordinates": [ -104.782239, 39.560063 ] } },
+{ "type": "Feature", "properties": { "amenity": "cafe", "name": "Starbucks", "id": 5929202111, "building": null }, "geometry": { "type": "Point", "coordinates": [ -104.7905569, 39.5356852 ] } },
+{ "type": "Feature", "properties": { "amenity": "cafe", "name": "Starbucks", "id": 6037440875, "building": null }, "geometry": { "type": "Point", "coordinates": [ -104.7929169, 39.5467743 ] } },
+{ "type": "Feature", "properties": { "amenity": "cafe", "name": "Starbucks", "id": 7098286225, "building": null }, "geometry": { "type": "Point", "coordinates": [ -104.7596223, 39.4941894 ] } },
+{ "type": "Feature", "properties": { "amenity": "cafe", "name": "Coffee Cabin", "id": 416978601, "building": "yes" }, "geometry": { "type": "Polygon", "coordinates": [ [ [ -104.7692065, 39.5406252 ], [ -104.7692133, 39.5406054 ], [ -104.7691754, 39.5405975 ], [ -104.769183, 39.5405761 ], [ -104.7691111, 39.5405599 ], [ -104.7691025, 39.5405825 ], [ -104.7691455, 39.540592 ], [ -104.7691411, 39.5406096 ], [ -104.7692065, 39.5406252 ] ] ] } },
+{ "type": "Feature", "properties": { "amenity": "cafe", "name": "Fika Coffee House", "id": 450349925, "building": "yes" }, "geometry": { "type": "Polygon", "coordinates": [ [ [ -104.7342736, 39.4960264 ], [ -104.7342343, 39.4959986 ], [ -104.7341673, 39.4959511 ], [ -104.7342498, 39.4958818 ], [ -104.7343121, 39.4958295 ], [ -104.7343693, 39.4958687 ], [ -104.7343752, 39.4958633 ], [ -104.7344154, 39.4958912 ], [ -104.7343419, 39.4959516 ], [ -104.7343559, 39.4959606 ], [ -104.7343481, 39.4959668 ], [ -104.7342736, 39.4960264 ] ] ] } },
+{ "type": "Feature", "properties": { "amenity": "cafe", "name": "Dutch Bros. Coffee", "id": 818436521, "building": "yes" }, "geometry": { "type": "Polygon", "coordinates": [ [ [ -104.7670264, 39.5288416 ], [ -104.7670237, 39.5287352 ], [ -104.7668998, 39.5287345 ], [ -104.766899, 39.5288451 ], [ -104.7669211, 39.5288444 ], [ -104.7669211, 39.5288546 ], [ -104.7669494, 39.5288533 ], [ -104.7669476, 39.528841 ], [ -104.7670264, 39.5288416 ] ] ] } },
+{ "type": "Feature", "properties": { "amenity": "cafe", "name": "Black Rock Coffee", "id": 1270889460, "building": "yes" }, "geometry": { "type": "Polygon", "coordinates": [ [ [ -104.7667396, 39.5339797 ], [ -104.7665527, 39.533997 ], [ -104.7665356, 39.5339003 ], [ -104.7665713, 39.5338966 ], [ -104.7665699, 39.5338918 ], [ -104.7666133, 39.5338889 ], [ -104.7666147, 39.533893 ], [ -104.7667234, 39.5338845 ], [ -104.7667396, 39.5339797 ] ] ] } }
+]
+}

@@ -1,5 +1,7 @@
 {
 "type": "FeatureCollection",
+"name": "denver south_supermarket",
+"crs": { "type": "name", "properties": { "name": "urn:ogc:def:crs:OGC:1.3:CRS84" } },
 "features": [
 { "type": "Feature", "properties": { "name": "King Soopers", "shop": "supermarket", "id": 442749194, "building": null }, "geometry": { "type": "Point", "coordinates": [ -104.9979428, 39.7373229 ] } },
 { "type": "Feature", "properties": { "name": "King Soopers", "shop": "supermarket", "id": 522136000, "building": null }, "geometry": { "type": "Point", "coordinates": [ -105.0512763, 39.6546824 ] } },
@@ -20,7 +22,6 @@
 { "type": "Feature", "properties": { "name": "Laxmi Foods", "shop": "supermarket", "id": 2753175610, "building": null }, "geometry": { "type": "Point", "coordinates": [ -104.8639169, 39.6671933 ] } },
 { "type": "Feature", "properties": { "name": "Safeway", "shop": "supermarket", "id": 2812799554, "building": null }, "geometry": { "type": "Point", "coordinates": [ -104.900905, 39.7204867 ] } },
 { "type": "Feature", "properties": { "name": "Sprouts Farmers Market", "shop": "supermarket", "id": 3066040507, "building": null }, "geometry": { "type": "Point", "coordinates": [ -104.944492, 39.7404516 ] } },
-{ "type": "Feature", "properties": { "name": "Complete Nutrition Vitamin & Supplements", "shop": "supermarket", "id": 3401106314, "building": null }, "geometry": { "type": "Point", "coordinates": [ -104.9880573, 39.7254305 ] } },
 { "type": "Feature", "properties": { "name": "Natural Grocers", "shop": "supermarket", "id": 3420051899, "building": null }, "geometry": { "type": "Point", "coordinates": [ -104.979073, 39.739386 ] } },
 { "type": "Feature", "properties": { "name": "King Soopers", "shop": "supermarket", "id": 3458645657, "building": null }, "geometry": { "type": "Point", "coordinates": [ -104.9735305, 39.731112 ] } },
 { "type": "Feature", "properties": { "name": "Great Wall Supermarket", "shop": "supermarket", "id": 3690661359, "building": null }, "geometry": { "type": "Point", "coordinates": [ -105.0136758, 39.7104166 ] } },
@@ -33,6 +34,7 @@
 { "type": "Feature", "properties": { "name": "Ideal", "shop": "supermarket", "id": 9947748123, "building": null }, "geometry": { "type": "Point", "coordinates": [ -104.9756933, 39.7333737 ] } },
 { "type": "Feature", "properties": { "name": "European Gusto Market", "shop": "supermarket", "id": 11067271534, "building": null }, "geometry": { "type": "Point", "coordinates": [ -104.9399101, 39.6912432 ] } },
 { "type": "Feature", "properties": { "name": "Levine Law LLC", "shop": "supermarket", "id": 11868493259, "building": null }, "geometry": { "type": "Point", "coordinates": [ -104.9356632, 39.7042512 ] } },
+{ "type": "Feature", "properties": { "name": "Little Saigon Supermarket", "shop": "supermarket", "id": 12491734905, "building": null }, "geometry": { "type": "Point", "coordinates": [ -105.0256773, 39.7098315 ] } },
 { "type": "Feature", "properties": { "name": "Safeway", "shop": "supermarket", "id": 33542816, "building": "retail" }, "geometry": { "type": "Polygon", "coordinates": [ [ [ -104.9160484, 39.7374864 ], [ -104.9160502, 39.7369509 ], [ -104.9153118, 39.7369494 ], [ -104.9153119, 39.7369226 ], [ -104.9153122, 39.7368615 ], [ -104.9151714, 39.7368612 ], [ -104.9151692, 39.7374841 ], [ -104.9152594, 39.7374843 ], [ -104.9152592, 39.7375305 ], [ -104.9153907, 39.7375308 ], [ -104.9153908, 39.7374852 ], [ -104.9155718, 39.7374857 ], [ -104.9156806, 39.7374861 ], [ -104.9156804, 39.7375314 ], [ -104.9158094, 39.7375317 ], [ -104.9158096, 39.7374859 ], [ -104.9160484, 39.7374864 ] ] ] } },
 { "type": "Feature", "properties": { "name": "Walmart Supercenter", "shop": "supermarket", "id": 49953829, "building": "retail" }, "geometry": { "type": "Polygon", "coordinates": [ [ [ -105.0839621, 39.636709 ], [ -105.0839619, 39.6366701 ], [ -105.08427, 39.6366692 ], [ -105.0842663, 39.6359646 ], [ -105.0840612, 39.6359652 ], [ -105.084061, 39.6359156 ], [ -105.0840607, 39.6358587 ], [ -105.082723, 39.6358628 ], [ -105.082725, 39.6362575 ], [ -105.0824387, 39.6362584 ], [ -105.0824407, 39.6366555 ], [ -105.0825868, 39.636655 ], [ -105.0825866, 39.6366134 ], [ -105.0827231, 39.636613 ], [ -105.0827233, 39.6366647 ], [ -105.0836678, 39.6366617 ], [ -105.0836681, 39.63671 ], [ -105.0838243, 39.6367095 ], [ -105.0839621, 39.636709 ] ] ] } },
 { "type": "Feature", "properties": { "name": "Whole Foods Market", "shop": "supermarket", "id": 60912017, "building": "retail" }, "geometry": { "type": "Polygon", "coordinates": [ [ [ -104.9795471, 39.6961909 ], [ -104.9795428, 39.6958277 ], [ -104.9802456, 39.6958227 ], [ -104.9802499, 39.696186 ], [ -104.9795471, 39.6961909 ] ] ] } },

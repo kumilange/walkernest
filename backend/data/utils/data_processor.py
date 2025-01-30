@@ -7,29 +7,14 @@ from utils.data_fetcher import fetch_and_normalize_data, generate_query
 from utils.geometry import add_boundary, add_centroid, get_geometry_by_objectid, generate_poly_string
 from utils.networkx import convert_to_network_nodes, create_network_graph,reduce_graph_size, simplify_edge_geometries, reduce_coordinate_precision, prune_graph, compress_graph_to_json
 
+amenities = {
+    "apartment": [("building", "apartments"), ("building", "residential")],
+    "park": [("leisure", "park"), ("leisure", "dog_park")],
+    "supermarket": [("shop", "supermarket"), ("shop", "grocery")],
+    "cafe": [("amenity", "cafe")]
+}
+
 def process_city(city, geometry):
-    # Generate the poly string
-    poly_string = generate_poly_string(geometry)
-
-    # Generate the queries
-    apartment_query = generate_query(poly_string, [("building", "apartments"), ("building", "residential")])
-    supermarket_query = generate_query(poly_string, [("shop", "supermarket"), ("shop", "grocery")])
-    park_query = generate_query(poly_string, [("leisure", "park"), ("leisure", "dog_park")])
-
-    # Fetch data from the Overpass API
-    apartment_gdf = fetch_and_normalize_data(apartment_query)
-    supermarket_gdf = fetch_and_normalize_data(supermarket_query)
-    park_gdf = fetch_and_normalize_data(park_query)
-    # Save different types of GeoDataFrames to the respective GeoJSON files
-    save_gdf_to_geojson(apartment_gdf, city, "apartment")
-    save_gdf_to_geojson(supermarket_gdf, city, "supermarket")
-    save_gdf_to_geojson(park_gdf, city, "park")
-
-    # Add centroids and boundary to the GeoDataFrames
-    apartments = add_centroid(apartment_gdf)
-    supermarkets = add_centroid(supermarket_gdf)
-    parks = add_boundary(park_gdf)
-
     # Create and optimize the network graph by reducing size, simplifying edges, reducing precision, and pruning
     G = create_network_graph(shape(geometry))
     G = reduce_graph_size(G)
@@ -40,14 +25,26 @@ def process_city(city, geometry):
     graph_json_str = compress_graph_to_json(G)
     save_graph_to_json(graph_json_str, city)
 
-    # Convert GeoDataFrames to network nodes
-    supermarket_nnodes = convert_to_network_nodes(G, supermarkets)
-    apartment_nnodes = convert_to_network_nodes(G, apartments)
-    park_nnodes = convert_to_network_nodes(G, parks, use_centroid=False)
-    # Save network nodes to JSON files
-    save_network_nodes_to_json(apartment_nnodes, city, "apartment")
-    save_network_nodes_to_json(supermarket_nnodes, city, "supermarket")
-    save_network_nodes_to_json(park_nnodes, city, "park")
+    # Generate the poly string
+    poly_string = generate_poly_string(geometry)
+
+    # Process each amenity data
+    for amenity, query_params in amenities.items():
+        query = generate_query(poly_string, query_params)
+        gdf = fetch_and_normalize_data(query)
+        # Save the GeoDataFrame to a GeoJSON file
+        save_gdf_to_geojson(gdf, city, amenity)
+
+        # Add centroids and boundary to the GeoDataFrame
+        if amenity == "park":
+            gdf = add_boundary(gdf)
+        else:
+            gdf = add_centroid(gdf)
+        # Convert the GeoDataFrame to network nodes
+        use_centroid = amenity != "park"
+        nnodes = convert_to_network_nodes(G, gdf, use_centroid=use_centroid)
+        # Save the network nodes to a JSON file
+        save_network_nodes_to_json(nnodes, city, amenity)
 
 def load_data(csv_path, geojson_path):
     """Load CSV and GeoJSON data."""

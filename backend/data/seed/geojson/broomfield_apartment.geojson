@@ -1,5 +1,7 @@
 {
 "type": "FeatureCollection",
+"name": "broomfield_apartment",
+"crs": { "type": "name", "properties": { "name": "urn:ogc:def:crs:OGC:1.3:CRS84" } },
 "features": [
 { "type": "Feature", "properties": { "building": "residential", "id": 12284231921, "name": null }, "geometry": { "type": "Point", "coordinates": [ -105.0713629, 39.9043505 ] } },
 { "type": "Feature", "properties": { "building": "residential", "id": 148770702, "name": null }, "geometry": { "type": "Polygon", "coordinates": [ [ [ -105.1254415, 39.9419369 ], [ -105.1254444, 39.9411312 ], [ -105.1247161, 39.9411296 ], [ -105.1247154, 39.9413459 ], [ -105.1251463, 39.9413468 ], [ -105.1251443, 39.9419363 ], [ -105.1254415, 39.9419369 ] ] ] } },

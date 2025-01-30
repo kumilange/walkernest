@@ -1,5 +1,7 @@
 {
 "type": "FeatureCollection",
+"name": "thornton_supermarket",
+"crs": { "type": "name", "properties": { "name": "urn:ogc:def:crs:OGC:1.3:CRS84" } },
 "features": [
 { "type": "Feature", "properties": { "name": "King Soopers", "shop": "supermarket", "id": 515271070, "building": null }, "geometry": { "type": "Point", "coordinates": [ -104.9378994, 39.9446405 ] } },
 { "type": "Feature", "properties": { "name": "King Soopers", "shop": "supermarket", "id": 515271078, "building": null }, "geometry": { "type": "Point", "coordinates": [ -104.94357, 39.9147961 ] } },

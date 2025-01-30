@@ -28,6 +28,7 @@ type PreferenceKeys =
 	| 'cluster'
 	| 'park'
 	| 'supermarket'
+	| 'cafe'
 	| 'boundary';
 
 export type LayersVisibility = {
@@ -40,9 +41,16 @@ export type LayerItem = {
 	icon: ReactNode;
 };
 
-export type WalkingDistance = {
+export type MaxDistance = {
 	park: number;
 	supermarket: number;
+	cafe: number;
+};
+
+export type IsAmenityOn = {
+	park: boolean;
+	supermarket: boolean;
+	cafe: boolean;
 };
 
 export type RoutePoint = {

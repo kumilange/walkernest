@@ -1,27 +1,10 @@
 import { LayerProps } from 'react-map-gl/maplibre';
 import { FeatureCollection, Feature, Geometry } from 'geojson';
-import { twColors } from './constants';
+import { colorMappings } from './constants';
 
 export const generateLayerStyles = (idPrefix: string) => {
-	let colors = {
-		point: twColors.apartment,
-		lineString: twColors.apartment,
-		polygon: twColors.apartment,
-	};
-
-	if (idPrefix.includes('supermarket')) {
-		colors = {
-			point: twColors.supermarket,
-			lineString: twColors.supermarket,
-			polygon: twColors.supermarket,
-		};
-	} else if (idPrefix.includes('park')) {
-		colors = {
-			point: twColors.park,
-			lineString: twColors.park,
-			polygon: twColors.park,
-		};
-	}
+	const baseName = Object.keys(colorMappings).find(key => idPrefix.includes(key)) || 'apartment';
+	const colors = colorMappings[baseName];
 
 	const pointLayerStyle: LayerProps = {
 		id: `${idPrefix}-point-layer`,
@@ -129,4 +112,13 @@ export function generateFeatureCollection(
 	};
 
 	return featureCollection;
+}
+
+/**
+ * Extracts the base name from a string with an underscore suffix.
+ * @param {string} str - The input string (e.g., "supermarket_centroid").
+ * @returns {string} The base name (e.g., "supermarket").
+ */
+export function extractBaseName(str: string): string {
+	return str.split('_')[1];
 }

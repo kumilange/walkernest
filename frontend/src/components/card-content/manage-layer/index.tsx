@@ -2,6 +2,7 @@ import {
 	Trees,
 	House,
 	ShoppingCart,
+	Coffee,
 	BoxSelect,
 	ChartNetwork,
 } from 'lucide-react';
@@ -16,6 +17,7 @@ const layerList: LayerItem[] = [
 	{ id: 'cluster', label: 'Cluster', icon: <ChartNetwork /> },
 	{ id: 'park', label: 'Park & Dog Park', icon: <Trees /> },
 	{ id: 'supermarket', label: 'Supermarket', icon: <ShoppingCart /> },
+	{ id: 'cafe', label: 'Cafe', icon: <Coffee /> },
 	{ id: 'boundary', label: 'City Boundary', icon: <BoxSelect /> },
 ];
 

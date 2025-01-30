@@ -30,7 +30,6 @@ export default function CityMap() {
 	return (
 		<Map
 			id="map"
-			mapboxAccessToken={import.meta.env.VITE_MAPBOX_API_KEY}
 			mapStyle={`${MAP_STYLE.maptiler}`}
 			initialViewState={INITIAL_VIEW_STATE}
 			interactiveLayerIds={getInteractiveLayerIds(cityId)}

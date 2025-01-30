@@ -1,5 +1,5 @@
 import { atom } from 'jotai';
-import type { FavoriteItem, LayersVisibility, Route, RoutePoint, WalkingDistance } from '@/types';
+import type { FavoriteItem, LayersVisibility, Route, RoutePoint, MaxDistance, IsAmenityOn } from '@/types';
 
 export const cityAtom = atom<string | null>(null);
 export const isFavPopupOpenAtom = atom(false);
@@ -12,16 +12,28 @@ export const isEndingPointSelectingAtom = atom(false);
 export const startingPointAtom = atom<RoutePoint | null>(null);
 export const endingPointAtom = atom<RoutePoint | null>(null);
 
-export const walkingDistanceAtom = atom<WalkingDistance>({
+export const maxDistanceAtom = atom<MaxDistance>({
 	park: 320,
 	supermarket: 800,
+	cafe: 800,
 });
+export const isTmpAmenityOnAtom = atom<IsAmenityOn>({
+	park: true,
+	supermarket: true,
+	cafe: true
+})
+export const isAmenityOnAtom = atom<IsAmenityOn>({
+	park: true,
+	supermarket: true,
+	cafe: true
+})
 
 export const layersVisibilityAtom = atom<LayersVisibility>({
 	result: true,
 	cluster: true,
 	park: true,
 	supermarket: true,
+	cafe: true,
 	boundary: true,
 });
 

@@ -6,10 +6,6 @@ import { defineConfig } from 'vite';
 export default defineConfig({
 	plugins: [
 		react(),
-		// webfontDownload([
-		// 	'https://fonts.googleapis.com/css2?family=Noto+Sans:wght@@300;400;600&display=swap',
-		// 	'https://fonts.googleapis.com/css2?family=Bungee+Tint&:wght@400&display=swap',
-		// ]),
 	],
 	server: {
 		host: true, // Listen on all network interfaces
