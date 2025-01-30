@@ -28,6 +28,11 @@ export const FormSchema = z.object({
 		(value) => (value === '' ? undefined : Number(value)),
 		z.number().min(1).max(15),
 	),
+	cafe: z.preprocess(
+		(value) => (value === '' ? undefined : Number(value)),
+		z.number().min(1).max(15),
+	),
 	parkCheckbox: z.boolean(),
 	supermarketCheckbox: z.boolean(),
+	cafeCheckbox: z.boolean(),
 });

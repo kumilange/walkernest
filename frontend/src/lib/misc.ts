@@ -1,6 +1,6 @@
 import { type ClassValue, clsx } from 'clsx';
 import { twMerge } from 'tailwind-merge';
-import type { CityMapItem, CityArrayItem } from '@/types';
+import type { CityMapItem, CityArrayItem, MaxDistance, IsAmenityOn } from '@/types';
 
 /**
  * Combines multiple class names into a single string.
@@ -118,9 +118,10 @@ export function convertKeysToSnakeCase(obj: { [key: string]: any }): { [key: str
  * @param {boolean} params.isAmenityOn.supermarket - Whether supermarkets are available.
  * @returns {Object} The generated parameters including maximum distances for available amenities.
  */
-export function generateCityDataParams({ maxDistance, isAmenityOn }: { maxDistance: { park: number; supermarket: number; }, isAmenityOn: { park: boolean, supermarket: boolean } },) {
+export function generateCityDataParams({ maxDistance, isAmenityOn }: { maxDistance: MaxDistance, isAmenityOn: IsAmenityOn },) {
 	return {
 		...(isAmenityOn.park ? { maxMeterPark: maxDistance.park } : {}),
 		...(isAmenityOn.supermarket ? { maxMeterSupermarket: maxDistance.supermarket } : {}),
+		...(isAmenityOn.cafe ? { maxMeterCafe: maxDistance.cafe } : {}),
 	};
 }

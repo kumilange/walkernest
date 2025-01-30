@@ -32,8 +32,10 @@ export default function AnalyzeApartment() {
 		defaultValues: {
 			park: getMinutesByDistance(maxDistance.park),
 			supermarket: getMinutesByDistance(maxDistance.supermarket),
+			cafe: getMinutesByDistance(maxDistance.cafe),
 			parkCheckbox: true,
 			supermarketCheckbox: true,
+			cafeCheckbox: true,
 		},
 	});
 
@@ -41,16 +43,19 @@ export default function AnalyzeApartment() {
 		!city ||
 		!form.getValues().park ||
 		!form.getValues().supermarket ||
+		!form.getValues().cafe ||
 		!form.formState.isValid;
 
 	const onSubmit = (data: z.infer<typeof FormSchema>) => {
-		const { park, supermarket, parkCheckbox, supermarketCheckbox } = data;
+		const { park, supermarket, cafe, parkCheckbox, supermarketCheckbox, cafeCheckbox } = data;
 		const parkMeter =
 			MINS_TO_METERS_IN_WALK[park as keyof MinutesToMeters];
 		const supermarketMeter =
 			MINS_TO_METERS_IN_WALK[supermarket as keyof MinutesToMeters];
-		setMaxDistance({ park: parkMeter, supermarket: supermarketMeter });
-		setIsAmenityOn({ park: parkCheckbox, supermarket: supermarketCheckbox });
+		const cafeMeter =
+			MINS_TO_METERS_IN_WALK[cafe as keyof MinutesToMeters];
+		setMaxDistance({ park: parkMeter, supermarket: supermarketMeter, cafe: cafeMeter });
+		setIsAmenityOn({ park: parkCheckbox, supermarket: supermarketCheckbox, cafe: cafeCheckbox });
 	};
 
 	return (
@@ -64,6 +69,7 @@ export default function AnalyzeApartment() {
 						<h3 className="font-bold">Walking Distance</h3>
 						<FormFieldItem control={form.control} name="park" />
 						<FormFieldItem control={form.control} name="supermarket" />
+						<FormFieldItem control={form.control} name="cafe" />
 					</div>
 					{/* Footer */}
 					<div className="w-full flex justify-between">

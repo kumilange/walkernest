@@ -24,6 +24,7 @@ const config = {
         apartmentLine: '#dd2d4a',
         supermarket: '#90e0ef',
         park: '#abc32f',
+        cafe: '#B399D4',
         boundaryLine: '#deb887',
         boundaryFill: '#eedc82',
         clusterCircle: '#ffffff',

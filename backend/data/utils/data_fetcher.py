@@ -38,5 +38,10 @@ def fetch_and_normalize_data(query):
             geometry.append(geom)
             filtered_props["id"] = element["id"]
             properties.append(filtered_props)
+    
+    # Ensure the GeoDataFrame has a CRS defined
+    gdf = gpd.GeoDataFrame(properties, geometry=geometry)
+    if gdf.crs is None:
+        gdf.set_crs("EPSG:4326", inplace=True)
 
-    return gpd.GeoDataFrame(properties, geometry=geometry)
+    return gdf

@@ -1,5 +1,5 @@
 import { ReactNode } from 'react';
-import { House, ShoppingCart, Trees } from 'lucide-react';
+import { House, ShoppingCart, Trees, Coffee } from 'lucide-react';
 import resolveConfig from 'tailwindcss/resolveConfig';
 import tailwindConfig from '../../../tailwind.config';
 
@@ -20,4 +20,8 @@ export const VALID_PROPERTY_PAIRS: ValidPropertyPairs = {
 		text: ['apartments', 'residential'],
 		icon: <House size="20px" />,
 	},
+	amenity: {
+		text: ['cafe'],
+		icon: <Coffee size="20px" />,
+	}
 };

@@ -21,6 +21,12 @@ export const generateLayerStyles = (idPrefix: string) => {
 			lineString: twColors.park,
 			polygon: twColors.park,
 		};
+	} else if (idPrefix.includes('cafe')) {
+		colors = {
+			point: twColors.cafe,
+			lineString: twColors.cafe,
+			polygon: twColors.cafe,
+		};
 	}
 
 	const pointLayerStyle: LayerProps = {
@@ -129,4 +135,13 @@ export function generateFeatureCollection(
 	};
 
 	return featureCollection;
+}
+
+/**
+ * Extracts the base name from a string with an underscore suffix.
+ * @param {string} str - The input string (e.g., "supermarket_centroid").
+ * @returns {string} The base name (e.g., "supermarket").
+ */
+export function extractBaseName(str: string): string {
+	return str.split('_')[1];
 }

@@ -111,4 +111,4 @@ def create_geometry(element, nodes):
 
 def filter_properties(element):
     props = element['tags'] if 'tags' in element else {}
-    return {k: v for k, v in props.items() if k in ['building', 'shop', 'leisure', 'name']}
+    return {k: v for k, v in props.items() if k in ['building', 'shop', 'leisure', 'amenity', 'name']}

@@ -1,6 +1,5 @@
-import { useState } from 'react';
 import { Control, Controller, FieldValues, Path } from 'react-hook-form';
-import { Trees, ShoppingCart } from 'lucide-react';
+import { Trees, ShoppingCart, Coffee } from 'lucide-react';
 import {
 	FormControl,
 	FormField,
@@ -10,6 +9,8 @@ import {
 import { Input } from '@/components/ui/input';
 import { capitalize } from '@/lib/misc';
 import { Checkbox } from '@/components/ui/checkbox';
+import { useAtom } from 'jotai';
+import { isTmpAmenityOnAtom } from '@/atoms';
 
 type FormFieldItemProps<T extends FieldValues> = {
 	control: Control<T>;
@@ -19,13 +20,15 @@ type FormFieldItemProps<T extends FieldValues> = {
 const IconMap = {
 	park: <Trees />,
 	supermarket: <ShoppingCart />,
+	cafe: <Coffee />,
 };
 
 export default function FormFieldItem<T extends FieldValues>({
 	control,
 	name,
 }: FormFieldItemProps<T>) {
-	const [isChecked, setIsChecked] = useState(true);
+	const [isTmpAmenityOn, setIsTmpAmenityOn] = useAtom(isTmpAmenityOnAtom);
+	const isChecked = isTmpAmenityOn[name as keyof typeof isTmpAmenityOn];
 
 	return (
 		<FormField
@@ -62,7 +65,10 @@ export default function FormFieldItem<T extends FieldValues>({
 									checked={checkboxField.value}
 									onCheckedChange={(checked: boolean) => {
 										checkboxField.onChange(checked);
-										setIsChecked(checked);
+										setIsTmpAmenityOn({
+											...isTmpAmenityOn,
+											[name]: checked,
+										});
 									}}
 								/>
 							)}

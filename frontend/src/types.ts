@@ -43,6 +43,13 @@ export type LayerItem = {
 export type MaxDistance = {
 	park: number;
 	supermarket: number;
+	cafe: number;
+};
+
+export type IsAmenityOn = {
+	park: boolean;
+	supermarket: boolean;
+	cafe: boolean;
 };
 
 export type RoutePoint = {
