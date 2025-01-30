@@ -1,5 +1,7 @@
 {
 "type": "FeatureCollection",
+"name": "englewood_supermarket",
+"crs": { "type": "name", "properties": { "name": "urn:ogc:def:crs:OGC:1.3:CRS84" } },
 "features": [
 { "type": "Feature", "properties": { "name": "Sprouts Farmers Market", "shop": "supermarket", "id": 3066921803, "building": null }, "geometry": { "type": "Point", "coordinates": [ -104.988367, 39.624371 ] } },
 { "type": "Feature", "properties": { "name": "Safeway", "shop": "supermarket", "id": 4682685590, "building": null }, "geometry": { "type": "Point", "coordinates": [ -104.984644, 39.6518885 ] } },

@@ -2,7 +2,7 @@ import { useForm } from 'react-hook-form';
 import { z } from 'zod';
 import { zodResolver } from '@hookform/resolvers/zod';
 import { useAtom, useAtomValue } from 'jotai';
-import { cityAtom, maxDistanceAtom, isAmenityOnAtom } from '@/atoms';
+import { cityAtom, maxDistanceAtom, isAmenityOnAtom, isTmpAmenityOnAtom } from '@/atoms';
 import { useDynamicCityData } from '@/lib/fetcher';
 import { Form } from '@/components/ui/form';
 import { Button } from '@/components/ui/button';
@@ -20,6 +20,7 @@ export default function AnalyzeApartment() {
 	const cityId = city ? CITY_LIST_MAP[city].id : null;
 	const [maxDistance, setMaxDistance] = useAtom(maxDistanceAtom);
 	const [isAmenityOn, setIsAmenityOn] = useAtom(isAmenityOnAtom);
+	const isTmpAmenityOn = useAtomValue(isTmpAmenityOnAtom);
 	const params = generateCityDataParams({ maxDistance, isAmenityOn });
 
 	const { isFetching } = useDynamicCityData({
@@ -33,9 +34,9 @@ export default function AnalyzeApartment() {
 			park: getMinutesByDistance(maxDistance.park),
 			supermarket: getMinutesByDistance(maxDistance.supermarket),
 			cafe: getMinutesByDistance(maxDistance.cafe),
-			parkCheckbox: true,
-			supermarketCheckbox: true,
-			cafeCheckbox: true,
+			parkCheckbox: isTmpAmenityOn.park,
+			supermarketCheckbox: isTmpAmenityOn.supermarket,
+			cafeCheckbox: isTmpAmenityOn.cafe,
 		},
 	});
 

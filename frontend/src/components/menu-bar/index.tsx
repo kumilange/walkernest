@@ -20,7 +20,7 @@ export default function MenuBar() {
 				tooltip="Analyze apartment"
 				actionIcon={<Search className="h-4 w-4" />}
 				title="Analyze apartment"
-				description="Set criterias for apartment analysis"
+				description="Set criteria for apartment analysis"
 				content={<AnalyzeApartment />}
 			/>
 			<Separator orientation="vertical" className="text-gray-300" />

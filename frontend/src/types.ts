@@ -28,6 +28,7 @@ type PreferenceKeys =
 	| 'cluster'
 	| 'park'
 	| 'supermarket'
+	| 'cafe'
 	| 'boundary';
 
 export type LayersVisibility = {

@@ -1,4 +1,4 @@
-import { MinutesToMeters } from '.';
+import { MinutesToMeters } from './types';
 
 export const MINS_TO_METERS_IN_WALK: MinutesToMeters = {
 	1: 80,

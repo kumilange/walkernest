@@ -17,20 +17,13 @@ export function cn(...inputs: ClassValue[]) {
 
 /**
  * Capitalizes the first letter of a string and converts the rest to lowercase.
- *
- * @param {string} str - The string to capitalize.
- * @returns {string} - The string with the first letter capitalized.
  */
 export function capitalize(str: string): string {
 	return str.charAt(0).toUpperCase() + str.slice(1).toLowerCase();
 }
 
-
 /**
  * Sets the cursor style of the canvas element based on the selection state.
- *
- * @param {Object} param - The parameter object.
- * @param {boolean} param.isSelecting - Indicates whether the selection mode is active.
  */
 export const setCursorStyle = ({ isSelecting }: { isSelecting: boolean }) => {
 	const canvasElement = document.querySelector('.maplibregl-canvas') as HTMLElement;
@@ -45,15 +38,11 @@ export const setCursorStyle = ({ isSelecting }: { isSelecting: boolean }) => {
 
 /**
  * Transforms a map of city items into an array of city items with additional properties.
- *
- * @param cityLisMap - A map where the key is a string representing the city name and the value is an object containing city details.
- * @returns An array of city items, each containing an id, value, label, and geometry, sorted alphabetically by the label property.
- *
+ * 
  * @remarks
  * The function capitalizes each word in the city name and replaces underscores with spaces to create the label property.
  */
 export const transformToCityListArray = (cityLisMap: CityMapItem): CityArrayItem[] => {
-	// Function to capitalize each word
 	function capitalize(str: string): string {
 		return str.replace(/\b\w/g, (char: string) => char.toUpperCase());
 	}
@@ -73,7 +62,11 @@ export const transformToCityListArray = (cityLisMap: CityMapItem): CityArrayItem
 
 	return cityListArray;
 };
-export function convertQueryParamsToTypes(queryParams: string[]): string[] {
+
+/**
+ * Transforms an array of query parameter strings into a specific format.
+ */
+export function transformQueryParams(queryParams: string[]): string[] {
 	return queryParams.map((param) => {
 		const urlParams = new URLSearchParams(param);
 		const cityId = urlParams.get('city_id');
@@ -89,12 +82,10 @@ export function convertQueryParamsToTypes(queryParams: string[]): string[] {
 }
 
 /**
- * Convert camel case keys in an object to snake case keys.
- * @param obj - The object with camel case keys.
- * @returns A new object with snake case keys.
+ * Converts the keys of an object from camelCase to snake_case.
  */
-export function convertKeysToSnakeCase(obj: { [key: string]: any }): { [key: string]: any } {
-	const result: { [key: string]: any } = {};
+export function convertKeysToSnakeCase(obj: { [key: string]: number }): { [key: string]: number } {
+	const result: { [key: string]: number } = {};
 
 	for (const key in obj) {
 		if (obj.hasOwnProperty(key)) {
@@ -107,16 +98,7 @@ export function convertKeysToSnakeCase(obj: { [key: string]: any }): { [key: str
 }
 
 /**
- * Generates parameters for dynamic city data based on the provided maximum distances and amenity availability.
- *
- * @param {Object} params - The parameters for generating city data.
- * @param {Object} params.maxDistance - The maximum distances for amenities.
- * @param {number} params.maxDistance.park - The maximum distance for parks.
- * @param {number} params.maxDistance.supermarket - The maximum distance for supermarkets.
- * @param {Object} params.isAmenityOn - The availability of amenities.
- * @param {boolean} params.isAmenityOn.park - Whether parks are available.
- * @param {boolean} params.isAmenityOn.supermarket - Whether supermarkets are available.
- * @returns {Object} The generated parameters including maximum distances for available amenities.
+ * Generates city data parameters based on the provided maximum distances and amenity availability.
  */
 export function generateCityDataParams({ maxDistance, isAmenityOn }: { maxDistance: MaxDistance, isAmenityOn: IsAmenityOn },) {
 	return {

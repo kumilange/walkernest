@@ -1,7 +1,7 @@
 import { QueryClient, useQuery } from '@tanstack/react-query';
 import { FeatureCollection } from 'geojson';
 import { LngLat } from 'react-map-gl/maplibre';
-import { convertKeysToSnakeCase, convertQueryParamsToTypes } from '@/lib/misc';
+import { convertKeysToSnakeCase, transformQueryParams } from '@/lib/misc';
 
 const BASE_STATIC_URL = `http://${import.meta.env.VITE_APP_HOST}:3000/geojsons`;
 const BASE_DYNAMIC_URL = `http://${import.meta.env.VITE_APP_HOST}:3000/analyze`;
@@ -39,7 +39,7 @@ async function fetchStaticData(cityId: number): Promise<CityData> {
 			}),
 		);
 
-		return { geojsons, types: convertQueryParamsToTypes(queryParams) };
+		return { geojsons, types: transformQueryParams(queryParams) };
 	} catch (error) {
 		console.error('Error fetching static city data', error);
 		throw error;
@@ -52,9 +52,9 @@ export function useStaticCityData(cityId: number) {
 	});
 }
 
-interface FetchDynamicDataParams {
+type FetchDynamicDataParams = {
 	cityId: number;
-	[key: string]: any; // Allow dynamic properties
+	[key: string]: number;
 }
 async function fetchDynamicData(params: FetchDynamicDataParams) {
 	const { cityId, ...kwargs } = params;

@@ -32,7 +32,7 @@ export default function StaticDataLayers({ cityId }: { cityId: number }) {
 				const type = data.types[index];
 				const isCentroid = type.includes('centroid');
 				const baseName = extractBaseName(type);
-				const imagePath = isCentroid ? iconPaths[baseName] || "" : "";
+				const imagePath = isCentroid && iconPaths[baseName] || "";
 
 				switch (true) {
 					case isCentroid:

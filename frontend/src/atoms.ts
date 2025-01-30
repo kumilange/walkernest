@@ -33,6 +33,7 @@ export const layersVisibilityAtom = atom<LayersVisibility>({
 	cluster: true,
 	park: true,
 	supermarket: true,
+	cafe: true,
 	boundary: true,
 });
 
