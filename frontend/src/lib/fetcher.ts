@@ -19,9 +19,7 @@ type CityData = {
 async function fetchAmenities(cityId: number): Promise<CityData> {
 	const queryParams = [
 		`?city_id=${cityId}&name=park`,
-		`?city_id=${cityId}&name=supermarket`,
 		`?city_id=${cityId}&name=supermarket&is_centroid=true`,
-		`?city_id=${cityId}&name=cafe`,
 		`?city_id=${cityId}&name=cafe&is_centroid=true`,
 	];
 	const urls = queryParams.map((type) => `${BASE_AMENITY_URL}${type}`);
