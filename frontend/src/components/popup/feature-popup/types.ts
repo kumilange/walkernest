@@ -3,8 +3,6 @@ export type FeaturePopupProps = {
 		lat: number;
 		lng: number;
 	};
-	properties: {
-		[key: string]: any; // TODO: fix type
-	};
+	properties: Record<string, any>;
 	handlePopupClose: () => void;
 };

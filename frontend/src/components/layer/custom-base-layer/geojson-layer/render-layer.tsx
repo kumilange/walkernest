@@ -1,4 +1,4 @@
-import { Layer, Source } from 'react-map-gl/maplibre';
+import { Layer, LayerProps, Source } from 'react-map-gl/maplibre';
 import { FeatureCollection } from 'geojson';
 
 export default function RenderLayer({
@@ -10,7 +10,7 @@ export default function RenderLayer({
 	idPrefix: string;
 	type: string;
 	data: FeatureCollection;
-	style: any;
+	style: LayerProps;
 }) {
 	return (
 		<Source id={`${idPrefix}-${type}-source`} type="geojson" data={data}>

@@ -50,9 +50,7 @@ export function handleFavorites(
 ) {
 	const id = properties['id'];
 	const favItem = favItems.find((item) => item.id === id);
-	const isApartment = VALID_PROPERTY_PAIRS['building']['text'].includes(
-		properties['building'],
-	);
+	const isApartment = VALID_PROPERTY_PAIRS['building']['text'].includes(properties['building']);
 
 	const FavComponent = favItem ? (
 		<Heart size="20" fill="#ff93ac" stroke="#ff93ac" />

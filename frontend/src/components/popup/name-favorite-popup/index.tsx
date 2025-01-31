@@ -25,9 +25,7 @@ import type { FavoriteItem } from '@/types';
 type NameFavoritePopupProps = {
 	city: string;
 	lngLat: LngLat;
-	properties: {
-		[key: string]: any;
-	};
+	properties: Record<string, any>;
 	handlePopupClose: () => void;
 };
 
