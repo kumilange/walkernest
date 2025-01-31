@@ -25,7 +25,7 @@ def save_network_nodes_to_json(list, city, data_type):
         json.dump(list, f, separators=(',', ':'))
 
 # Function to save list to a JSON file
-def save_graph_to_json(graph_json_str: str, city):
+def save_network_graph_to_json(graph_json_str: str, city):
     file_path = f"seed/network_graphs/{city}_graph.json"
     
     # Ensure the directory exists

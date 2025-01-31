@@ -1,16 +1,7 @@
 from shapely.geometry import shape, Polygon, Point, LineString, MultiPolygon, MultiLineString
 
 def get_geometry_by_objectid(geojson_data, objectid):
-    """
-    Get the geometry for a given OBJECTID from the GeoJSON data.
-
-    Parameters:
-    geojson_data (dict): GeoJSON data in JSON format.
-    objectid (str or int): The OBJECTID to search for.
-
-    Returns:
-    shapely.geometry.base.BaseGeometry: The geometry for the given OBJECTID.
-    """
+    """Get the geometry for a given OBJECTID from the GeoJSON data."""
     try:
         # Iterate through the features in the GeoJSON data
         for feature in geojson_data['features']:

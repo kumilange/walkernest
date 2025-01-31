@@ -1,5 +1,4 @@
 import json
-import numpy as np
 import osmnx as ox
 import networkx as nx
 from shapely import MultiPolygon, Polygon
@@ -22,63 +21,24 @@ def create_network_graph(geometry):
 
     return G
 
-def convert_to_network_nodes(G, gdf, use_centroid=True):
-    def add_nearest_nodes(geometry, nodes):
-        if isinstance(geometry, Point):
-            nodes.add(ox.distance.nearest_nodes(G, geometry.x, geometry.y))
-        elif isinstance(geometry, (LineString)):
-            all_points = list(geometry.coords)
-            for point in all_points:
-                nodes.add(ox.distance.nearest_nodes(G, point[0], point[1]))
-        elif isinstance(geometry, (MultiLineString)):
-            for part in geometry.geoms:
-                add_nearest_nodes(part, nodes)
-        else:
-            raise TypeError("Unsupported geometry type")
+def compress_network_graph(G: nx.MultiDiGraph) -> str:
+    """
+    Compresses a MultiDiGraph by reducing its size, simplifying edge geometries,
+    reducing coordinate precision, pruning the graph, and converting it to a JSON string.
 
-    if use_centroid:
-        # Ensure the 'centroid' column exists
-        if 'centroid' not in gdf.columns:
-            raise KeyError("The GeoDataFrame does not contain a 'centroid' column.")
-        points = gdf['centroid']
-        # Use a set to store unique nodes
-        nodes = {ox.distance.nearest_nodes(G, point.x, point.y) for point in points}
-    else:
-        nodes = set()  # Use a set to store unique nodes
-        for geometry in gdf['boundary']:
-            add_nearest_nodes(geometry, nodes)
+    Parameters:
+    G (networkx.MultiDiGraph): The graph to compress.
 
-    return list(nodes)  # Convert the set back to a list before returning
-
-# def find_suitable_apartment_network_nodes(G, apartment_nnodes, park_nnodes, supermarket_nnodes, max_park_distance, max_supermarket_distance):
-#     """
-#     Find suitable apartment network nodes that are within specified distances from both park and supermarket nodes.
-
-#     Parameters:
-#     G (networkx.Graph): The graph representing the network.
-#     apartment_nnodes (list): List of apartment network nodes.
-#     park_nnodes (list): List of park network nodes.
-#     supermarket_nnodes (list): List of supermarket network nodes.
-#     max_park_distance (float): Maximum distance from park nodes to consider.
-#     max_supermarket_distance (float): Maximum distance from supermarket nodes to consider.
-
-#     Returns:
-#     list: List of suitable apartment network nodes within the specified distances from both park and supermarket nodes.
-#     """
-#     # Create subgraphs for parks and supermarkets within the specified distances
-#     park_subgraph_nnodes = set()
-#     for park_nnode in park_nnodes:
-#         park_subgraph_nnodes.update(nx.ego_graph(G, park_nnode, radius=max_park_distance, distance='length').nodes())
-
-#     supermarket_subgraph_nnodes = set()
-#     for supermarket_nnode in supermarket_nnodes:
-#         supermarket_subgraph_nnodes.update(nx.ego_graph(G, supermarket_nnode, radius=max_supermarket_distance, distance='length').nodes())
+    Returns:
+    str: The compressed graph as a JSON string.
+    """
+    G = reduce_graph_size(G)
+    G = simplify_edge_geometries(G)
+    G = reduce_coordinate_precision(G)
+    G = prune_graph(G)
+    graph_json_str = convert_graph_to_json(G)
     
-#     # Find suitable apartment network nodes
-#     apartment_nnodes_set = set(apartment_nnodes)
-#     suitable_apartment_nnodes = list(apartment_nnodes_set & park_subgraph_nnodes & supermarket_subgraph_nnodes)
-
-#     return suitable_apartment_nnodes
+    return graph_json_str
 
 def reduce_graph_size(G: nx.MultiDiGraph) -> nx.MultiDiGraph:
     """
@@ -163,7 +123,16 @@ def prune_graph(G: nx.MultiDiGraph, min_edge_length: float = 5.0) -> nx.MultiDiG
 
     return G
 
-def compress_graph_to_json(G: nx.MultiDiGraph):
+def convert_graph_to_json(G: nx.MultiDiGraph) -> str:
+    """
+    Converts a MultiDiGraph to a JSON string, with LineString geometries converted to coordinate lists.
+
+    Parameters:
+    G (networkx.MultiDiGraph): The graph to convert.
+
+    Returns:
+    str: The graph as a JSON string.
+    """
     # Convert the graph to a dictionary
     graph_dict = nx.node_link_data(G)
     
@@ -179,3 +148,62 @@ def compress_graph_to_json(G: nx.MultiDiGraph):
     graph_json_str = json.dumps(graph_dict)
     
     return graph_json_str
+
+def convert_gdf_to_network_nodes(G, gdf, use_centroid=True):
+    def add_nearest_nodes(geometry, nodes):
+        if isinstance(geometry, Point):
+            nodes.add(ox.distance.nearest_nodes(G, geometry.x, geometry.y))
+        elif isinstance(geometry, (LineString)):
+            all_points = list(geometry.coords)
+            for point in all_points:
+                nodes.add(ox.distance.nearest_nodes(G, point[0], point[1]))
+        elif isinstance(geometry, (MultiLineString)):
+            for part in geometry.geoms:
+                add_nearest_nodes(part, nodes)
+        else:
+            raise TypeError("Unsupported geometry type")
+
+    if use_centroid:
+        # Ensure the 'centroid' column exists
+        if 'centroid' not in gdf.columns:
+            raise KeyError("The GeoDataFrame does not contain a 'centroid' column.")
+        points = gdf['centroid']
+        # Use a set to store unique nodes
+        nodes = {ox.distance.nearest_nodes(G, point.x, point.y) for point in points}
+    else:
+        nodes = set()  # Use a set to store unique nodes
+        for geometry in gdf['boundary']:
+            add_nearest_nodes(geometry, nodes)
+
+    return list(nodes)  # Convert the set back to a list before returning
+
+# def find_suitable_apartment_network_nodes(G, apartment_nnodes, park_nnodes, supermarket_nnodes, max_park_distance, max_supermarket_distance):
+#     """
+#     Find suitable apartment network nodes that are within specified distances from both park and supermarket nodes.
+
+#     Parameters:
+#     G (networkx.Graph): The graph representing the network.
+#     apartment_nnodes (list): List of apartment network nodes.
+#     park_nnodes (list): List of park network nodes.
+#     supermarket_nnodes (list): List of supermarket network nodes.
+#     max_park_distance (float): Maximum distance from park nodes to consider.
+#     max_supermarket_distance (float): Maximum distance from supermarket nodes to consider.
+
+#     Returns:
+#     list: List of suitable apartment network nodes within the specified distances from both park and supermarket nodes.
+#     """
+#     # Create subgraphs for parks and supermarkets within the specified distances
+#     park_subgraph_nnodes = set()
+#     for park_nnode in park_nnodes:
+#         park_subgraph_nnodes.update(nx.ego_graph(G, park_nnode, radius=max_park_distance, distance='length').nodes())
+
+#     supermarket_subgraph_nnodes = set()
+#     for supermarket_nnode in supermarket_nnodes:
+#         supermarket_subgraph_nnodes.update(nx.ego_graph(G, supermarket_nnode, radius=max_supermarket_distance, distance='length').nodes())
+    
+#     # Find suitable apartment network nodes
+#     apartment_nnodes_set = set(apartment_nnodes)
+#     suitable_apartment_nnodes = list(apartment_nnodes_set & park_subgraph_nnodes & supermarket_subgraph_nnodes)
+
+#     return suitable_apartment_nnodes
+

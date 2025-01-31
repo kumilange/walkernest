@@ -10,7 +10,7 @@ export type CityArrayItem = {
 	geometry: Geometry;
 };
 
-export type CityMapItem = {
+export type CityDictItem = {
 	[key: string]: {
 		id: number;
 		geometry: Geometry;

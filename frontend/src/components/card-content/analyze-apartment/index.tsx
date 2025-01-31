@@ -6,7 +6,7 @@ import { Form } from '@/components/ui/form';
 import { Button } from '@/components/ui/button';
 import { PopoverClose } from '@/components/ui/popover';
 import { LoadingButton } from '@/components/button';
-import { CITY_LIST_MAP } from '@/constants';
+import { CITY_LIST_DICT } from '@/constants';
 import { getMinutesByDistance } from './helper';
 import { MINS_TO_METERS_IN_WALK } from './constants';
 import { FormSchema, MinutesToMeters } from './types';
@@ -16,7 +16,7 @@ import { useAtomCity, useAtomMaxDistance, useAtomIsAmenityOn, useAtomIsTmpAmenit
 
 export default function AnalyzeApartment() {
 	const { city } = useAtomCity();
-	const cityId = city ? CITY_LIST_MAP[city].id : null;
+	const cityId = city ? CITY_LIST_DICT[city].id : null;
 	const { maxDistance, setMaxDistance } = useAtomMaxDistance();
 	const { isAmenityOn, setIsAmenityOn } = useAtomIsAmenityOn();
 	const { isTmpAmenityOn } = useAtomIsTmpAmenityOn();

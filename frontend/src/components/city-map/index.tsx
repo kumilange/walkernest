@@ -1,6 +1,6 @@
 import { Map, ScaleControl, NavigationControl } from 'react-map-gl/maplibre';
 import { useAtomCity } from '@/atoms';
-import { CITY_LIST_MAP } from '@/constants';
+import { CITY_LIST_DICT } from '@/constants';
 import LayerManager from '@/components/layer';
 import { FeaturePopup, NameFavoritePopup } from '@/components/popup';
 import { getInteractiveLayerIds } from './helper';
@@ -10,7 +10,7 @@ import useSyncFavorites from './hooks/use-sync-favorites';
 
 export default function CityMap() {
 	const { city } = useAtomCity();
-	const cityId = city ? CITY_LIST_MAP[city].id : null;
+	const cityId = city ? CITY_LIST_DICT[city].id : null;
 	useSyncFavorites();
 	const {
 		lngLat,
