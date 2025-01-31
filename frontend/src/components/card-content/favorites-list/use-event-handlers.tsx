@@ -1,14 +1,13 @@
 import { useCallback, useState } from 'react';
 import { useMap, LngLat } from 'react-map-gl/maplibre';
-import { useAtom } from 'jotai';
 import { removeFromLocalStorageList } from '@/lib/localstorage';
-import { cityAtom, favItemsAtom } from '@/atoms';
+import { useAtomCity, useAtomFavItems } from '@/atoms';
 import type { FavoriteItem } from '@/types';
 
 export default function useEventHandlers() {
 	const { map } = useMap();
-	const [city, setCity] = useAtom(cityAtom);
-	const [favItems, setFavItems] = useAtom(favItemsAtom);
+	const { city, setCity } = useAtomCity()
+	const { favItems, setFavItems } = useAtomFavItems()
 	const [selectedId, setSelectedId] = useState(0);
 
 	const flyTo = useCallback(

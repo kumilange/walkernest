@@ -1,7 +1,6 @@
 import React from 'react';
 import { ErrorBoundary as ReactErrorBoundary } from 'react-error-boundary';
-import { useSetAtom } from 'jotai';
-import { cityAtom } from '@/atoms';
+import { useAtomCity } from '@/atoms';
 import ErrorFallback from './error-fallback';
 
 export default function ErrorBoundary({
@@ -9,7 +8,7 @@ export default function ErrorBoundary({
 }: {
 	children: React.ReactNode;
 }) {
-	const setCity = useSetAtom(cityAtom);
+	const { setCity } = useAtomCity();
 
 	return (
 		<ReactErrorBoundary

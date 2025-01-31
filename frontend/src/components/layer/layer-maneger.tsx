@@ -1,5 +1,4 @@
-import { useAtomValue } from 'jotai';
-import { lastLayerIdAtom } from '@/atoms';
+import { useAtomLastLayerId } from '@/atoms';
 import { BoundaryLayer, RouteLayer, AmenitiesLayers, AnalysisLayers, FavoritesLayer, RoutePointsLayer } from "./custom-layer"
 
 export default function LayerManager({
@@ -9,7 +8,7 @@ export default function LayerManager({
 	city: string | null;
 	cityId: number | null;
 }) {
-	const lastLayerId = useAtomValue(lastLayerIdAtom);
+	const { lastLayerId } = useAtomLastLayerId();
 
 	return (
 		<>

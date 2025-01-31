@@ -9,8 +9,7 @@ import {
 import { Input } from '@/components/ui/input';
 import { capitalize } from '@/lib/misc';
 import { Checkbox } from '@/components/ui/checkbox';
-import { useAtom } from 'jotai';
-import { isTmpAmenityOnAtom } from '@/atoms';
+import { useAtomIsTmpAmenityOn } from '@/atoms';
 
 type FormFieldItemProps<T extends FieldValues> = {
 	control: Control<T>;
@@ -27,7 +26,7 @@ export default function FormFieldItem<T extends FieldValues>({
 	control,
 	name,
 }: FormFieldItemProps<T>) {
-	const [isTmpAmenityOn, setIsTmpAmenityOn] = useAtom(isTmpAmenityOnAtom);
+	const { isTmpAmenityOn, setIsTmpAmenityOn } = useAtomIsTmpAmenityOn();
 	const isChecked = isTmpAmenityOn[name as keyof typeof isTmpAmenityOn];
 
 	return (

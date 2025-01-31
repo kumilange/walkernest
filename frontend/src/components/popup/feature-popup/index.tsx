@@ -1,6 +1,6 @@
 import { Popup } from 'react-map-gl/maplibre';
 import { useAtomValue } from 'jotai';
-import { favItemsAtom } from '@/atoms';
+import { useAtomFavItems } from '@/atoms';
 import { capitalize } from '@/lib/misc';
 import { CloseButton } from '@/components/button';
 import { VALID_PROPERTY_PAIRS } from '@/components/layer/constants';
@@ -13,7 +13,7 @@ export default function FeaturePopup({
 	handlePopupClose,
 }: FeaturePopupProps) {
 	const validProperties = processProperties(properties);
-	const favItems = useAtomValue(favItemsAtom);
+	const { favItems } = useAtomFavItems();
 	const { FavComponent, favItemName } = handleFavorites(properties, favItems);
 	const colorClass = validProperties[0][0];
 

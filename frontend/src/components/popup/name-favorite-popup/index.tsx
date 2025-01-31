@@ -3,7 +3,6 @@ import { Feature, GeoJsonProperties, Point } from 'geojson';
 import { useForm } from 'react-hook-form';
 import { z } from 'zod';
 import { zodResolver } from '@hookform/resolvers/zod';
-import { useSetAtom } from 'jotai';
 import { Button } from '@/components/ui/button';
 import { Input } from '@/components/ui/input';
 import {
@@ -17,7 +16,7 @@ import {
 import { CloseButton } from '@/components/button';
 import { ToastAction } from '@/components/ui/toast';
 import { addToLocalStorageList } from '@/lib/localstorage';
-import { favItemsAtom } from '@/atoms';
+import { useAtomFavItems } from '@/atoms';
 import { fetchFavorites } from '@/lib/fetcher';
 import { useToast } from '@/hooks';
 import type { FavoriteItem } from '@/types';
@@ -42,7 +41,7 @@ export default function NameFavoritePopup({
 	handlePopupClose,
 }: NameFavoritePopupProps) {
 	const { toast } = useToast();
-	const setFavItems = useSetAtom(favItemsAtom);
+	const { setFavItems } = useAtomFavItems();
 	const defaultName =
 		properties?.name && properties?.name !== 'N/A' ? properties.name : '';
 

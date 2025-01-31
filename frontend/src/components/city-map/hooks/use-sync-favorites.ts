@@ -1,11 +1,10 @@
 import { useEffect } from 'react';
-import { useAtom } from 'jotai';
-import { favItemsAtom } from '@/atoms';
+import { useAtomFavItems } from '@/atoms';
 import { getLocalStorageList } from '@/lib/localstorage';
 import { FavoriteItem } from '@/types';
 
 export default function useSyncFavorites() {
-	const [favItems, setFavItems] = useAtom(favItemsAtom);
+	const { favItems, setFavItems } = useAtomFavItems();
 	const favStorageList = getLocalStorageList<FavoriteItem>('favorites');
 
 	// Compare the current favorite items with the list from local storage

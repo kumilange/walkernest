@@ -1,5 +1,4 @@
-import { useAtomValue } from 'jotai';
-import { favItemsAtom } from '@/atoms';
+import { useAtomFavItems } from '@/atoms';
 import favApartmentIconPath from '@/assets/fav-apartmemt-icon.png';
 import { IconLayer } from '../custom-base-layer';
 
@@ -8,7 +7,7 @@ export default function FavoritesLayer({
 }: {
 	lastLayerId: string;
 }) {
-	const favItems = useAtomValue(favItemsAtom);
+	const { favItems } = useAtomFavItems();
 	const favoritesFeatures = favItems.map(({ feature }) => feature);
 
 	return (

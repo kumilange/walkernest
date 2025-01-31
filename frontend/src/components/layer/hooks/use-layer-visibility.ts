@@ -1,8 +1,7 @@
-import { hiddenLayersAtom } from '@/atoms';
-import { useAtomValue } from 'jotai';
+import { useAtomHiddenLayers } from '@/atoms';
 import { isLayerHidden } from '@/components/layer/helper';
 
 export default function useLayerVisibility(id: string) {
-	const hiddenLayers = useAtomValue(hiddenLayersAtom);
+	const { hiddenLayers } = useAtomHiddenLayers()
 	return isLayerHidden({ id, hiddenLayers });
 }

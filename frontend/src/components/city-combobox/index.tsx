@@ -1,7 +1,6 @@
 import { useMemo, useState } from 'react';
 import { Check, ChevronsUpDown } from 'lucide-react';
-import { useAtomValue } from 'jotai';
-import { cityAtom } from '@/atoms';
+import { useAtomCity } from '@/atoms';
 import { cn } from '@/lib/misc';
 import { Button } from '@/components/ui/button';
 import {
@@ -22,7 +21,7 @@ import useEventHandlers from './use-event-handlers';
 
 export default function CityCombobox() {
 	const [open, setOpen] = useState(false);
-	const city = useAtomValue(cityAtom);
+	const { city } = useAtomCity();
 	const { handleSearch } = useEventHandlers();
 
 	// ensure the selected city is at the top

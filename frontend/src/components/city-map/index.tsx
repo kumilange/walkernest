@@ -1,6 +1,5 @@
 import { Map, ScaleControl, NavigationControl } from 'react-map-gl/maplibre';
-import { useAtomValue } from 'jotai';
-import { cityAtom } from '@/atoms';
+import { useAtomCity } from '@/atoms';
 import { CITY_LIST_MAP } from '@/constants';
 import LayerManager from '@/components/layer';
 import { FeaturePopup, NameFavoritePopup } from '@/components/popup';
@@ -10,7 +9,7 @@ import useEventHandlers from './hooks/use-event-handlers';
 import useSyncFavorites from './hooks/use-sync-favorites';
 
 export default function CityMap() {
-	const city = useAtomValue(cityAtom);
+	const { city } = useAtomCity();
 	const cityId = city ? CITY_LIST_MAP[city].id : null;
 	useSyncFavorites();
 	const {

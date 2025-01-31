@@ -1,8 +1,6 @@
 import { useForm } from 'react-hook-form';
 import { z } from 'zod';
 import { zodResolver } from '@hookform/resolvers/zod';
-import { useAtom, useAtomValue } from 'jotai';
-import { cityAtom, maxDistanceAtom, isAmenityOnAtom, isTmpAmenityOnAtom } from '@/atoms';
 import { useAnalysis } from '@/lib/fetcher';
 import { Form } from '@/components/ui/form';
 import { Button } from '@/components/ui/button';
@@ -14,13 +12,14 @@ import { MINS_TO_METERS_IN_WALK } from './constants';
 import { FormSchema, MinutesToMeters } from './types';
 import FormFieldItem from './form-field-item';
 import { generateCityDataParams } from '@/lib/misc';
+import { useAtomCity, useAtomMaxDistance, useAtomIsAmenityOn, useAtomIsTmpAmenityOn } from '@/atoms';
 
 export default function AnalyzeApartment() {
-	const city = useAtomValue(cityAtom);
+	const { city } = useAtomCity();
 	const cityId = city ? CITY_LIST_MAP[city].id : null;
-	const [maxDistance, setMaxDistance] = useAtom(maxDistanceAtom);
-	const [isAmenityOn, setIsAmenityOn] = useAtom(isAmenityOnAtom);
-	const isTmpAmenityOn = useAtomValue(isTmpAmenityOnAtom);
+	const { maxDistance, setMaxDistance } = useAtomMaxDistance();
+	const { isAmenityOn, setIsAmenityOn } = useAtomIsAmenityOn();
+	const { isTmpAmenityOn } = useAtomIsTmpAmenityOn();
 	const params = generateCityDataParams({ maxDistance, isAmenityOn });
 
 	const { isFetching } = useAnalysis({

@@ -1,8 +1,7 @@
 import { useEffect } from 'react';
-import { useAtomValue } from 'jotai';
 import { useAnalysis } from '@/lib/fetcher';
 import apartmentIconPath from '@/assets/apartment-icon.png';
-import { isAmenityOnAtom, favItemsAtom, maxDistanceAtom } from '@/atoms';
+import { useAtomIsAmenityOn, useAtomFavItems, useAtomMaxDistance } from '@/atoms';
 import { useToast } from '@/hooks';
 import { ToastAction } from '@/components/ui/toast';
 import { generateCityDataParams } from '@/lib/misc';
@@ -10,10 +9,10 @@ import { ClusterLayer, GeoJsonLayer, IconLayer } from '../custom-base-layer';
 
 export default function AnalysisLayers({ cityId }: { cityId: number }) {
 	const { toast } = useToast();
-	const maxDistance = useAtomValue(maxDistanceAtom);
-	const isAmenityOn = useAtomValue(isAmenityOnAtom);
+	const { maxDistance } = useAtomMaxDistance();
+	const { isAmenityOn } = useAtomIsAmenityOn();
 	const params = generateCityDataParams({ maxDistance, isAmenityOn });
-	const favItems = useAtomValue(favItemsAtom);
+	const { favItems } = useAtomFavItems();
 	const favIds = favItems.map((item) => item.id);
 
 	const { data, error } = useAnalysis({
