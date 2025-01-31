@@ -1,6 +1,6 @@
 import { useAtomValue } from 'jotai';
 import { lastLayerIdAtom } from '@/atoms';
-import { BoundaryLayer, RouteLayer, StaticDataLayers, DynamicDataLayers, FavoritesLayer, RoutePointsLayer } from "./custom-layer"
+import { BoundaryLayer, RouteLayer, AmenitiesLayers, AnalysisLayers, FavoritesLayer, RoutePointsLayer } from "./custom-layer"
 
 export default function LayerManager({
 	city,
@@ -16,11 +16,11 @@ export default function LayerManager({
 			{city && <BoundaryLayer city={city} />}
 			{cityId && (
 				<>
-					<StaticDataLayers cityId={cityId} />
-					<DynamicDataLayers cityId={cityId} />
+					<AmenitiesLayers cityId={cityId} />
+					<AnalysisLayers cityId={cityId} />
 				</>
 			)}
-			{/* The lastLayerId is used to ensure that this layer is rendered on top of other layers. */}
+			{/* The lastLayerId is used to ensure that the layer is rendered on top of other layers. */}
 			{lastLayerId &&
 				<>
 					<FavoritesLayer lastLayerId={lastLayerId} />

@@ -18,7 +18,7 @@ import { CloseButton } from '@/components/button';
 import { ToastAction } from '@/components/ui/toast';
 import { addToLocalStorageList } from '@/lib/localstorage';
 import { favItemsAtom } from '@/atoms';
-import { fetchFavoritesData } from '@/lib/fetcher';
+import { fetchFavorites } from '@/lib/fetcher';
 import { useToast } from '@/hooks';
 import type { FavoriteItem } from '@/types';
 
@@ -60,7 +60,7 @@ export default function NameFavoritePopup({
 
 	const onSubmit = async (data: z.infer<typeof FormSchema>) => {
 		try {
-			const response = await fetchFavoritesData([properties.id]);
+			const response = await fetchFavorites([properties.id]);
 			const feature = response[0] as Feature<Point, GeoJsonProperties>;
 			const item: FavoriteItem = {
 				id: feature?.properties?.id,

@@ -3,8 +3,8 @@ import { FeatureCollection } from 'geojson';
 import { LngLat } from 'react-map-gl/maplibre';
 import { convertKeysToSnakeCase, transformQueryParams } from '@/lib/misc';
 
-const BASE_STATIC_URL = `http://${import.meta.env.VITE_APP_HOST}:3000/geojsons`;
-const BASE_DYNAMIC_URL = `http://${import.meta.env.VITE_APP_HOST}:3000/analyze`;
+const BASE_AMENITY_URL = `http://${import.meta.env.VITE_APP_HOST}:3000/amenities`;
+const BASE_ANALYSIS_URL = `http://${import.meta.env.VITE_APP_HOST}:3000/analyze`;
 const BASE_FAVORITES_URL = `http://${import.meta.env.VITE_APP_HOST}:3000/favorites`;
 const BASE_OSM_NOMINATIM_URL = `https://nominatim.openstreetmap.org/reverse`;
 const BASE_OSRM_ROUTE_URL = `http://router.project-osrm.org/route/v1`;
@@ -16,8 +16,7 @@ type CityData = {
 	types: string[];
 };
 
-
-async function fetchStaticData(cityId: number): Promise<CityData> {
+async function fetchAmenities(cityId: number): Promise<CityData> {
 	const queryParams = [
 		`?city_id=${cityId}&name=park`,
 		`?city_id=${cityId}&name=supermarket`,
@@ -25,7 +24,7 @@ async function fetchStaticData(cityId: number): Promise<CityData> {
 		`?city_id=${cityId}&name=cafe`,
 		`?city_id=${cityId}&name=cafe&is_centroid=true`,
 	];
-	const urls = queryParams.map((type) => `${BASE_STATIC_URL}${type}`);
+	const urls = queryParams.map((type) => `${BASE_AMENITY_URL}${type}`);
 
 	try {
 		const responses = await Promise.all(urls.map((url) => fetch(url)));
@@ -41,25 +40,25 @@ async function fetchStaticData(cityId: number): Promise<CityData> {
 
 		return { geojsons, types: transformQueryParams(queryParams) };
 	} catch (error) {
-		console.error('Error fetching static city data', error);
+		console.error('Error fetching amenities', error);
 		throw error;
 	}
 }
-export function useStaticCityData(cityId: number) {
+export function useAmenities(cityId: number) {
 	return useQuery({
-		queryKey: [`static-city-data`, cityId],
-		queryFn: () => fetchStaticData(cityId),
+		queryKey: [`amanities`, cityId],
+		queryFn: () => fetchAmenities(cityId),
 	});
 }
 
-type FetchDynamicDataParams = {
+type FetchAnalysisParams = {
 	cityId: number;
 	[key: string]: number;
 }
-async function fetchDynamicData(params: FetchDynamicDataParams) {
+async function fetchAnalysis(params: FetchAnalysisParams) {
 	const { cityId, ...kwargs } = params;
 	const kwargsInSnake = convertKeysToSnakeCase(kwargs);
-	const url = `${BASE_DYNAMIC_URL}?city_id=${cityId}&kwargs=${encodeURIComponent(JSON.stringify(kwargsInSnake))}`;
+	const url = `${BASE_ANALYSIS_URL}?city_id=${cityId}&kwargs=${encodeURIComponent(JSON.stringify(kwargsInSnake))}`;
 
 	try {
 		const response = await fetch(url);
@@ -70,23 +69,23 @@ async function fetchDynamicData(params: FetchDynamicDataParams) {
 		const { polygon, centroid } = data;
 		return { polygon, centroid };
 	} catch (error) {
-		console.error('Error fetching dynamic city data', error);
+		console.error('Error fetching analysis', error);
 		throw error;
 	}
 }
-export function useDynamicCityData(params: FetchDynamicDataParams) {
+export function useAnalysis(params: FetchAnalysisParams) {
 	const { cityId, ...kwargs } = params;
 	if (cityId === null) { return { data: null, error: null, isFetching: false }; }
 
 	return useQuery({
-		queryKey: [`dynamic-city-data`, cityId, ...Object.values(kwargs)],
+		queryKey: [`analysis`, cityId, ...Object.values(kwargs)],
 		queryFn: () =>
-			fetchDynamicData(params),
+			fetchAnalysis(params),
 		staleTime: Infinity,
 	});
 }
 
-export async function fetchFavoritesData(favIds: number[]) {
+export async function fetchFavorites(favIds: number[]) {
 	const queryString = favIds.map((id) => `ids=${id}`).join('&');
 	const url = `${BASE_FAVORITES_URL}?${queryString}`;
 	try {
@@ -97,7 +96,7 @@ export async function fetchFavoritesData(favIds: number[]) {
 		const data = await response.json();
 		return data;
 	} catch (error) {
-		console.error('Error fetching favorites data', error);
+		console.error('Error fetching favorites', error);
 		throw error;
 	}
 }

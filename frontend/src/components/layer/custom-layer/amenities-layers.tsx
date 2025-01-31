@@ -1,6 +1,6 @@
 import { useEffect } from 'react';
 import { useToast } from '@/hooks';
-import { useStaticCityData } from '@/lib/fetcher';
+import { useAmenities } from '@/lib/fetcher';
 import supermarketIconPath from '@/assets/supermarket-icon.png';
 import cafeIconPath from '@/assets/cafe-icon.png';
 import { extractBaseName } from '../helper';
@@ -11,9 +11,9 @@ const iconPaths: { [key: string]: string } = {
 	cafe: cafeIconPath,
 };
 
-export default function StaticDataLayers({ cityId }: { cityId: number }) {
+export default function AmenitiesLayers({ cityId }: { cityId: number }) {
 	const { toast } = useToast();
-	const { data, error } = useStaticCityData(cityId);
+	const { data, error } = useAmenities(cityId);
 
 	useEffect(() => {
 		if (error) {

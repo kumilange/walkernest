@@ -3,7 +3,7 @@ import { z } from 'zod';
 import { zodResolver } from '@hookform/resolvers/zod';
 import { useAtom, useAtomValue } from 'jotai';
 import { cityAtom, maxDistanceAtom, isAmenityOnAtom, isTmpAmenityOnAtom } from '@/atoms';
-import { useDynamicCityData } from '@/lib/fetcher';
+import { useAnalysis } from '@/lib/fetcher';
 import { Form } from '@/components/ui/form';
 import { Button } from '@/components/ui/button';
 import { PopoverClose } from '@/components/ui/popover';
@@ -23,7 +23,7 @@ export default function AnalyzeApartment() {
 	const isTmpAmenityOn = useAtomValue(isTmpAmenityOnAtom);
 	const params = generateCityDataParams({ maxDistance, isAmenityOn });
 
-	const { isFetching } = useDynamicCityData({
+	const { isFetching } = useAnalysis({
 		cityId: cityId as number,
 		...params
 	});
