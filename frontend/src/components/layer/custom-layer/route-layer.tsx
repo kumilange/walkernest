@@ -7,7 +7,7 @@ import {
 import { fetchRoute } from '@/lib/fetcher';
 import { RoutePoint } from '@/types';
 import { toast, useCheckRoutes } from '@/hooks';
-import { twColors } from '../constants';
+import { twColors } from '@/constants';
 
 const layerStyle: LayerProps = {
 	id: 'route',

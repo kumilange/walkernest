@@ -1,5 +1,4 @@
 import { Popup } from 'react-map-gl/maplibre';
-import { useAtomValue } from 'jotai';
 import { useAtomFavItems } from '@/atoms';
 import { capitalize } from '@/lib/misc';
 import { CloseButton } from '@/components/button';

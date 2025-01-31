@@ -2,7 +2,7 @@ import { Layer, Source, LayerProps } from 'react-map-gl/maplibre';
 import { CITY_LIST_MAP } from '@/constants';
 import { generateFeatureCollection } from '../helper';
 import useLayerVisibility from '../hooks/use-layer-visibility';
-import { twColors } from '../constants';
+import { twColors } from '@/constants';
 
 const layerLineStyle: LayerProps = {
 	id: `boundary-line-layer`,

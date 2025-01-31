@@ -1,8 +1,6 @@
 import { ReactNode } from 'react';
 import { House, ShoppingCart, Trees, Coffee } from 'lucide-react';
-import tailwindConfig from '../../../tailwind.config';
-
-export const twColors = tailwindConfig.theme.extend.colors;
+import { twColors } from '@/constants';
 
 export const colorMappings: { [key: string]: { point: string; lineString: string; polygon: string } } = {
 	apartment: {
