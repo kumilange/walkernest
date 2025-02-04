@@ -2,10 +2,10 @@ import { FeatureCollection } from 'geojson';
 import locateIconPath from '@/assets/locate-icon.png';
 import locateFixedIconPath from '@/assets/locate-fixed-icon.png';
 import { useCheckRoutes } from '@/hooks';
-import { generateFeatureCollection } from './helper';
-import IconLayer from './custom-layer/icon-layer';
+import { generateFeatureCollection } from '../helper';
+import { IconLayer } from '../custom-base-layer';
 
-type LayerData = {
+export type RoutePointData = {
 	id: string;
 	icon: string;
 	geojson: FeatureCollection;
@@ -17,7 +17,7 @@ export default function RoutePointsLayer({
 	lastLayerId: string;
 }) {
 	const { startingPoint, endingPoint } = useCheckRoutes();
-	const data: LayerData[] = [];
+	const data: RoutePointData[] = [];
 
 	if (startingPoint?.lngLat) {
 		data.push({

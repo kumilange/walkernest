@@ -7,6 +7,7 @@ import {
 import { fetchRoute } from '@/lib/fetcher';
 import { RoutePoint } from '@/types';
 import { toast, useCheckRoutes } from '@/hooks';
+import { twColors } from '@/constants';
 
 const layerStyle: LayerProps = {
 	id: 'route',
@@ -17,7 +18,7 @@ const layerStyle: LayerProps = {
 		'line-cap': 'round',
 	},
 	paint: {
-		'line-color': '#166534',
+		'line-color': twColors.route,
 		'line-width': 5,
 		'line-dasharray': [0, 1],
 	},

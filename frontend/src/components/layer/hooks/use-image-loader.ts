@@ -12,20 +12,16 @@ export default function useImageLoader(imagePath: string, imageId: string) {
 		!map.hasImage(imageId) && map.addImage(imageId, image.data);
 	}, [map]);
 
-	const handleStyleImageMissing = () => {
-		addImage();
-	};
-
 	useEffect(() => {
 		if (!map) return;
 
 		addImage();
 
 		// styleimagemissing event gets fired when map style changes, need to add image again
-		map.on('styleimagemissing', handleStyleImageMissing);
+		map.on('styleimagemissing', addImage);
 
 		return () => {
-			map.off('styleimagemissing', handleStyleImageMissing);
+			map.off('styleimagemissing', addImage);
 		};
 	}, [map]);
 }

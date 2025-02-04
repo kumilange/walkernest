@@ -6,7 +6,7 @@ DB_PASSWORD="postgres"
 DB_HOST="postgis"
 DB_PORT="5432"
 DB_NAME="gis"
-CITY_DATA=$(cat /shared/citylist.json)
+CITY_DATA=$(cat /shared/citydict.json)
 GEOJSON_DIR='/data/geojson'
 NETWORK_GRAPHS_DIR='/data/network_graphs'
 NETWORK_NODES_DIR='/data/network_nodes'
@@ -36,15 +36,15 @@ log "Initializing tables and creating indexes..."
 psql $CONNECTION_STRING <<EOF
 BEGIN;
 
-DROP TABLE IF EXISTS geojsons;
-CREATE TABLE IF NOT EXISTS geojsons (
+DROP TABLE IF EXISTS amenities;
+CREATE TABLE IF NOT EXISTS amenities (
     id SERIAL PRIMARY KEY,
     city_id INTEGER NOT NULL,
     name VARCHAR(50) CHECK (name IN ('park', 'supermarket', 'cafe', 'apartment')) NOT NULL,
     geom GEOMETRY,
     properties JSONB
 );
-CREATE INDEX idx_geojsons_geom ON geojsons USING GIST (geom);
+CREATE INDEX idx_amenities_geom ON amenities USING GIST (geom);
 
 DROP TABLE IF EXISTS network_graphs;
 CREATE TABLE IF NOT EXISTS network_graphs (
@@ -112,14 +112,14 @@ if [ -d "$GEOJSON_DIR" ] && [ "$(ls -A $GEOJSON_DIR)" ]; then
           COUNT=$((COUNT + 1))
 
           if [ "$COUNT" -ge "$BATCH_SIZE" ]; then
-            insert_data_in_batches "geojsons" "city_id, name, geom, properties" "$INSERT_VALUES"
+            insert_data_in_batches "amenities" "city_id, name, geom, properties" "$INSERT_VALUES"
             INSERT_VALUES=""
             COUNT=0
           fi
         done < temp_features.json
         rm -f temp_features.json
 
-        insert_data_in_batches "geojsons" "city_id, name, geom, properties" "$INSERT_VALUES"
+        insert_data_in_batches "amenities" "city_id, name, geom, properties" "$INSERT_VALUES"
       fi
     fi
   done

@@ -1,20 +1,19 @@
 import { useEffect } from 'react';
 import { useToast } from '@/hooks';
-import { useStaticCityData } from '@/lib/fetcher';
+import { useAmenities } from '@/lib/fetcher';
 import supermarketIconPath from '@/assets/supermarket-icon.png';
 import cafeIconPath from '@/assets/cafe-icon.png';
-import { extractBaseName } from './helper';
-import GeoJsonLayer from './custom-layer/geojson-layer';
-import IconLayer from './custom-layer/icon-layer';
+import { extractBaseName } from '../helper';
+import { GeoJsonLayer, IconLayer } from '../custom-base-layer';
 
 const iconPaths: { [key: string]: string } = {
 	supermarket: supermarketIconPath,
 	cafe: cafeIconPath,
 };
 
-export default function StaticDataLayers({ cityId }: { cityId: number }) {
+export default function AmenitiesLayers({ cityId }: { cityId: number }) {
 	const { toast } = useToast();
-	const { data, error } = useStaticCityData(cityId);
+	const { data, error } = useAmenities(cityId);
 
 	useEffect(() => {
 		if (error) {

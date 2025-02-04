@@ -1,6 +1,5 @@
 import { useCallback, useState } from 'react';
-import { useAtom } from 'jotai';
-import { endingPointAtom, isEndingPointSelectingAtom, isStartingPointSelectingAtom, routeAtom, startingPointAtom } from '@/atoms';
+import { useAtomRoute } from '@/atoms';
 import { bbox } from '@turf/turf';
 import { LngLat, LngLatBoundsLike } from 'react-map-gl/maplibre';
 import { setCursorStyle } from '@/lib/misc';
@@ -11,11 +10,7 @@ import { Route } from '@/types';
 export default function useCheckRoutes() {
 	const [animatedRoute, setAnimatedRoute] = useState<GeoJSON.LineString | null>(null);
 	const { map, fitBounds } = useCityMap();
-	const [route, setRoute] = useAtom(routeAtom);
-	const [startingPoint, setStartingPoint] = useAtom(startingPointAtom)
-	const [endingPoint, setEndingPoint] = useAtom(endingPointAtom)
-	const [isStartingPointSelecting, setIsStartingPointSelecting] = useAtom(isStartingPointSelectingAtom)
-	const [isEndingPointSelecting, setIsEndingPointSelecting] = useAtom(isEndingPointSelectingAtom)
+	const { route, setRoute, startingPoint, setStartingPoint, endingPoint, setEndingPoint, isStartingPointSelecting, setIsStartingPointSelecting, isEndingPointSelecting, setIsEndingPointSelecting } = useAtomRoute();
 	const isSelectingPoint = isStartingPointSelecting || isEndingPointSelecting;
 	const isBothSelected = !!(startingPoint?.lngLat && endingPoint?.lngLat);
 

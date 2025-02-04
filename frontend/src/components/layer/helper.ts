@@ -2,7 +2,16 @@ import { LayerProps } from 'react-map-gl/maplibre';
 import { FeatureCollection, Feature, Geometry } from 'geojson';
 import { colorMappings } from './constants';
 
-export const generateLayerStyles = (idPrefix: string) => {
+/**
+ * Generates layer styles for point, lineString, and polygon layers based on the provided idPrefix.
+ * The styles are derived from a color mapping associated with the idPrefix.
+ */
+type LayerStyles = {
+	pointLayerStyle: LayerProps;
+	lineStringLayerStyle: LayerProps;
+	polygonLayerStyle: LayerProps;
+};
+export const generateLayerStyles = (idPrefix: string): LayerStyles => {
 	const baseName = Object.keys(colorMappings).find(key => idPrefix.includes(key)) || 'apartment';
 	const colors = colorMappings[baseName];
 
@@ -46,40 +55,34 @@ export const generateLayerStyles = (idPrefix: string) => {
 
 /**
  * Filters features in a GeoJSON FeatureCollection by their geometry type.
- *
- * @param {FeatureCollection} data - The GeoJSON FeatureCollection to filter.
- * @param {string} type - The geometry type to filter by (e.g., 'Point', 'LineString', 'Polygon').
- * @returns {FeatureCollection} - A new FeatureCollection containing only features of the specified type.
  */
 export function filterFeaturesByType(
 	data: FeatureCollection,
-	type: string,
+	geomType: string,
 ): FeatureCollection {
 	return {
 		type: 'FeatureCollection',
-		features: data.features.filter((feature) => feature.geometry.type === type),
+		features: data.features.filter((feature) => feature.geometry.type === geomType),
 	};
 }
 
+/**
+ * Filters out features from a FeatureCollection based on an array of skip ids.
+ */
 export function filterFeaturesByIds(
 	data: FeatureCollection,
-	ids: number[],
+	skipIds: number[],
 ): FeatureCollection {
 	return {
 		type: 'FeatureCollection',
 		features: data.features.filter(
-			(feature) => !ids.includes(feature.properties?.id),
+			(feature) => !skipIds.includes(feature.properties?.id),
 		),
 	};
 }
 
 /**
  * Checks if a layer should be hidden based on its ID and a list of hidden layers.
- *
- * @param {Object} params - The parameters object.
- * @param {string} params.id - The ID of the layer to check.
- * @param {string[]} params.hiddenLayers - The list of hidden layer IDs.
- * @returns {boolean} - True if the layer should be hidden, false otherwise.
  */
 export function isLayerHidden({
 	id,
@@ -93,9 +96,6 @@ export function isLayerHidden({
 
 /**
  * Generates a GeoJSON FeatureCollection from a given geometry.
- *
- * @param {Geometry} geometry - The GeoJSON geometry object to be converted into a FeatureCollection.
- * @returns {FeatureCollection} - A GeoJSON FeatureCollection containing the provided geometry as a single feature.
  */
 export function generateFeatureCollection(
 	geometry: Geometry,
@@ -116,7 +116,7 @@ export function generateFeatureCollection(
 
 /**
  * Extracts the base name from a string with an underscore suffix.
- * @param {string} str - The input string (e.g., "supermarket_centroid").
+ * @param {string} str - The input string (e.g., "123_supermarket_centroid").
  * @returns {string} The base name (e.g., "supermarket").
  */
 export function extractBaseName(str: string): string {

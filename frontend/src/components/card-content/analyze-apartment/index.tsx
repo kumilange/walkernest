@@ -1,29 +1,28 @@
 import { useForm } from 'react-hook-form';
 import { z } from 'zod';
 import { zodResolver } from '@hookform/resolvers/zod';
-import { useAtom, useAtomValue } from 'jotai';
-import { cityAtom, maxDistanceAtom, isAmenityOnAtom, isTmpAmenityOnAtom } from '@/atoms';
-import { useDynamicCityData } from '@/lib/fetcher';
+import { useAnalysis } from '@/lib/fetcher';
 import { Form } from '@/components/ui/form';
 import { Button } from '@/components/ui/button';
 import { PopoverClose } from '@/components/ui/popover';
 import { LoadingButton } from '@/components/button';
-import { CITY_LIST_MAP } from '@/constants';
+import { CITY_LIST_DICT } from '@/constants';
 import { getMinutesByDistance } from './helper';
 import { MINS_TO_METERS_IN_WALK } from './constants';
 import { FormSchema, MinutesToMeters } from './types';
 import FormFieldItem from './form-field-item';
 import { generateCityDataParams } from '@/lib/misc';
+import { useAtomCity, useAtomMaxDistance, useAtomIsAmenityOn, useAtomIsTmpAmenityOn } from '@/atoms';
 
 export default function AnalyzeApartment() {
-	const city = useAtomValue(cityAtom);
-	const cityId = city ? CITY_LIST_MAP[city].id : null;
-	const [maxDistance, setMaxDistance] = useAtom(maxDistanceAtom);
-	const [isAmenityOn, setIsAmenityOn] = useAtom(isAmenityOnAtom);
-	const isTmpAmenityOn = useAtomValue(isTmpAmenityOnAtom);
+	const { city } = useAtomCity();
+	const cityId = city ? CITY_LIST_DICT[city].id : null;
+	const { maxDistance, setMaxDistance } = useAtomMaxDistance();
+	const { isAmenityOn, setIsAmenityOn } = useAtomIsAmenityOn();
+	const { isTmpAmenityOn } = useAtomIsTmpAmenityOn();
 	const params = generateCityDataParams({ maxDistance, isAmenityOn });
 
-	const { isFetching } = useDynamicCityData({
+	const { isFetching } = useAnalysis({
 		cityId: cityId as number,
 		...params
 	});

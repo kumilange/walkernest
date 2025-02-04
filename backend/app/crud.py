@@ -7,25 +7,25 @@ def fetch_favorites(cur, ids):
     # Execute the query to fetch normal GeoJSON and properties
     cur.execute("""
         SELECT ST_AsGeoJSON(ST_Centroid(geom)) AS centroid, properties, city_id
-        FROM geojsons
+        FROM amenities
         WHERE (properties->>'id')::bigint IN %s
     """, (ids_tuple,))
     
     return cur.fetchall()
 
-def fetch_geojson(cur, city_id, name, is_centroid):
+def fetch_amenities(cur, city_id, name, is_centroid):
     if is_centroid:
         # Execute the query to fetch centroid GeoJSON and properties
         cur.execute("""
             SELECT ST_AsGeoJSON(ST_Centroid(geom)) AS centroid, properties
-            FROM geojsons
+            FROM amenities
             WHERE city_id = %s AND name = %s
         """, (city_id, name))
     else:
         # Execute the query to fetch normal GeoJSON and properties
         cur.execute("""
             SELECT ST_AsGeoJSON(geom, 5) AS geom, properties
-            FROM geojsons
+            FROM amenities
             WHERE city_id = %s AND name = %s
         """, (city_id, name))
     return cur.fetchall()
@@ -58,7 +58,7 @@ def fetch_nodes(cur, city_id, amenities):
 def fetch_geom_and_centroid(cur, city_id):
     cur.execute("""
         SELECT ST_AsGeoJSON(geom) AS geom, ST_AsGeoJSON(ST_Centroid(geom)) AS centroid, properties
-        FROM geojsons
+        FROM amenities
         WHERE city_id = %s AND name = 'apartment'
     """, (city_id,))
     return cur.fetchall()

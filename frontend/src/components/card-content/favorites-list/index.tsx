@@ -1,13 +1,12 @@
 import { LngLat } from 'maplibre-gl';
 import { Trash2 } from 'lucide-react';
 import { capitalize, cn } from '@/lib/misc';
-import { useAtomValue } from 'jotai';
-import { favItemsAtom } from '@/atoms';
+import { useAtomFavItems } from '@/atoms';
 import type { FavoriteItem } from '@/types';
 import useEventHandlers from './use-event-handlers';
 
 export default function FavoritesList() {
-	const favItems = useAtomValue(favItemsAtom);
+	const { favItems } = useAtomFavItems();
 	const { selectedId, handleSelect, handleDelete } = useEventHandlers();
 
 	return (

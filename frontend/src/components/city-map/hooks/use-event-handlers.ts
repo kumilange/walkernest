@@ -1,13 +1,12 @@
 import { useCallback } from 'react';
 import { MapLayerMouseEvent, useMap } from 'react-map-gl/maplibre';
-import { useSetAtom } from 'jotai';
-import { lastLayerIdAtom } from '@/atoms';
+import { useAtomLastLayerId } from '@/atoms';
 import { useCheckRoutes } from '@/hooks';
 import useFeaturePopup from './use-feature-popup';
 
 export default function useEventHandlers() {
 	const { map } = useMap();
-	const setLastLayerId = useSetAtom(lastLayerIdAtom);
+	const { setLastLayerId } = useAtomLastLayerId();
 	const { lngLat,
 		properties,
 		isPopupOpen,

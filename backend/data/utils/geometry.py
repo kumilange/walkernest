@@ -1,34 +1,17 @@
 from shapely.geometry import shape, Polygon, Point, LineString, MultiPolygon, MultiLineString
 
 def get_geometry_by_objectid(geojson_data, objectid):
-    """
-    Get the geometry for a given OBJECTID from the GeoJSON data.
+    """Retrieve geometry from GeoJSON data by OBJECTID."""
+    for feature in geojson_data['features']:
+        if feature['properties']['OBJECTID'] == objectid:
+            return feature['geometry']
 
-    Parameters:
-    geojson_data (dict): GeoJSON data in JSON format.
-    objectid (str or int): The OBJECTID to search for.
-
-    Returns:
-    shapely.geometry.base.BaseGeometry: The geometry for the given OBJECTID.
-    """
-    try:
-        # Iterate through the features in the GeoJSON data
-        for feature in geojson_data['features']:
-            if feature['properties']['OBJECTID'] == objectid:
-                return feature['geometry']
-        raise ValueError(f"OBJECTID {objectid} not found in the data")
-    except Exception as e:
-        print(f"Unexpected error accessing geometry for OBJECTID {objectid}: {e}")
-        raise
+    return None
     
 def generate_poly_string(geometry, tolerance=0.01):
-    # Convert GeoJSON to Shapely geometry
+    """Generate a polygon string from geometry."""
     shapely_geometry = shape(geometry)
-
-    # Simplify the geometry
     simplified_geometry = shapely_geometry.simplify(tolerance, preserve_topology=True)
-
-    # Generate polygon string
     poly_strings = []
 
     if isinstance(simplified_geometry, MultiPolygon):
@@ -46,19 +29,17 @@ def generate_poly_string(geometry, tolerance=0.01):
     return " ".join(poly_strings)
 
 def add_centroid(gdf):
+    """Add centroid to each geometry in the GeoDataFrame."""
     def get_centroid(geometry):
         if isinstance(geometry, (Point, Polygon, MultiPolygon)):
             return geometry.centroid
         return None
 
     gdf['centroid'] = gdf['geometry'].apply(get_centroid)
-    
     return gdf
 
 def add_boundary(gdf):
-    """
-    Set the geometry to the boundary of each geometry in the GeoDataFrame.
-    """
+    """Add boundary of each geometry in the GeoDataFrame."""
     def get_boundary(geometry):
         if isinstance(geometry, Point):
             return geometry
@@ -79,11 +60,11 @@ def add_boundary(gdf):
         else:
             raise TypeError("Unsupported geometry type")
 
-    gdf['boundary'] = gdf.geometry.apply(get_boundary)
+    gdf['boundary'] = gdf['geometry'].apply(get_boundary)
     return gdf
 
-
 def create_geometry(element, nodes):
+    """Create geometry from OSM element and nodes."""
     if element['type'] == 'node':
         return Point(element['lon'], element['lat'])
     elif element['type'] == 'way':
@@ -110,5 +91,7 @@ def create_geometry(element, nodes):
     return None
 
 def filter_properties(element):
-    props = element['tags'] if 'tags' in element else {}
-    return {k: v for k, v in props.items() if k in ['building', 'shop', 'leisure', 'amenity', 'name']}
+    """Filter specific properties."""
+    props = element.get('tags', {})
+    allowed_props = ['building', 'shop', 'leisure', 'amenity', 'name']
+    return {k: v for k, v in props.items() if k in allowed_props}

@@ -6,8 +6,7 @@ import {
 	BoxSelect,
 	ChartNetwork,
 } from 'lucide-react';
-import { useAtom } from 'jotai';
-import { layersVisibilityAtom } from '@/atoms';
+import { useAtomLayersVisibility } from '@/atoms';
 import { Label } from '@/components/ui/label';
 import { Switch } from '@/components/ui/switch';
 import type { LayerItem } from '@/types';
@@ -22,7 +21,7 @@ const layerList: LayerItem[] = [
 ];
 
 export default function ManageLayer() {
-	const [layersVisibility, setLayersVisibility] = useAtom(layersVisibilityAtom);
+	const { layersVisibility, setLayersVisibility } = useAtomLayersVisibility();
 
 	return (
 		<div className="grid w-full items-center">

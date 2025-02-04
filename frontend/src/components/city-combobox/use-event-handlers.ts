@@ -1,15 +1,14 @@
 import { useCallback } from 'react';
 import { useMap, LngLatBoundsLike } from 'react-map-gl/maplibre';
-import { useSetAtom } from 'jotai';
 import { bbox } from '@turf/turf';
 import { useCityMap } from '@/hooks';
-import { cityAtom } from '@/atoms';
+import { useAtomCity } from '@/atoms';
 import type { CityArrayItem } from '@/types';
 
 export default function useEventHandlers() {
 	const { map } = useMap();
 	const { fitBounds } = useCityMap();
-	const setCity = useSetAtom(cityAtom);
+	const { setCity } = useAtomCity();
 
 	const handleSearch = useCallback(
 		(cityItem: CityArrayItem) => {

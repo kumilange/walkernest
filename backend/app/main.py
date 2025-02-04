@@ -1,7 +1,7 @@
 import os
 from fastapi import FastAPI, FastAPI
 from fastapi.middleware.cors import CORSMiddleware
-from app.routers import geojson, favorites, analyze, health
+from app.routers import favorites, analyze, amenities, health
 
 DB_HOST = os.getenv('DB_HOST', 'postgis')
 
@@ -22,6 +22,6 @@ app.add_middleware(
     allow_headers=["*"],
 )
 app.include_router(health.router)
-app.include_router(geojson.router)
+app.include_router(amenities.router)
 app.include_router(favorites.router)
 app.include_router(analyze.router)

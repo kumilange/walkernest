@@ -1,6 +1,6 @@
 import { type ClassValue, clsx } from 'clsx';
 import { twMerge } from 'tailwind-merge';
-import type { CityMapItem, CityArrayItem, MaxDistance, IsAmenityOn } from '@/types';
+import type { CityDictItem, CityArrayItem, MaxDistance, IsAmenityOn } from '@/types';
 
 /**
  * Combines multiple class names into a single string.
@@ -42,13 +42,13 @@ export const setCursorStyle = ({ isSelecting }: { isSelecting: boolean }) => {
  * @remarks
  * The function capitalizes each word in the city name and replaces underscores with spaces to create the label property.
  */
-export const transformToCityListArray = (cityLisMap: CityMapItem): CityArrayItem[] => {
+export const transformToCityListArray = (cityListDict: CityDictItem): CityArrayItem[] => {
 	function capitalize(str: string): string {
 		return str.replace(/\b\w/g, (char: string) => char.toUpperCase());
 	}
 
 	// Transform the data to match the CityArrayItem type
-	const cityListArray: CityArrayItem[] = Object.entries(cityLisMap).map(
+	const cityListArray: CityArrayItem[] = Object.entries(cityListDict).map(
 		([key, value]) => ({
 			id: value.id,
 			value: key,

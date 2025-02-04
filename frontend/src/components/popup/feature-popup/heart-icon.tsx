@@ -1,10 +1,9 @@
 import { useCallback, useState } from 'react';
 import { Heart } from 'lucide-react';
-import { useSetAtom } from 'jotai';
-import { isFavPopupOpenAtom } from '@/atoms';
+import { useAtomIsFavPopupOpen } from '@/atoms';
 
 export default function HeartIcon() {
-	const setIsFavPopupOpen = useSetAtom(isFavPopupOpenAtom);
+	const { setIsFavPopupOpen } = useAtomIsFavPopupOpen();
 	const [isHovering, setIsHovering] = useState(false);
 
 	const handleMouseEnter = useCallback(() => {

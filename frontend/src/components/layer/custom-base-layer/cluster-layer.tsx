@@ -2,7 +2,7 @@ import { Layer, Source } from 'react-map-gl/maplibre';
 import { FeatureCollection } from 'geojson';
 import { filterFeaturesByType } from '../helper';
 import useLayerVisibility from '../hooks/use-layer-visibility';
-import { twColors } from '../constants';
+import { twColors } from '@/constants';
 
 const circleLayerStyle = {
 	type: 'circle',
