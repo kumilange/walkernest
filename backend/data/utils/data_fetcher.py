@@ -24,13 +24,13 @@ def fetch_data_from_overpass(query):
         raise
 
 def extract_elements_and_nodes(data):
-    """Extract elements and nodes from Overpass API response data."""
+    """Extract OSM elements and nodes from Overpass API response data."""
     elements = data['elements']
     nodes = {element['id']: element for element in elements if element['type'] == 'node'}
     return elements, nodes
 
 def create_gdf(elements, nodes):
-    """Create a GeoDataFrame from elements and nodes."""
+    """Create a GeoDataFrame from OSM elements and nodes."""
     geometry = []
     properties = []
 
@@ -43,21 +43,14 @@ def create_gdf(elements, nodes):
             properties.append(filtered_props)
     
     gdf = gpd.GeoDataFrame(properties, geometry=geometry)
+
     if gdf.crs is None:
         gdf.set_crs("EPSG:4326", inplace=True)
     
     return gdf
 
 def fetch_and_normalize_data(query):
-    """
-    Fetch data from the Overpass API and normalize it into a GeoDataFrame.
-
-    Parameters:
-    query (str): The Overpass QL query.
-
-    Returns:
-    gpd.GeoDataFrame: A GeoDataFrame containing the normalized data.
-    """
+    """Fetch data from the Overpass API and normalize it into a GeoDataFrame."""
     data = fetch_data_from_overpass(query)
     elements, nodes = extract_elements_and_nodes(data)
     gdf = create_gdf(elements, nodes)

@@ -89,8 +89,6 @@ def generate_geojson_and_network_nodes(G, geometry, city):
             gdf = add_boundary(gdf)
         else:
             gdf = add_centroid(gdf)
-
-        use_centroid = amenity != "park"
-        nnodes = convert_gdf_to_network_nodes(G, gdf, use_centroid=use_centroid)
+        nnodes = convert_gdf_to_network_nodes(G, gdf, use_centroid=amenity != "park")
         # Save network nodes
         save_network_nodes_to_json(nnodes, city, amenity)
