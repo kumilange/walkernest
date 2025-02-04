@@ -49,6 +49,7 @@ export default function IconLayer({
 					'icon-size': imageSize,
 					'icon-offset': ['literal', imageOffset],
 					"icon-allow-overlap": true,
+					"icon-ignore-placement": true,
 				}}
 				{...(beforeId ? { beforeId } : {})}
 			/>
