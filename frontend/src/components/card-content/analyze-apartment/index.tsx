@@ -7,12 +7,11 @@ import { Button } from '@/components/ui/button';
 import { PopoverClose } from '@/components/ui/popover';
 import { LoadingButton } from '@/components/button';
 import { CITY_LIST_DICT } from '@/constants';
-import { getMinutesByDistance } from './helper';
-import { MINS_TO_METERS_IN_WALK } from './constants';
-import { FormSchema, MinutesToMeters } from './types';
-import FormFieldItem from './form-field-item';
-import { generateCityDataParams } from '@/lib/misc';
 import { useAtomCity, useAtomMaxDistance, useAtomIsAmenityOn, useAtomIsTmpAmenityOn } from '@/atoms';
+import { generateCityDataParams } from '@/lib/misc';
+import FormFieldItem from './form-field-item';
+import { FormSchema, MinutesToMeters } from './types';
+import { METERS_TO_MINS_IN_WALK, MINS_TO_METERS_IN_WALK } from './constants';
 
 export default function AnalyzeApartment() {
 	const { city } = useAtomCity();
@@ -30,9 +29,9 @@ export default function AnalyzeApartment() {
 	const form = useForm<z.infer<typeof FormSchema>>({
 		resolver: zodResolver(FormSchema),
 		defaultValues: {
-			park: getMinutesByDistance(maxDistance.park),
-			supermarket: getMinutesByDistance(maxDistance.supermarket),
-			cafe: getMinutesByDistance(maxDistance.cafe),
+			park: METERS_TO_MINS_IN_WALK[maxDistance.park],
+			supermarket: METERS_TO_MINS_IN_WALK[maxDistance.supermarket],
+			cafe: METERS_TO_MINS_IN_WALK[maxDistance.cafe],
 			parkCheckbox: isTmpAmenityOn.park,
 			supermarketCheckbox: isTmpAmenityOn.supermarket,
 			cafeCheckbox: isTmpAmenityOn.cafe,
