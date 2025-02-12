@@ -23,6 +23,7 @@ def analyze_apartments(
     kwargs: str = Query(...),  # Accept kwargs as a JSON string
     conn=Depends(get_connection),
 ):
+    """Analyze apartments based on proximity to specified amenities."""
     try:
         # Parse kwargs from JSON string to dictionary
         kwargs = json.loads(kwargs)
