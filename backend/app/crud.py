@@ -45,7 +45,7 @@ def fetch_network_graph(cur, city_id):
     else:
         raise HTTPException(status_code=404, detail="Network graph not found")
 
-def fetch_nodes(cur, city_id, amenities):
+def fetch_network_nodes(cur, city_id, amenities):
     """Fetch network nodes for given amenities in a city."""
     amenities = set(amenities)
     # Ensure 'apartment' is always included
@@ -60,7 +60,7 @@ def fetch_nodes(cur, city_id, amenities):
     cur.execute(query, (city_id, *amenities))
     return cur.fetchall()
 
-def fetch_geom_and_centroid(cur, city_id):
+def fetch_apartment_geom_and_centroid(cur, city_id):
     """Fetch geometry and centroid for apartments in a city."""
     cur.execute("""
         SELECT ST_AsGeoJSON(geom, 5) AS geom, ST_AsGeoJSON(ST_Centroid(geom), 5) AS centroid, properties
