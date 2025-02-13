@@ -74,10 +74,10 @@ export function transformQueryParams(queryParams: string[]): string[] {
 		const isCentroid = urlParams.get('is_centroid');
 
 		if (isCentroid) {
-			return `${cityId}_${name}_centroid`;
+			return `${name}_centroid`;
 		}
 
-		return `${cityId}_${name}`;
+		return `${name}`;
 	});
 }
 

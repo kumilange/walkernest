@@ -5,8 +5,7 @@ import LayerManager from '@/components/layer';
 import { FeaturePopup, NameFavoritePopup } from '@/components/popup';
 import { getInteractiveLayerIds } from './helper';
 import { INITIAL_VIEW_STATE, MAP_STYLE } from './constants';
-import useEventHandlers from './hooks/use-event-handlers';
-import useSyncFavorites from './hooks/use-sync-favorites';
+import { useEventHandlers, useSyncFavorites } from './hooks';
 
 export default function CityMap() {
 	const { city } = useAtomCity();

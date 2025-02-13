@@ -13,8 +13,8 @@ export default function FavoritesLayer({
 	return (
 		<IconLayer
 			data={{ type: 'FeatureCollection', features: favoritesFeatures }}
-			defaultImageId={`favorites`}
-			defaultImagePath={favApartmentIconPath}
+			imageType={`favorites`}
+			imagePath={favApartmentIconPath}
 			imageSize={1.3}
 			imageOffset={[0, -12]}
 			beforeId={lastLayerId}

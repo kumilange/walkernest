@@ -2,27 +2,12 @@ import { ReactNode } from 'react';
 import { House, ShoppingCart, Trees, Coffee } from 'lucide-react';
 import { twColors } from '@/constants';
 
-export const colorMappings: { [key: string]: { point: string; lineString: string; polygon: string } } = {
-	apartment: {
-		point: twColors.apartment,
-		lineString: twColors.apartment,
-		polygon: twColors.apartment,
-	},
-	supermarket: {
-		point: twColors.supermarket,
-		lineString: twColors.supermarket,
-		polygon: twColors.supermarket,
-	},
-	park: {
-		point: twColors.park,
-		lineString: twColors.park,
-		polygon: twColors.park,
-	},
-	cafe: {
-		point: twColors.cafe,
-		lineString: twColors.cafe,
-		polygon: twColors.cafe,
-	},
+export const colorMappings: { [key: string]: string } = {
+	result: twColors.apartment,
+	apartment: twColors.apartment,
+	supermarket: twColors.supermarket,
+	park: twColors.park,
+	cafe: twColors.cafe,
 };
 
 type ValidPropertyPairs = {

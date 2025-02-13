@@ -1,8 +1,8 @@
 import { Layer, Source } from 'react-map-gl/maplibre';
 import { FeatureCollection } from 'geojson';
 import { filterFeaturesByType } from '../helper';
-import useLayerVisibility from '../hooks/use-layer-visibility';
 import { twColors } from '@/constants';
+import { useIsLayerHidden } from '@/atoms';
 
 const circleLayerStyle = {
 	type: 'circle',
@@ -26,12 +26,12 @@ const symbolLayerStyle = {
 
 export default function ClusterLayer({
 	data,
-	idPrefix,
+	type,
 }: {
 	data: FeatureCollection;
-	idPrefix: string;
+	type: string;
 }) {
-	const isHidden = useLayerVisibility(idPrefix);
+	const isHidden = useIsLayerHidden(type);
 	if (isHidden) {
 		return null;
 	}
@@ -40,7 +40,7 @@ export default function ClusterLayer({
 
 	return (
 		<Source
-			id={`${idPrefix}-source`}
+			id={`cluster-source`}
 			type="geojson"
 			data={pointFeatures}
 			cluster={true}
@@ -49,13 +49,13 @@ export default function ClusterLayer({
 		>
 			{/* @ts-ignore */}
 			<Layer
-				id={`${idPrefix}-circle-layer`}
+				id={`cluster-circle-layer`}
 				filter={['has', 'point_count']}
 				{...circleLayerStyle}
 			/>
 			{/* @ts-ignore */}
 			<Layer
-				id={`${idPrefix}-count-layer`}
+				id={`cluster-count-layer`}
 				filter={['has', 'point_count']}
 				{...symbolLayerStyle}
 			/>
