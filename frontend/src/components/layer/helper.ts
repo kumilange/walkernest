@@ -1,13 +1,13 @@
 import { LayerProps } from 'react-map-gl/maplibre';
 import { FeatureCollection, Feature, Geometry } from 'geojson';
-import { colorMappings } from './constants';
+import { polygonColorMapping } from './constants';
 
 /**
  * Get the style configuration for a polygon layer.
  */
 export const getPolygonLayerStyle = (type: string) => {
-	const baseName = Object.keys(colorMappings).find(key => type.includes(key)) || 'apartment';
-	const color = colorMappings[baseName];
+	const baseName = Object.keys(polygonColorMapping).find(key => type.includes(key)) || 'apartment';
+	const color = polygonColorMapping[baseName];
 
 	const layerStyle: LayerProps = {
 		id: `${type}-polygon-layer`,

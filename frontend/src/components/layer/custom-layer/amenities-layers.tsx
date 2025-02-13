@@ -33,7 +33,7 @@ export default function AmenitiesLayers({ cityId }: { cityId: number }) {
 
 				if (isCentroid) {
 					const baseName = extractBaseName(type)
-					const imagePath = isCentroid && iconPaths[baseName] || "";
+					const imagePath = iconPaths[baseName];
 
 					return (
 						<IconLayer

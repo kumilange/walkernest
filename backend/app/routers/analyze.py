@@ -84,5 +84,4 @@ def analyze_apartments(
 
     except Exception as e:
         raise HTTPException(status_code=500, detail=f"An error occurred: {e}")
-    
-
+ 
