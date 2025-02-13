@@ -1,56 +1,25 @@
 import { LayerProps } from 'react-map-gl/maplibre';
 import { FeatureCollection, Feature, Geometry } from 'geojson';
-import { colorMappings } from './constants';
+import { polygonColorMapping } from './constants';
 
 /**
- * Generates layer styles for point, lineString, and polygon layers based on the provided idPrefix.
- * The styles are derived from a color mapping associated with the idPrefix.
+ * Get the style configuration for a polygon layer.
  */
-type LayerStyles = {
-	pointLayerStyle: LayerProps;
-	lineStringLayerStyle: LayerProps;
-	polygonLayerStyle: LayerProps;
-};
-export const generateLayerStyles = (idPrefix: string): LayerStyles => {
-	const baseName = Object.keys(colorMappings).find(key => idPrefix.includes(key)) || 'apartment';
-	const colors = colorMappings[baseName];
+export const getPolygonLayerStyle = (type: string) => {
+	const baseName = Object.keys(polygonColorMapping).find(key => type.includes(key)) || 'apartment';
+	const color = polygonColorMapping[baseName];
 
-	const pointLayerStyle: LayerProps = {
-		id: `${idPrefix}-point-layer`,
-		type: 'circle',
-		source: `${idPrefix}-point-source`,
-		paint: {
-			'circle-radius': 6,
-			'circle-color': colors.point,
-			'circle-opacity': 0.6,
-		},
-	};
-
-	const lineStringLayerStyle: LayerProps = {
-		id: `${idPrefix}-lineString-layer`,
-		type: 'line',
-		source: `${idPrefix}-lineString-source`,
-		layout: {
-			'line-join': 'round',
-			'line-cap': 'round',
-		},
-		paint: {
-			'line-color': colors.lineString,
-			'line-width': 5,
-		},
-	};
-
-	const polygonLayerStyle: LayerProps = {
-		id: `${idPrefix}-polygon-layer`,
+	const layerStyle: LayerProps = {
+		id: `${type}-polygon-layer`,
 		type: 'fill',
-		source: `${idPrefix}-polygon-source`,
+		source: `${type}-polygon-source`,
 		paint: {
-			'fill-color': colors.polygon,
+			'fill-color': color,
 			'fill-opacity': 0.6,
 		},
 	};
 
-	return { pointLayerStyle, lineStringLayerStyle, polygonLayerStyle };
+	return layerStyle;
 };
 
 /**
@@ -82,16 +51,16 @@ export function filterFeaturesByIds(
 }
 
 /**
- * Checks if a layer should be hidden based on its ID and a list of hidden layers.
+ * Checks if a layer should be hidden based on its type and a list of hidden layers.
  */
 export function isLayerHidden({
-	id,
+	type,
 	hiddenLayers,
 }: {
-	id: string;
+	type: string;
 	hiddenLayers: string[];
 }): boolean {
-	return hiddenLayers.some((layer) => id.includes(layer));
+	return hiddenLayers.some((layer) => type.includes(layer));
 }
 
 /**
@@ -116,9 +85,9 @@ export function generateFeatureCollection(
 
 /**
  * Extracts the base name from a string with an underscore suffix.
- * @param {string} str - The input string (e.g., "123_supermarket_centroid").
+ * @param {string} str - The input string (e.g., "supermarket_centroid").
  * @returns {string} The base name (e.g., "supermarket").
  */
 export function extractBaseName(str: string): string {
-	return str.split('_')[1];
+	return str.split('_')[0];
 }

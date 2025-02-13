@@ -9,9 +9,7 @@ router = APIRouter()
 
 @router.get("/favorites")
 def get_favorites(ids: list = Query(...), conn=Depends(get_connection)):
-    """
-    Return List of feature from the geojsons table based on property IDs.
-    """
+    """Return List of feature from the amenities table based on property IDs."""
     try:
         with conn.cursor() as cur:
             res = fetch_favorites(cur, ids)

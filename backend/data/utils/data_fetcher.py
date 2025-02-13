@@ -23,14 +23,11 @@ def fetch_data_from_overpass(query):
         print(f"Error fetching data from Overpass API: {e}")
         raise
 
-def extract_elements_and_nodes(data):
-    """Extract OSM elements and nodes from Overpass API response data."""
+def create_gdf(data):
+    """Create a GeoDataFrame from the OSM data."""
     elements = data['elements']
     nodes = {element['id']: element for element in elements if element['type'] == 'node'}
-    return elements, nodes
 
-def create_gdf(elements, nodes):
-    """Create a GeoDataFrame from OSM elements and nodes."""
     geometry = []
     properties = []
 
@@ -52,6 +49,5 @@ def create_gdf(elements, nodes):
 def fetch_and_normalize_data(query):
     """Fetch data from the Overpass API and normalize it into a GeoDataFrame."""
     data = fetch_data_from_overpass(query)
-    elements, nodes = extract_elements_and_nodes(data)
-    gdf = create_gdf(elements, nodes)
+    gdf = create_gdf(data)
     return gdf

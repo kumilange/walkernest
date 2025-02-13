@@ -127,6 +127,7 @@
 { "type": "Feature", "properties": { "amenity": "cafe", "name": "Blue Sparrow Coffee", "id": 11270265892, "building": null }, "geometry": { "type": "Point", "coordinates": [ -105.0078625, 39.7577981 ] } },
 { "type": "Feature", "properties": { "amenity": "cafe", "name": "Corvus Coffee", "id": 11460353891, "building": null }, "geometry": { "type": "Point", "coordinates": [ -104.9686237, 39.7710422 ] } },
 { "type": "Feature", "properties": { "amenity": "cafe", "name": null, "id": 11860616468, "building": null }, "geometry": { "type": "Point", "coordinates": [ -104.942775, 39.7473736 ] } },
+{ "type": "Feature", "properties": { "amenity": "cafe", "name": "Copper Door Coffee Roasters", "id": 11954992680, "building": null }, "geometry": { "type": "Point", "coordinates": [ -104.9281156, 39.7582193 ] } },
 { "type": "Feature", "properties": { "amenity": "cafe", "name": "Metropolis Coffee", "id": 12117368301, "building": null }, "geometry": { "type": "Point", "coordinates": [ -104.9841578, 39.7578998 ] } },
 { "type": "Feature", "properties": { "amenity": "cafe", "name": "The Study", "id": 12197165288, "building": null }, "geometry": { "type": "Point", "coordinates": [ -104.9985284, 39.7461188 ] } },
 { "type": "Feature", "properties": { "amenity": "cafe", "name": "Babe's Tea Room", "id": 12223436690, "building": null }, "geometry": { "type": "Point", "coordinates": [ -105.0089107, 39.7569266 ] } },

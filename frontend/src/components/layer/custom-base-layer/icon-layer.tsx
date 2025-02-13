@@ -1,13 +1,13 @@
 import { Layer, Source } from 'react-map-gl/maplibre';
 import { FeatureCollection } from 'geojson';
 import { filterFeaturesByIds, filterFeaturesByType } from '../helper';
+import { useIsLayerHidden } from '@/atoms';
 import useImageLoader from '../hooks/use-image-loader';
-import useLayerVisibility from '../hooks/use-layer-visibility';
 
 type IconLayerProps = {
 	data: FeatureCollection;
-	defaultImageId: string;
-	defaultImagePath: string;
+	imageType: string;
+	imagePath: string;
 	skipIds?: number[];
 	imageSize?: number;
 	imageOffset?: [number, number];
@@ -16,40 +16,38 @@ type IconLayerProps = {
 
 export default function IconLayer({
 	data,
-	defaultImageId,
-	defaultImagePath,
+	imageType,
+	imagePath,
 	skipIds = [],
 	imageSize = 1,
 	imageOffset = [0, -8],
 	beforeId,
 }: IconLayerProps) {
-	useImageLoader(defaultImagePath, defaultImageId);
+	useImageLoader(imagePath, imageType);
 
-	const isHidden = useLayerVisibility(defaultImageId);
+	const isHidden = useIsLayerHidden(imageType);
 	if (isHidden) {
 		return null;
 	}
 
-	const pointFeatures: FeatureCollection = filterFeaturesByType(data, 'Point');
+	const pointFeatures = filterFeaturesByType(data, 'Point');
 	const featureCollection = skipIds?.length
 		? filterFeaturesByIds(pointFeatures, skipIds)
 		: pointFeatures;
 
 	return (
 		<Source
-			id={`${defaultImageId}-icon-source`}
+			id={`${imageType}-icon-source`}
 			type="geojson"
 			data={featureCollection}
 		>
 			<Layer
-				id={`${defaultImageId}-icon-layer`}
+				id={`${imageType}-icon-layer`}
 				type="symbol"
 				layout={{
-					'icon-image': defaultImageId,
+					'icon-image': imageType,
 					'icon-size': imageSize,
 					'icon-offset': ['literal', imageOffset],
-					"icon-allow-overlap": true,
-					"icon-ignore-placement": true,
 				}}
 				{...(beforeId ? { beforeId } : {})}
 			/>

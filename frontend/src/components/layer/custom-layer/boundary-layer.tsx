@@ -1,8 +1,8 @@
 import { Layer, Source, LayerProps } from 'react-map-gl/maplibre';
 import { CITY_LIST_DICT } from '@/constants';
-import { generateFeatureCollection } from '../helper';
-import useLayerVisibility from '../hooks/use-layer-visibility';
+import { useIsLayerHidden } from '@/atoms';
 import { twColors } from '@/constants';
+import { generateFeatureCollection } from '../helper';
 
 const layerLineStyle: LayerProps = {
 	id: `boundary-line-layer`,
@@ -29,7 +29,7 @@ const layerFillStyle: LayerProps = {
 };
 
 export default function BoundaryLayer({ city }: { city: string }) {
-	const isHidden = useLayerVisibility('boundary');
+	const isHidden = useIsLayerHidden('boundary');
 	if (isHidden) {
 		return null;
 	}

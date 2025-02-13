@@ -10,7 +10,7 @@
 { "type": "Feature", "properties": { "amenity": "cafe", "name": "Einstein's Bagels", "id": 6321833390, "building": null }, "geometry": { "type": "Point", "coordinates": [ -105.0785372, 39.7970741 ] } },
 { "type": "Feature", "properties": { "amenity": "cafe", "name": "La Dolce Vita", "id": 6597060681, "building": null }, "geometry": { "type": "Point", "coordinates": [ -105.0812771, 39.8009889 ] } },
 { "type": "Feature", "properties": { "amenity": "cafe", "name": "Hunter Bay Coffee", "id": 6597188619, "building": null }, "geometry": { "type": "Point", "coordinates": [ -105.0813172, 39.7992817 ] } },
-{ "type": "Feature", "properties": { "amenity": "cafe", "name": "Starbucks", "id": 6986291323, "building": null }, "geometry": { "type": "Point", "coordinates": [ -105.1125933, 39.788326 ] } },
+{ "type": "Feature", "properties": { "amenity": "cafe", "name": "Starbucks", "id": 6986291323, "building": null }, "geometry": { "type": "Point", "coordinates": [ -105.1125242, 39.78762 ] } },
 { "type": "Feature", "properties": { "amenity": "cafe", "name": "Starbucks", "id": 8778141003, "building": null }, "geometry": { "type": "Point", "coordinates": [ -105.1100125, 39.7869351 ] } },
 { "type": "Feature", "properties": { "amenity": "cafe", "name": "& Steamers", "id": 9438440074, "building": null }, "geometry": { "type": "Point", "coordinates": [ -105.1555815, 39.8497144 ] } },
 { "type": "Feature", "properties": { "amenity": "cafe", "name": "Dutch Bros. Coffee", "id": 10155145310, "building": null }, "geometry": { "type": "Point", "coordinates": [ -105.056047, 39.8422289 ] } },

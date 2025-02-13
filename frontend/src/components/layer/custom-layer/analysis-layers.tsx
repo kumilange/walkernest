@@ -5,7 +5,7 @@ import { useAtomIsAmenityOn, useAtomFavItems, useAtomMaxDistance } from '@/atoms
 import { useToast } from '@/hooks';
 import { ToastAction } from '@/components/ui/toast';
 import { generateCityDataParams } from '@/lib/misc';
-import { ClusterLayer, GeoJsonLayer, IconLayer } from '../custom-base-layer';
+import { ClusterLayer, PolygonLayer, IconLayer } from '../custom-base-layer';
 
 export default function AnalysisLayers({ cityId }: { cityId: number }) {
 	const { toast } = useToast();
@@ -44,19 +44,19 @@ export default function AnalysisLayers({ cityId }: { cityId: number }) {
 	return (
 		<>
 			{data?.polygon && (
-				<GeoJsonLayer data={data.polygon} idPrefix={`${cityId}_result`} />
+				<PolygonLayer data={data.polygon} type={`result`} />
 			)}
 			{data?.centroid && (
 				<>
 					<IconLayer
 						data={data.centroid}
-						defaultImageId={`${cityId}_result_centroid`}
-						defaultImagePath={apartmentIconPath}
+						imageType={`result`}
+						imagePath={apartmentIconPath}
 						skipIds={favIds}
 					/>
 					<ClusterLayer
 						data={data.centroid}
-						idPrefix={`${cityId}_cluster_centroid`}
+						type={`cluster`}
 					/>
 				</>
 			)}

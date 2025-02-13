@@ -10,7 +10,7 @@ export default function useImageLoader(imagePath: string, imageId: string) {
 		const image = await map.loadImage(imagePath);
 		// check map.hasImage again to avoid an error "An image named "xxxx_fav_apartment" already exists."
 		!map.hasImage(imageId) && map.addImage(imageId, image.data);
-	}, [map]);
+	}, [map, imageId, imagePath]);
 
 	useEffect(() => {
 		if (!map) return;
@@ -23,5 +23,5 @@ export default function useImageLoader(imagePath: string, imageId: string) {
 		return () => {
 			map.off('styleimagemissing', addImage);
 		};
-	}, [map]);
+	}, [map, addImage]);
 }

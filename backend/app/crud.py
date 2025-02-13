@@ -1,12 +1,13 @@
 from fastapi import HTTPException 
 
 def fetch_favorites(cur, ids):
+    """Fetch favorite amenities by their IDs."""
     # Convert ids to a tuple for the SQL IN clause
     ids_tuple = tuple(ids)
     
-    # Execute the query to fetch normal GeoJSON and properties
+    # Execute the query to fetch centroid GeoJSON and properties
     cur.execute("""
-        SELECT ST_AsGeoJSON(ST_Centroid(geom)) AS centroid, properties, city_id
+        SELECT ST_AsGeoJSON(ST_Centroid(geom), 5) AS centroid, properties, city_id
         FROM amenities
         WHERE (properties->>'id')::bigint IN %s
     """, (ids_tuple,))
@@ -14,10 +15,11 @@ def fetch_favorites(cur, ids):
     return cur.fetchall()
 
 def fetch_amenities(cur, city_id, name, is_centroid):
+    """Fetch amenities by city ID and name, optionally fetching centroids."""
     if is_centroid:
         # Execute the query to fetch centroid GeoJSON and properties
         cur.execute("""
-            SELECT ST_AsGeoJSON(ST_Centroid(geom)) AS centroid, properties
+            SELECT ST_AsGeoJSON(ST_Centroid(geom), 5) AS centroid, properties
             FROM amenities
             WHERE city_id = %s AND name = %s
         """, (city_id, name))
@@ -31,6 +33,7 @@ def fetch_amenities(cur, city_id, name, is_centroid):
     return cur.fetchall()
 
 def fetch_network_graph(cur, city_id):
+    """Fetch the network graph for a given city ID."""
     cur.execute("""
         SELECT graph
         FROM network_graphs
@@ -42,8 +45,10 @@ def fetch_network_graph(cur, city_id):
     else:
         raise HTTPException(status_code=404, detail="Network graph not found")
 
-def fetch_nodes(cur, city_id, amenities):
+def fetch_network_nodes(cur, city_id, amenities):
+    """Fetch network nodes for given amenities in a city."""
     amenities = set(amenities)
+    # Ensure 'apartment' is always included
     amenities.add('apartment')
 
     query = """
@@ -55,9 +60,10 @@ def fetch_nodes(cur, city_id, amenities):
     cur.execute(query, (city_id, *amenities))
     return cur.fetchall()
 
-def fetch_geom_and_centroid(cur, city_id):
+def fetch_apartment_geom_and_centroid(cur, city_id):
+    """Fetch geometry and centroid for apartments in a city."""
     cur.execute("""
-        SELECT ST_AsGeoJSON(geom) AS geom, ST_AsGeoJSON(ST_Centroid(geom)) AS centroid, properties
+        SELECT ST_AsGeoJSON(geom, 5) AS geom, ST_AsGeoJSON(ST_Centroid(geom), 5) AS centroid, properties
         FROM amenities
         WHERE city_id = %s AND name = 'apartment'
     """, (city_id,))
