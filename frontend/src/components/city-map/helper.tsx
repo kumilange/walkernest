@@ -13,10 +13,10 @@ export function getInteractiveLayerIds(cityId: number | null): string[] {
 	if (!cityId) return [`favorites-icon-layer`];
 
 	return [
-		`result-icon-layer`,
-		`supermarket-icon-layer`,
-		`cafe-icon-layer`,
-		`park-polygon-layer`,
+		`${cityId}_result-icon-layer`,
+		`${cityId}_supermarket-icon-layer`,
+		`${cityId}_cafe-icon-layer`,
+		`${cityId}_park-polygon-layer`,
 		`favorites-icon-layer`,
 	];
 }

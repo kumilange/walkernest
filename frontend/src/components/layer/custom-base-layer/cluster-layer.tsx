@@ -24,13 +24,17 @@ const symbolLayerStyle = {
 	},
 };
 
+type ClusterLayerProps = {
+	data: FeatureCollection;
+	type: string;
+	cityId: number;
+}
+
 export default function ClusterLayer({
 	data,
 	type,
-}: {
-	data: FeatureCollection;
-	type: string;
-}) {
+	cityId,
+}: ClusterLayerProps) {
 	const isHidden = useIsLayerHidden(type);
 	if (isHidden) {
 		return null;
@@ -49,13 +53,13 @@ export default function ClusterLayer({
 		>
 			{/* @ts-ignore */}
 			<Layer
-				id={`cluster-circle-layer`}
+				id={`${cityId}_cluster-circle-layer`}
 				filter={['has', 'point_count']}
 				{...circleLayerStyle}
 			/>
 			{/* @ts-ignore */}
 			<Layer
-				id={`cluster-count-layer`}
+				id={`${cityId}_cluster-count-layer`}
 				filter={['has', 'point_count']}
 				{...symbolLayerStyle}
 			/>

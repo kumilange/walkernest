@@ -44,7 +44,7 @@ export default function AnalysisLayers({ cityId }: { cityId: number }) {
 	return (
 		<>
 			{data?.polygon && (
-				<PolygonLayer data={data.polygon} type={`result`} />
+				<PolygonLayer data={data.polygon} type={`result`} cityId={cityId} />
 			)}
 			{data?.centroid && (
 				<>
@@ -53,10 +53,12 @@ export default function AnalysisLayers({ cityId }: { cityId: number }) {
 						imageType={`result`}
 						imagePath={apartmentIconPath}
 						skipIds={favIds}
+						cityId={cityId}
 					/>
 					<ClusterLayer
 						data={data.centroid}
 						type={`cluster`}
+						cityId={cityId}
 					/>
 				</>
 			)}

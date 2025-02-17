@@ -19,14 +19,9 @@ export default function LayerManager({
 					<AnalysisLayers cityId={cityId} />
 				</>
 			)}
-			{/* The lastLayerId is used to ensure that the layer is rendered on top of other layers. */}
-			{lastLayerId &&
-				<>
-					<FavoritesLayer lastLayerId={lastLayerId} />
-					<RoutePointsLayer lastLayerId={lastLayerId} />
-				</>
-			}
 			<RouteLayer />
+			<FavoritesLayer lastLayerId={lastLayerId} />
+			<RoutePointsLayer lastLayerId={lastLayerId} />
 		</>
 	);
 }

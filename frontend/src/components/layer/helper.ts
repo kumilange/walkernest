@@ -5,12 +5,12 @@ import { polygonColorMapping } from './constants';
 /**
  * Get the style configuration for a polygon layer.
  */
-export const getPolygonLayerStyle = (type: string) => {
+export const getPolygonLayerStyle = ({ cityId, type }: { cityId: number, type: string }) => {
 	const baseName = Object.keys(polygonColorMapping).find(key => type.includes(key)) || 'apartment';
 	const color = polygonColorMapping[baseName];
 
 	const layerStyle: LayerProps = {
-		id: `${type}-polygon-layer`,
+		id: `${cityId}_${type}-polygon-layer`,
 		type: 'fill',
 		source: `${type}-polygon-source`,
 		paint: {

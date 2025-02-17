@@ -38,13 +38,14 @@ export default function AmenitiesLayers({ cityId }: { cityId: number }) {
 					return (
 						<IconLayer
 							key={index}
+							cityId={cityId}
 							data={geojson}
 							imageType={baseName}
 							imagePath={imagePath}
 						/>
 					);
 				} else {
-					return <PolygonLayer key={index} data={geojson} type={type} />;
+					return <PolygonLayer key={index} cityId={cityId} data={geojson} type={type} />;
 				}
 			})}
 		</>
