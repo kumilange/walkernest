@@ -3,9 +3,9 @@ import { FeatureCollection } from 'geojson';
 import { LngLat } from 'react-map-gl/maplibre';
 import { convertKeysToSnakeCase, transformQueryParams } from '@/lib/misc';
 
-const BASE_AMENITY_URL = `http://${import.meta.env.VITE_APP_HOST}:3000/amenities`;
-const BASE_ANALYSIS_URL = `http://${import.meta.env.VITE_APP_HOST}:3000/analyze`;
-const BASE_FAVORITES_URL = `http://${import.meta.env.VITE_APP_HOST}:3000/favorites`;
+const BASE_AMENITY_URL = `http://${import.meta.env.VITE_API_DOMAIN}:3000/amenities`;
+const BASE_ANALYSIS_URL = `http://${import.meta.env.VITE_API_DOMAIN}:3000/analyze`;
+const BASE_FAVORITES_URL = `http://${import.meta.env.VITE_API_DOMAIN}:3000/favorites`;
 const BASE_OSM_NOMINATIM_URL = `https://nominatim.openstreetmap.org/reverse`;
 const BASE_OSRM_ROUTE_URL = `http://router.project-osrm.org/route/v1`;
 
