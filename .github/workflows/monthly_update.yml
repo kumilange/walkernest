@@ -1,0 +1,30 @@
+name: Monthly Data Update
+
+on:
+  schedule:
+    - cron: '50 17 18 2 *' # Runs at 10:50 AM MST on February 18th, 2025
+  # - cron: '0 10 1 * *' # Runs at 3 AM (MST) on the 1st of every month
+  workflow_dispatch: # Allows manual triggering from GitHub Actions UI
+
+jobs:
+  update-data:
+    runs-on: ubuntu-latest
+
+    steps:
+      - name: Checkout repository
+        uses: actions/checkout@v4
+
+      - name: Set up Python
+        uses: actions/setup-python@v4
+        with:
+          python-version: '3.10'
+
+      - name: Install dependencies
+        run: |
+          pip3 install --no-cache-dir fastapi uvicorn[standard] psycopg2-binary shapely numpy osmnx networkx scikit-learn geopandas python-multipart orjson
+
+      - name: Grant execute permissions to the script
+        run: chmod +x cron/osm_data_sync.sh
+
+      - name: Run the update script
+        run: ./cron/osm_data_sync.sh

@@ -1,11 +1,6 @@
 #!/bin/sh
 
 # Configuration Variables
-DB_USERNAME="postgres"
-DB_PASSWORD="postgres"
-DB_HOST="postgis"
-DB_PORT="5432"
-DB_NAME="gis"
 CITY_DATA=$(cat /shared/citydict.json)
 GEOJSON_DIR='/data/geojson'
 NETWORK_GRAPHS_DIR='/data/network_graphs'
@@ -61,6 +56,7 @@ CREATE TABLE IF NOT EXISTS network_nodes (
     name VARCHAR(50) CHECK (name IN ('park', 'supermarket', 'cafe', 'apartment')) NOT NULL,
     nodes JSONB NOT NULL
 );
+
 COMMIT;
 EOF
 

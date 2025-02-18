@@ -4,12 +4,15 @@
 set -euo pipefail
 trap 'echo "❌ Script failed at line $LINENO with exit code $?"' ERR
 
-# Configuration Variables
-DB_USERNAME="postgres"
-DB_PASSWORD="postgres"
-DB_HOST="3.147.92.139"
-DB_PORT="5432"
-DB_NAME="gis"
+# Load environment variables from .env file
+if [ -f .env ]; then
+  export $(cat .env | grep -v '#' | awk '/=/ {print $1}')
+else
+  echo ".env file not found!"
+  exit 1
+fi
+
+# Variables
 CITYLIST_PATH="../shared/citydict.json"
 GEOJSON_DIR="../backend/data/seed/geojson"
 NETWORK_GRAPHS_DIR="../backend/data/seed/network_graphs"
@@ -45,23 +48,15 @@ log "Initializing tables and creating indexes..."
 psql "$CONNECTION_STRING" <<EOF
 BEGIN;
 
-DROP TABLE IF EXISTS geojsons;
-CREATE TABLE IF NOT EXISTS geojsons (
+DROP TABLE IF EXISTS amenities;
+CREATE TABLE IF NOT EXISTS amenities (
     id SERIAL PRIMARY KEY,
     city_id INTEGER NOT NULL,
-    name VARCHAR(50) CHECK (name IN ('park', 'supermarket', 'apartment')) NOT NULL,
+    name VARCHAR(50) CHECK (name IN ('park', 'supermarket', 'cafe', 'apartment')) NOT NULL,
     geom GEOMETRY,
     properties JSONB
 );
-CREATE INDEX idx_geojsons_geom ON geojsons USING GIST (geom);
-
-DROP TABLE IF EXISTS network_nodes;
-CREATE TABLE IF NOT EXISTS network_nodes (
-    id SERIAL PRIMARY KEY,
-    city_id INTEGER NOT NULL,
-    name VARCHAR(50) CHECK (name IN ('park', 'supermarket', 'apartment')) NOT NULL,
-    nodes JSONB NOT NULL
-);
+CREATE INDEX idx_amenities_geom ON amenities USING GIST (geom);
 
 DROP TABLE IF EXISTS network_graphs;
 CREATE TABLE IF NOT EXISTS network_graphs (
@@ -70,6 +65,14 @@ CREATE TABLE IF NOT EXISTS network_graphs (
     graph JSONB NOT NULL
 );
 CREATE INDEX idx_network_graphs_city_id ON network_graphs (city_id);
+
+DROP TABLE IF EXISTS network_nodes;
+CREATE TABLE IF NOT EXISTS network_nodes (
+    id SERIAL PRIMARY KEY,
+    city_id INTEGER NOT NULL,
+    name VARCHAR(50) CHECK (name IN ('park', 'supermarket', 'cafe', 'apartment')) NOT NULL,
+    nodes JSONB NOT NULL
+);
 
 COMMIT;
 EOF
@@ -126,14 +129,14 @@ if [ -d "$GEOJSON_DIR" ] && [ "$(ls -A $GEOJSON_DIR)" ]; then
           COUNT=$((COUNT + 1))
 
           if [ "$COUNT" -ge "$BATCH_SIZE" ]; then
-            insert_data_in_batches "geojsons" "city_id, name, geom, properties" "$INSERT_VALUES"
+            insert_data_in_batches "amenities" "city_id, name, geom, properties" "$INSERT_VALUES"
             INSERT_VALUES=""
             COUNT=0
           fi
         done < temp_features.json
         rm -f temp_features.json
 
-        insert_data_in_batches "geojsons" "city_id, name, geom, properties" "$INSERT_VALUES"
+        insert_data_in_batches "amenities" "city_id, name, geom, properties" "$INSERT_VALUES"
       fi
     fi
   done

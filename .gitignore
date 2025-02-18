@@ -6,3 +6,5 @@ venv/
 commands.txt
 frontend/node_modules/
 frontend/dist/
+.env
+.env.development
