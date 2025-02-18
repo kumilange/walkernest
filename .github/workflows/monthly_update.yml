@@ -2,7 +2,7 @@ name: Monthly Data Update
 
 on:
   schedule:
-    - cron: '50 17 18 2 *' # Runs at 10:50 AM MST on February 18th, 2025
+    - cron: '12 18 18 2 *' # Runs at 10:50 AM MST on February 18th, 2025
   # - cron: '0 10 1 * *' # Runs at 3 AM (MST) on the 1st of every month
   workflow_dispatch: # Allows manual triggering from GitHub Actions UI
 
@@ -24,7 +24,8 @@ jobs:
           pip3 install --no-cache-dir fastapi uvicorn[standard] psycopg2-binary shapely numpy osmnx networkx scikit-learn geopandas python-multipart orjson
 
       - name: Grant execute permissions to the script
-        run: chmod +x cron/osm_data_sync.sh
+        run: chmod +x backend/data/generate_seed_data.py ec2/seed.sh
 
       - name: Run the update script
-        run: ./cron/osm_data_sync.sh
+        run: |
+          python3 ./backend/data/generate_seed_data.py && bash ./ec2/seed.sh
