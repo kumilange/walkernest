@@ -1,7 +1,8 @@
 #!/bin/bash
 
-# Exit immediately if a command exits with a non-zero status
-set -e
+# Exit on error, unset variable, or pipeline failure
+set -euo pipefail
+trap 'echo "❌ Script failed at line $LINENO with exit code $?"' ERR
 
 # Load environment variables from .env file
 if [ -f .env ]; then
@@ -25,12 +26,19 @@ SEED_SCRIPT="seed.sh"
 chmod 600 $KEY_PAIR_FILE
 
 # Step 1: Upload the scripts and files to EC2 instance
+echo "🧹 Deleting existing files on EC2 instance..."
+ssh -t -i $KEY_PAIR_FILE $USER@$INSTANCE_IP << EOF
+  set -e
+  rm -rf $REMOTE_DIR
+  mkdir -p $REMOTE_DIR
+EOF
+
 echo "📤 Uploading files to EC2 instance..."
 scp -i $KEY_PAIR_FILE $DOCKER_SETUP_SCRIPT $POSTGRES_SETUP_SCRIPT $DEPLOY_SCRIPT $CLEANUP_SCRIPT $SEED_SCRIPT $DOCKER_COMPOSE_FILE $ENV_FILE $USER@$INSTANCE_IP:$REMOTE_DIR
 
 # Step 2: Log in to EC2 instance and configure
 echo "🔑 Logging into EC2 instance to configure..."
-ssh -i $KEY_PAIR_FILE $USER@$INSTANCE_IP << EOF
+ssh -t -i $KEY_PAIR_FILE $USER@$INSTANCE_IP << EOF
   set -e  chmod 600 $KEY_PAIR_FILE
   echo "🛠️ Changing permissions for uploaded scripts..."
   cd $REMOTE_DIR
@@ -46,7 +54,7 @@ echo "📦 Running deploy.sh locally..."
 
 # Step 4: Log back into EC2 and run postgres_setup.sh
 echo "🔑 Logging back into EC2 to run postgres_setup.sh..."
-ssh -i $KEY_PAIR_FILE $USER@$INSTANCE_IP << EOF
+ssh -t -i $KEY_PAIR_FILE $USER@$INSTANCE_IP << EOF
   set -e
   echo "🐘 Configuring PostgreSQL with postgres_setup.sh..."
   cd $REMOTE_DIR

@@ -1,8 +1,7 @@
 #!/bin/bash
 
 # Exit immediately if a command exits with a non-zero status
-set -euo pipefail
-trap 'echo "❌ Script failed at line $LINENO with exit code $?"' ERR
+set -e
 
 # Load environment variables from .env file
 if [ -f .env ]; then

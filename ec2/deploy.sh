@@ -1,5 +1,8 @@
 #!/bin/bash
 
+# Exit immediately if a command exits with a non-zero status
+set -e
+
 # Load environment variables from .env file
 if [ -f .env ]; then
   export $(cat .env | grep -v '#' | awk '/=/ {print $1}')
@@ -42,7 +45,7 @@ scp -i $KEY_PAIR_FILE $ENV_FILE $USER@$INSTANCE_IP:$REMOTE_DIR
 scp -i $KEY_PAIR_FILE -r $NGINX_STATIC_DIR $USER@$INSTANCE_IP:$REMOTE_DIR/frontend
 scp -i $KEY_PAIR_FILE $FRONTEND_DOCKER_FILE $USER@$INSTANCE_IP:$REMOTE_DIR/frontend
 scp -i $KEY_PAIR_FILE $BACKEND_DOCKER_API_FILE $USER@$INSTANCE_IP:$REMOTE_DIR/backend
-rsync -avz --exclude '__pycache__' -e "ssh -i $KEY_PAIR_FILE" $BACKEND_APP_DIR/ $USER@$INSTANCE_IP:$REMOTE_DIR/backend
+rsync -avz --exclude '__pycache__' -e "ssh -i $KEY_PAIR_FILE" $BACKEND_APP_DIR $USER@$INSTANCE_IP:$REMOTE_DIR/backend
 scp -i $KEY_PAIR_FILE -r $SHARED_DIR $USER@$INSTANCE_IP:$REMOTE_DIR
 echo "✅ Files copied successfully."
 
