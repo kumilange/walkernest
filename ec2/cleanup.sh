@@ -1,5 +1,8 @@
 #!/bin/bash
 
+# Exit immediately if a command exits with a non-zero status
+set -e
+
 echo "Stopping all running containers..."
 docker stop $(docker ps -q)
 

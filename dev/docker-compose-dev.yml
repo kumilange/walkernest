@@ -2,7 +2,7 @@ services:
   backend:
     container_name: fastapi-backend
     build:
-      context: ./backend
+      context: ../backend
       dockerfile: Dockerfile
     platform: linux/amd64
     ports:
@@ -13,11 +13,13 @@ services:
       - |
         exec uvicorn app.main:app --host 0.0.0.0 --port 3000 --reload --reload-dir /app
     volumes:
-      - ./backend:/app
+      - ../backend:/app
     working_dir: /app
     depends_on:
       postgis:
         condition: service_healthy
+    env_file:
+      - .env
     environment:
       - DB_USERNAME=${DB_USERNAME}
       - DB_PASSWORD=${DB_PASSWORD}
@@ -29,22 +31,28 @@ services:
   frontend:
     container_name: react-frontend
     build:
-      context: .
+      context: ..
       dockerfile: frontend/Dockerfile.dev
     platform: linux/amd64
     ports:
       - '5173:5173' # Development port
       - '80:80' # Production port
     volumes:
-      - ./shared:/shared
+      - ../shared:/shared
     depends_on:
       - backend
+    env_file:
+      - .env
     environment:
+      - VITE_MAPTILER_API_KEY=${VITE_MAPTILER_API_KEY}
+      - VITE_API_DOMAIN=${VITE_API_DOMAIN}
       - NODE_ENV=development
 
   postgis:
     container_name: postgis-db
     image: kartoza/postgis:16-3.4
+    env_file:
+      - .env
     environment:
       - POSTGRES_USER=${DB_USERNAME}
       - POSTGRES_PASSWORD=${DB_PASSWORD}
@@ -63,11 +71,13 @@ services:
   seed:
     container_name: seed-db
     build:
-      context: .
-      dockerfile: backend/Dockerfile.seed
+      context: ..
+      dockerfile: backend/Dockerfile.seed.dev
     depends_on:
       postgis:
         condition: service_healthy
+    env_file:
+      - .env
     environment:
       - RUN_SEED=${RUN_SEED:-false}
       - DB_USERNAME=${DB_USERNAME}
@@ -76,9 +86,9 @@ services:
       - DB_PORT=${DB_PORT}
       - DB_NAME=${DB_NAME}
     volumes:
-      - ./backend/data/seed:/data
-      - ./shared:/shared
-    command: /usr/local/bin/seed.sh
+      - ../backend/data/seed:/data
+      - ../shared:/shared
+    command: /usr/local/bin/seed-dev.sh
 
 volumes:
   postgis-data:
