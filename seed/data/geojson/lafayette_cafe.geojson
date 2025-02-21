@@ -12,6 +12,6 @@
 { "type": "Feature", "properties": { "amenity": "cafe", "name": "Starbucks", "id": 7578769743, "building": null }, "geometry": { "type": "Point", "coordinates": [ -105.096955, 39.9874123 ] } },
 { "type": "Feature", "properties": { "amenity": "cafe", "name": "Starbucks", "id": 10174264809, "building": null }, "geometry": { "type": "Point", "coordinates": [ -105.1012204, 40.01693 ] } },
 { "type": "Feature", "properties": { "amenity": "cafe", "name": "OTIS Craft Collective", "id": 11587798276, "building": null }, "geometry": { "type": "Point", "coordinates": [ -105.0945762, 39.985836 ] } },
-{ "type": "Feature", "properties": { "amenity": "cafe", "name": "East Simpson Coffee Company", "id": 470897518, "building": "commercial" }, "geometry": { "type": "Polygon", "coordinates": [ [ [ -105.086137, 39.9981678 ], [ -105.0861334, 39.9978218 ], [ -105.0860475, 39.9978224 ], [ -105.0860511, 39.9981683 ], [ -105.086137, 39.9981678 ] ] ] } }
+{ "type": "Feature", "properties": { "amenity": "cafe", "name": "East Simpson Coffee Company", "id": 1286943503, "building": "yes" }, "geometry": { "type": "Polygon", "coordinates": [ [ [ -105.0891299, 39.9985369 ], [ -105.0891264, 39.9983674 ], [ -105.0890205, 39.9983687 ], [ -105.0890213, 39.9984057 ], [ -105.088922, 39.9984069 ], [ -105.0889248, 39.9985393 ], [ -105.0891299, 39.9985369 ] ] ] } }
 ]
 }

@@ -16,6 +16,8 @@ fi
 ENV_FILE=".env"
 REMOTE_DIR="/home/$USER/walkernest"
 DEPLOY_SCRIPT="deploy.sh"
+SSL_SETUP_SCRIPT="ssl_setup.sh"
+SSL_INIT_SCRIPT="ssl_init.sh"
 DOCKER_SETUP_SCRIPT="docker_setup.sh"
 DOCKER_COMPOSE_FILE="docker-compose.yml"
 POSTGRES_SETUP_SCRIPT="postgres_setup.sh"
@@ -35,7 +37,7 @@ ssh -t -i $KEY_PAIR_FILE $USER@$INSTANCE_IP << EOF
 EOF
 
 echo "📤 Uploading files to EC2 instance..."
-scp -i $KEY_PAIR_FILE $DOCKER_SETUP_SCRIPT $POSTGRES_SETUP_SCRIPT $CLEANUP_SCRIPT $DOCKER_COMPOSE_FILE $ENV_FILE $USER@$INSTANCE_IP:$REMOTE_DIR
+scp -i $KEY_PAIR_FILE $DOCKER_SETUP_SCRIPT $SSL_SETUP_SCRIPT $SSL_INIT_SCRIPT $POSTGRES_SETUP_SCRIPT $CLEANUP_SCRIPT $DOCKER_COMPOSE_FILE $ENV_FILE $USER@$INSTANCE_IP:$REMOTE_DIR
 
 # Step 2: Log in to EC2 instance and configure scripts
 echo "🔑 Logging into EC2 instance..."
@@ -43,7 +45,7 @@ ssh -t -i $KEY_PAIR_FILE $USER@$INSTANCE_IP << EOF
   set -e  chmod 600 $KEY_PAIR_FILE
   echo "🛠️ Changing permissions for uploaded scripts..."
   cd $REMOTE_DIR
-  sudo chmod +x $DOCKER_SETUP_SCRIPT $POSTGRES_SETUP_SCRIPT $CLEANUP_SCRIPT
+  sudo chmod +x $DOCKER_SETUP_SCRIPT $SSL_SETUP_SCRIPT $SSL_INIT_SCRIPT $POSTGRES_SETUP_SCRIPT $CLEANUP_SCRIPT
 
   echo "🐳 Setting up Docker..."
   sudo ./$DOCKER_SETUP_SCRIPT

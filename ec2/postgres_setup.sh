@@ -23,6 +23,7 @@ sed -i "s/local   all             all                                     peer/l
 sed -i "s/host    all             all             127.0.0.1\/32            scram-sha-256/host    all             all             0.0.0.0\/0               md5/g" pg_hba.conf
 sed -i "s/host    all             all             ::1\/128                 scram-sha-256/host    all             all             ::\/0                    md5/g" pg_hba.conf
 docker cp ./pg_hba.conf postgis-db:/etc/postgresql/16/main/pg_hba.conf
+docker exec postgis-db bash -c "chown postgres:postgres /etc/postgresql/16/main/pg_hba.conf"
 
 # Add swap space
 echo "Adding swap space..."

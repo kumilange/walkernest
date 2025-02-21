@@ -15,4 +15,4 @@ docker image prune -a -f
 echo "Removing unused volumes..."
 docker volume prune -f
 
-echo "Cleanup complete!"
+echo "Container cleanup complete!"

@@ -25,12 +25,6 @@ export default function MenuBar() {
 			/>
 			<Separator orientation="vertical" className="text-gray-300" />
 			<MenuItem
-				tooltip="Manage layers"
-				title="Manage layers"
-				actionIcon={<Layers className="h-4 w-4" />}
-				content={<ManageLayer />}
-			/>
-			<MenuItem
 				tooltip="Favorites"
 				title="Favorites"
 				actionIcon={<Heart className="h-4 w-4" />}
@@ -43,6 +37,12 @@ export default function MenuBar() {
 				hasOpenState={true}
 				closeCallback={clearAllRouteStates}
 				content={<CheckRoute />}
+			/>
+			<MenuItem
+				tooltip="Manage layers"
+				title="Manage layers"
+				actionIcon={<Layers className="h-4 w-4" />}
+				content={<ManageLayer />}
 			/>
 		</div>
 	);

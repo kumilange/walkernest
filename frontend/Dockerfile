@@ -9,7 +9,7 @@ RUN rm -rf ./*
 # Copy the React build output from the dist directory
 COPY frontend/dist /usr/share/nginx/html
 
-# Expose port 80
+# Expose port 80 internally
 EXPOSE 80
 
 # Start Nginx
