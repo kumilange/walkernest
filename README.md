@@ -58,7 +58,7 @@ KEY_PAIR_FILE=your_keypair_pem_file
    ./run-dev.sh
    ```
 
-   _NOTE_: Change environment variable `RUN_SEED` to `false` to skip seeding datasets if you just want to run the apps
+   _NOTE_: Change environment variable `RUN_SEED` to `false` to skip seeding database if you just want to run the apps
 
 2. Access the apps:
    - Backend: http://localhost:3000
@@ -72,20 +72,6 @@ KEY_PAIR_FILE=your_keypair_pem_file
 cd ec2
 ./run-ec2.sh
 ```
-
-#### Connecting to PostgreSQL on Docker on EC2
-
-1. SSH into the EC2 instance:
-
-   ```sh
-   ssh -i your_keypair_pem_file your_iam_user_name@your_ec2_ip
-   ```
-
-2. Login to PostgreSQL:
-   ```sh
-   docker exec -it container_name bash
-   psql -U your_db_username -d your_db_name -h your_db_host -W
-   ```
 
 ### Project Structure
 
