@@ -23,7 +23,7 @@ services:
     environment:
       - DB_USERNAME=${DB_USERNAME}
       - DB_PASSWORD=${DB_PASSWORD}
-      - DB_HOST=${DB_HOST}
+      - DB_HOST=postgis # Refers to the PostgreSQL service in Docker Compose
       - DB_PORT=${DB_PORT}
       - DB_NAME=${DB_NAME}
       - NODE_ENV=development
@@ -35,8 +35,7 @@ services:
       dockerfile: frontend/Dockerfile.dev
     platform: linux/amd64
     ports:
-      - '5173:5173' # Development port
-      - '80:80' # Production port
+      - '5173:5173'
     volumes:
       - ../shared:/shared
     depends_on:
@@ -66,29 +65,6 @@ services:
       interval: 10s
       timeout: 10s
       retries: 10
-
-  # This service only runs when RUN_SEED environment variable is set to "true"
-  seed:
-    container_name: seed-db
-    build:
-      context: ..
-      dockerfile: backend/Dockerfile.seed.dev
-    depends_on:
-      postgis:
-        condition: service_healthy
-    env_file:
-      - .env
-    environment:
-      - RUN_SEED=${RUN_SEED:-false}
-      - DB_USERNAME=${DB_USERNAME}
-      - DB_PASSWORD=${DB_PASSWORD}
-      - DB_HOST=${DB_HOST}
-      - DB_PORT=${DB_PORT}
-      - DB_NAME=${DB_NAME}
-    volumes:
-      - ../backend/data/seed:/data
-      - ../shared:/shared
-    command: /usr/local/bin/seed-dev.sh
 
 volumes:
   postgis-data:

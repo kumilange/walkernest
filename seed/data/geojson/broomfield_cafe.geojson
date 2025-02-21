@@ -1,0 +1,21 @@
+{
+"type": "FeatureCollection",
+"name": "broomfield_cafe",
+"crs": { "type": "name", "properties": { "name": "urn:ogc:def:crs:OGC:1.3:CRS84" } },
+"features": [
+{ "type": "Feature", "properties": { "amenity": "cafe", "name": "Starbucks", "id": 2291002311, "building": null }, "geometry": { "type": "Point", "coordinates": [ -105.0138054, 39.944385 ] } },
+{ "type": "Feature", "properties": { "amenity": "cafe", "name": "Loftea Cafe", "id": 2362015975, "building": null }, "geometry": { "type": "Point", "coordinates": [ -105.0890582, 39.906186 ] } },
+{ "type": "Feature", "properties": { "amenity": "cafe", "name": "Prosper Oats", "id": 2362017236, "building": null }, "geometry": { "type": "Point", "coordinates": [ -105.086953, 39.9058967 ] } },
+{ "type": "Feature", "properties": { "amenity": "cafe", "name": "Starbucks", "id": 3024913969, "building": null }, "geometry": { "type": "Point", "coordinates": [ -105.0524362, 39.9123746 ] } },
+{ "type": "Feature", "properties": { "amenity": "cafe", "name": "Wildflowers Café", "id": 3711381728, "building": null }, "geometry": { "type": "Point", "coordinates": [ -105.0999207, 39.909433 ] } },
+{ "type": "Feature", "properties": { "amenity": "cafe", "name": "Ink Coffee", "id": 4983050341, "building": null }, "geometry": { "type": "Point", "coordinates": [ -105.1175476, 39.9232373 ] } },
+{ "type": "Feature", "properties": { "amenity": "cafe", "name": "Starbucks", "id": 7529584842, "building": null }, "geometry": { "type": "Point", "coordinates": [ -105.0957701, 39.9107073 ] } },
+{ "type": "Feature", "properties": { "amenity": "cafe", "name": "Starbucks", "id": 9170746249, "building": null }, "geometry": { "type": "Point", "coordinates": [ -105.003229, 40.0007776 ] } },
+{ "type": "Feature", "properties": { "amenity": "cafe", "name": "Starbucks", "id": 10743747727, "building": null }, "geometry": { "type": "Point", "coordinates": [ -105.1268776, 39.9401243 ] } },
+{ "type": "Feature", "properties": { "amenity": "cafe", "name": "Ziggi's Coffee", "id": 11827031148, "building": null }, "geometry": { "type": "Point", "coordinates": [ -105.0519629, 39.9150371 ] } },
+{ "type": "Feature", "properties": { "amenity": "cafe", "name": "Ziggi's Coffee", "id": 12189855549, "building": null }, "geometry": { "type": "Point", "coordinates": [ -105.0974276, 39.9058156 ] } },
+{ "type": "Feature", "properties": { "amenity": "cafe", "name": "Scooter's Drive Up Coffee Stand", "id": 322961667, "building": "yes" }, "geometry": { "type": "Polygon", "coordinates": [ [ [ -105.0913915, 39.9241651 ], [ -105.0913906, 39.924108 ], [ -105.0913373, 39.9241085 ], [ -105.0913382, 39.9241656 ], [ -105.0913915, 39.9241651 ] ] ] } },
+{ "type": "Feature", "properties": { "amenity": "cafe", "name": "Java Island", "id": 458738016, "building": "yes" }, "geometry": { "type": "Polygon", "coordinates": [ [ [ -105.0185301, 40.001373 ], [ -105.0185299, 40.0013303 ], [ -105.0184104, 40.0013307 ], [ -105.0184106, 40.0013734 ], [ -105.0185301, 40.001373 ] ] ] } },
+{ "type": "Feature", "properties": { "amenity": "cafe", "name": "Starbucks", "id": 702970647, "building": "yes" }, "geometry": { "type": "Polygon", "coordinates": [ [ [ -105.0915372, 39.9226808 ], [ -105.0914351, 39.92268 ], [ -105.0914354, 39.9226244 ], [ -105.0914166, 39.9226244 ], [ -105.0914158, 39.9225662 ], [ -105.0914321, 39.9225662 ], [ -105.0914309, 39.9224829 ], [ -105.0915337, 39.922482 ], [ -105.0915372, 39.9226808 ] ] ] } }
+]
+}
