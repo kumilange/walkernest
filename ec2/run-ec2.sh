@@ -37,33 +37,33 @@ EOF
 echo "📤 Uploading files to EC2 instance..."
 scp -i $KEY_PAIR_FILE $DOCKER_SETUP_SCRIPT $POSTGRES_SETUP_SCRIPT $CLEANUP_SCRIPT $DOCKER_COMPOSE_FILE $ENV_FILE $USER@$INSTANCE_IP:$REMOTE_DIR
 
-# Step 2: Log in to EC2 instance and configure
-echo "🔑 Logging into EC2 instance to configure..."
+# Step 2: Log in to EC2 instance and configure scripts
+echo "🔑 Logging into EC2 instance..."
 ssh -t -i $KEY_PAIR_FILE $USER@$INSTANCE_IP << EOF
   set -e  chmod 600 $KEY_PAIR_FILE
   echo "🛠️ Changing permissions for uploaded scripts..."
   cd $REMOTE_DIR
   sudo chmod +x $DOCKER_SETUP_SCRIPT $POSTGRES_SETUP_SCRIPT $CLEANUP_SCRIPT
 
-  echo "🐋 Setting up Docker with docker_setup.sh..."
+  echo "🐳 Setting up Docker..."
   sudo ./$DOCKER_SETUP_SCRIPT
 EOF
 
-# Step 3: Run deploy.sh locally after exiting EC2
-echo "📦 Running deploy.sh locally..."
+# Step 3: Deploy application to EC2 instance
+echo "📦 Deploying application..."
 ./$DEPLOY_SCRIPT
 
-# Step 4: Log back into EC2 and run postgres_setup.sh
-echo "🔑 Logging back into EC2 to run postgres_setup.sh..."
+# Step 4: Log back into EC2 instance and set up PostgreSQL
+echo "🔑 Logging back into EC2 instance..."
 ssh -t -i $KEY_PAIR_FILE $USER@$INSTANCE_IP << EOF
   set -e
-  echo "🐘 Configuring PostgreSQL with postgres_setup.sh..."
+  echo "🐘 Setting up PostgreSQL..."
   cd $REMOTE_DIR
   sudo ./$POSTGRES_SETUP_SCRIPT
 EOF
 
-# Step 5: Run seed.sh locally after exiting EC2
-echo "🌱 Running seed.sh locally..."
+# Step 5: Seed database on EC2 instance
+echo "🌱 Seeding database..."
 set -a
 . ./$ENV_FILE
 set +a

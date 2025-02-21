@@ -30,4 +30,4 @@ docker-compose --version
 chmod -R 755 $REMOTE_DIR
 cd $REMOTE_DIR
 
-echo "🐋 Docker setup completed successfully! ✅"
+echo "🐳 Docker setup completed successfully! ✅"

@@ -18,11 +18,11 @@ DOCKER_COMPOSE_FILE="docker-compose-dev.yml"
 SEED_SCRIPT="../seed/seed.sh"
 
 # Step 1: Run docker compose locally
-echo "🐳 Run docker compose..."
+echo "🐳 Running docker compose..."
 docker-compose -f $DOCKER_COMPOSE_FILE up --build -d
 
-# Step 5: Run seed.sh locally
-echo "🌱 Running seed.sh locally..."
+# Step 5: Seed database locally
+echo "🌱 Running seeding..."
 set -a
 . ./$ENV_FILE
 set +a

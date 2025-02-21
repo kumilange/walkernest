@@ -41,4 +41,4 @@ sleep 20
 # Check the status of the Docker containers
 docker ps
 
-echo "✅ Setup postgres complete!"
+echo "🐘 PostgreSQL setup completed successfully! ✅"
