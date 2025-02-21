@@ -66,7 +66,7 @@ KEY_PAIR_FILE=your_keypair_pem_file
 
 ### Deployment
 
-#### Initialize EC2 and Deploy Apps on Docker
+#### Initialize EC2 and Deploy the Apps on Docker
 
 ```sh
 cd ec2
