@@ -30,13 +30,17 @@ cd walkernest
 Create a `.env` file in the `dev`,`ec2` and `frontend`(if you locally develop without docker) directories, and add the following environment variables:
 
 ```sh
+RUN_SEED=boolean_to_run_seed_dataset
 DB_USERNAME=your_db_username
 DB_PASSWORD=your_db_password
 DB_HOST=your_db_host
 DB_PORT=your_db_port
 DB_NAME=your_db_name
-VITE_MAPTILER_API_KEY=your_maptiler_api_key
 VITE_API_DOMAIN=your_api_domain
+VITE_MAPTILER_API_KEY=your_maptiler_api_key
+USER=your_iam_user_name
+INSTANCE_IP=your_ec2_ip
+KEY_PAIR_FILE=your_keypair_pem_file
 ```
 
 ### Development
@@ -45,38 +49,28 @@ VITE_API_DOMAIN=your_api_domain
 
 #### Backend
 
-### Build and Run the Application
+### Build and Run the Apps
 
-1. Run `docker-compose-dev` with seeding datasets:
-
-   ```sh
-   export RUN_SEED=true && docker-compose -f dev/docker-compose-dev.yml up --build -d
-   ```
-
-2. Run `docker-compose-dev` without seeding datasets:
+1. Run `run-dev.sh` script:
 
    ```sh
-   docker-compose -f dev/docker-compose-dev.yml up --build -d
+   cd dev
+   ./run-dev.sh
    ```
 
-3. Access the application:
+   _NOTE_: Change environment variable `RUN_SEED` to `false` to skip seeding datasets if you just want to run the apps
+
+2. Access the apps:
    - Backend: http://localhost:3000
    - Frontend: http://localhost:5173
 
 ### Deployment
 
-#### Initialize EC2 and Deploy App including seeding on Docker
+#### Initialize EC2 and Deploy the Apps on Docker
 
 ```sh
 cd ec2
-./initialize.sh
-```
-
-#### Seed the Database separately on EC2
-
-```sh
-cd ec2
-./seed.sh
+./run-ec2.sh
 ```
 
 #### Connecting to PostgreSQL on Docker on EC2
@@ -103,21 +97,15 @@ walkernest/
 │   │   ├── ...other files
 │   │   ├── routers/
 │   │   └── utils/
-│   ├── data/
-│   │   ├── cdphe_open_data/
-│   │   ├── seed/
-│   │   ├── utils/
-│   │   └── generate_seed_data.py
-│   ├── Dockerfile
-│   └── Dockerfile.seed.dev
+│   └── Dockerfile
 ├── dev/
 │   ├── .env
 │   ├── docker-compose-dev.yml
+│   └── run-dev.sh
 ├── ec2/
 │   ├── .env
 │   ├── docker-compose.yml
-│   ├── initialize.sh
-│   ├── seed.sh
+│   ├── run-ec2.sh
 │   └── ...other scripts
 ├── frontend/
 │   ├── src/
@@ -129,7 +117,13 @@ walkernest/
 │   ├── Dockerfile.dev
 │   └── ...other config files
 ├── shared/
-│   ├── citydict.json
+│   └──citydict.json
+├── seed/
+│   ├── cdphe_open_data/
+│   ├── data/
+│   ├── utils/
+│   ├── generate_seed_data.py
+│   └── seed.sh
 ├── .gitignore
 └── README.md
 ```

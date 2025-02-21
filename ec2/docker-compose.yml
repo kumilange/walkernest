@@ -35,7 +35,6 @@ services:
       dockerfile: frontend/Dockerfile
     platform: linux/amd64
     ports:
-      - '5173:5173' # Development port
       - '80:80' # Production port
     volumes:
       - ./shared:/shared
@@ -51,6 +50,8 @@ services:
   postgis:
     container_name: postgis-db
     image: kartoza/postgis:16-3.4
+    env_file:
+      - .env
     environment:
       - POSTGRES_USER=${DB_USERNAME}
       - POSTGRES_PASSWORD=${DB_PASSWORD}

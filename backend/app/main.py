@@ -3,7 +3,7 @@ from fastapi import FastAPI, FastAPI
 from fastapi.middleware.cors import CORSMiddleware
 from app.routers import favorites, analyze, amenities, health
 
-DB_HOST = os.getenv('DB_HOST', 'postgis')
+DB_HOST = os.getenv('DB_HOST')
 
 origins = [
 	"http://localhost", # local prod frontend URL

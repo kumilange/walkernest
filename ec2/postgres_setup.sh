@@ -1,4 +1,4 @@
-#!/bin/bash
+#!/bin/sh
 
 # Exit immediately if a command exits with a non-zero status
 set -e
@@ -41,4 +41,4 @@ sleep 20
 # Check the status of the Docker containers
 docker ps
 
-echo "✅ Setup postgres complete!"
+echo "🐘 PostgreSQL setup completed successfully! ✅"

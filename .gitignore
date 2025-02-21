@@ -4,7 +4,6 @@ cache/
 venv/
 .vscode/
 commands.txt
-**/memo.txt
 frontend/node_modules/
 frontend/dist/
 .env
