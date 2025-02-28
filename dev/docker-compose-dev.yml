@@ -43,8 +43,9 @@ services:
     env_file:
       - .env
     environment:
-      - VITE_MAPTILER_API_KEY=${VITE_MAPTILER_API_KEY}
       - VITE_API_DOMAIN=${VITE_API_DOMAIN}
+      - VITE_API_PROTOCOL=${VITE_API_PROTOCOL}
+      - VITE_MAPTILER_API_KEY=${VITE_MAPTILER_API_KEY}
       - NODE_ENV=development
 
   postgis:

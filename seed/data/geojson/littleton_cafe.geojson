@@ -13,7 +13,7 @@
 { "type": "Feature", "properties": { "amenity": "cafe", "name": "Cafe du Coco", "id": 6484991926, "building": null }, "geometry": { "type": "Point", "coordinates": [ -105.0194965, 39.6126416 ] } },
 { "type": "Feature", "properties": { "amenity": "cafe", "name": "Atlas Coffee", "id": 9311871097, "building": null }, "geometry": { "type": "Point", "coordinates": [ -104.9860438, 39.6009307 ] } },
 { "type": "Feature", "properties": { "amenity": "cafe", "name": "Devil’s Cup Coffee", "id": 10942373931, "building": null }, "geometry": { "type": "Point", "coordinates": [ -105.016027, 39.6148589 ] } },
-{ "type": "Feature", "properties": { "amenity": "cafe", "name": "Tee-Hee Boba", "id": 11179628438, "building": null }, "geometry": { "type": "Point", "coordinates": [ -104.9886631, 39.6118882 ] } },
+{ "type": "Feature", "properties": { "amenity": "cafe", "name": "Artemis Tea Coffee", "id": 11179628438, "building": null }, "geometry": { "type": "Point", "coordinates": [ -104.9886631, 39.6118882 ] } },
 { "type": "Feature", "properties": { "amenity": "cafe", "name": "Black Rock Coffee", "id": 11850700068, "building": null }, "geometry": { "type": "Point", "coordinates": [ -104.9889619, 39.5715438 ] } },
 { "type": "Feature", "properties": { "amenity": "cafe", "name": "Chez Lizeth", "id": 12228001270, "building": null }, "geometry": { "type": "Point", "coordinates": [ -105.036349, 39.6099682 ] } },
 { "type": "Feature", "properties": { "amenity": "cafe", "name": "Lost Coffee", "id": 12290601600, "building": null }, "geometry": { "type": "Point", "coordinates": [ -105.0017609, 39.6128875 ] } },

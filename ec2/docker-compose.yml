@@ -1,4 +1,25 @@
 services:
+  postgis:
+    container_name: postgis-db
+    image: kartoza/postgis:16-3.4
+    env_file:
+      - .env
+    environment:
+      - POSTGRES_USER=${DB_USERNAME}
+      - POSTGRES_PASSWORD=${DB_PASSWORD}
+      - POSTGRES_DB=${DB_NAME}
+    ports:
+      - '5432:5432'
+    volumes:
+      - postgis-data:/var/lib/postgresql
+    healthcheck:
+      test: ['CMD-SHELL', 'pg_isready']
+      interval: 10s
+      timeout: 10s
+      retries: 10
+    networks:
+      - app-network
+
   backend:
     container_name: fastapi-backend
     build:
@@ -26,7 +47,10 @@ services:
       - DB_HOST=${DB_HOST}
       - DB_PORT=${DB_PORT}
       - DB_NAME=${DB_NAME}
+      - DOMAIN_NAME=${DOMAIN_NAME}
       - NODE_ENV=production
+    networks:
+      - app-network
 
   frontend:
     container_name: react-frontend
@@ -34,8 +58,6 @@ services:
       context: .
       dockerfile: frontend/Dockerfile
     platform: linux/amd64
-    ports:
-      - '80:80' # Production port
     volumes:
       - ./shared:/shared
     depends_on:
@@ -43,29 +65,60 @@ services:
     env_file:
       - .env
     environment:
-      - VITE_MAPTILER_API_KEY=${VITE_MAPTILER_API_KEY}
       - VITE_API_DOMAIN=${VITE_API_DOMAIN}
+      - VITE_API_PROTOCOL=${VITE_API_PROTOCOL}
+      - VITE_MAPTILER_API_KEY=${VITE_MAPTILER_API_KEY}
       - NODE_ENV=production
+    networks:
+      - app-network
 
-  postgis:
-    container_name: postgis-db
-    image: kartoza/postgis:16-3.4
-    env_file:
-      - .env
-    environment:
-      - POSTGRES_USER=${DB_USERNAME}
-      - POSTGRES_PASSWORD=${DB_PASSWORD}
-      - POSTGRES_DB=${DB_NAME}
+  nginx:
+    container_name: nginx-proxy
+    image: nginx:latest
+    restart: always
     ports:
-      - '5432:5432'
+      - '80:80' # HTTP
+      - '443:443' # HTTPS
     volumes:
-      - postgis-data:/var/lib/postgresql
-    healthcheck:
-      test: ['CMD-SHELL', 'pg_isready']
-      interval: 10s
-      timeout: 10s
-      retries: 10
+      - ./nginx/nginx.conf:/etc/nginx/nginx.conf
+      - ./certbot/www:/var/www/certbot
+      - ./certbot/conf:/etc/letsencrypt
+      - ./ssl_init.sh:/docker-entrypoint.d/ssl_init.sh
+    depends_on:
+      - frontend
+      - backend
+    entrypoint:
+      [
+        '/bin/sh',
+        '-c',
+        "chmod +x /docker-entrypoint.d/ssl_init.sh && /docker-entrypoint.d/ssl_init.sh || echo 'ssl_init.sh failed' && exec nginx -g 'daemon off;'",
+      ]
+    networks:
+      - app-network
+
+  certbot:
+    container_name: ssl-certbot
+    image: certbot/certbot:latest
+    volumes:
+      - ./certbot/www:/var/www/certbot
+      - ./certbot/conf:/etc/letsencrypt
+      - ./ssl_setup.sh:/docker-entrypoint.d/ssl_setup.sh
+    entrypoint:
+      [
+        '/bin/sh',
+        '-c',
+        "chmod +x /docker-entrypoint.d/ssl_setup.sh && /docker-entrypoint.d/ssl_setup.sh || echo 'ssl_setup.sh failed'",
+      ]
+    # entrypoint: "/bin/sh -c 'trap exit TERM; while :; do certbot renew; sleep 12h & wait $${!}; done'"
+    depends_on:
+      - nginx
+    networks:
+      - app-network
 
 volumes:
   postgis-data:
     driver: local
+
+networks:
+  app-network:
+    driver: bridge

@@ -5,8 +5,7 @@ from shapely.geometry import Point, LineString, MultiLineString
 
 def create_network_graph(geometry):
     """Create a network graph from a given geometry (Polygon or MultiPolygon)."""
-    G = ox.graph_from_polygon(geometry, network_type='walk')
-    return G
+    return ox.graph_from_polygon(geometry, network_type='walk')
 
 def compress_network_graph(G: nx.MultiDiGraph) -> str:
     """Compresses a network graph by reducing size, reducing precision and pruning."""
@@ -45,16 +44,15 @@ def prune_graph(G: nx.MultiDiGraph, min_edge_length: float = 5.0) -> nx.MultiDiG
 
     isolated_nodes = [node for node in G.nodes if G.degree(node) == 0]
     G.remove_nodes_from(isolated_nodes)
+
     return G
 
 def convert_graph_to_json(G: nx.MultiDiGraph) -> str:
     """Converts a network graph to a JSON string."""
-    graph_dict = nx.node_link_data(G)
-    graph_json_str = json.dumps(graph_dict)
-    return graph_json_str
+    return json.dumps(nx.node_link_data(G))
 
 def convert_gdf_to_network_nodes(G, gdf, use_centroid=True):
-    """Convert GeoDataFrame geometries to network nodes."""
+    """Convert GeoDataFrame geometries to network nodes."""    
     def add_nearest_nodes(geometry, nodes):
         if isinstance(geometry, Point):
             nodes.add(ox.distance.nearest_nodes(G, geometry.x, geometry.y))
@@ -72,7 +70,7 @@ def convert_gdf_to_network_nodes(G, gdf, use_centroid=True):
         points = gdf['centroid']
         nodes = {ox.distance.nearest_nodes(G, point.x, point.y) for point in points}
     else:
-        nodes = set()  # Use a set to store unique nodes
+        nodes = set()
         for geometry in gdf['boundary']:
             add_nearest_nodes(geometry, nodes)
 

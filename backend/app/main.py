@@ -3,14 +3,14 @@ from fastapi import FastAPI, FastAPI
 from fastapi.middleware.cors import CORSMiddleware
 from app.routers import favorites, analyze, amenities, health
 
-DB_HOST = os.getenv('DB_HOST')
+DOMAIN_NAME = os.getenv('DOMAIN_NAME')
 
 origins = [
 	"http://localhost", # local prod frontend URL
 	"http://localhost:5173", # local dev frontend URL
 	"http://localhost:3000", # local backend URL
-    f"http://{DB_HOST}", # aws frontend URL
-    f"http://{DB_HOST}:3000",  # aws backend URL 
+    f"http://{DOMAIN_NAME}", # public domain name
+	f"https://{DOMAIN_NAME}", # public domain name
 ]
 
 app = FastAPI()
