@@ -7,14 +7,22 @@ KEY_FILE="$CERT_DIR/privkey.pem"
 # Function to check if the certificate is self-signed
 is_self_signed() {
   if [ -f "$CERT_FILE" ]; then
-    ISSUER=$(openssl x509 -in "$CERT_FILE" -noout -issuer)
+    # Check if the certificate is self-signed by looking at the issuer and subject
+    ISSUER=$(openssl x509 -in "$CERT_FILE" -noout -issuer | sed 's/^issuer=//')
+    SUBJECT=$(openssl x509 -in "$CERT_FILE" -noout -subject | sed 's/^subject=//')
     echo "🔍 Checking certificate issuer: $ISSUER"
-    if echo "$ISSUER" | grep -q "O=Internet Security Research Group"; then
-      return 1  # Not self-signed (issued by Let's Encrypt)
-    else
+    echo "🔍 Checking certificate subject: $SUBJECT"
+    
+    # If issuer and subject are the same, it's self-signed
+    if [ "$ISSUER" = "$SUBJECT" ]; then
+      echo "🔍 Certificate is self-signed"
       return 0  # Self-signed certificate detected
+    else
+      echo "🔍 Certificate is not self-signed"
+      return 1  # Not self-signed
     fi
   fi
+  echo "🔍 No certificate file found"
   return 0  # Assume self-signed if no certificate is found
 }
 
@@ -30,16 +38,22 @@ issue_certificate() {
   fi
 }
 
-# Detect and handle certificate scenarios
+# Main logic
+echo "🔍 Checking SSL certificate status..."
+
+# First check if files exist
 if [ ! -f "$CERT_FILE" ] || [ ! -f "$KEY_FILE" ]; then
-  echo "⚠️ No valid SSL certificate found. Issuing a new one..."
-  issue_certificate
-elif is_self_signed; then
-  echo "⚠️ Temporary self-signed certificate detected. Removing and reissuing proper certificate..."
-  rm -f "$CERT_FILE" "$KEY_FILE"
+  echo "⚠️ No SSL certificate files found. Issuing a new one..."
   issue_certificate
 else
-  echo "✅ Valid Let's Encrypt SSL certificate already exists."
+  # If files exist, check if they're self-signed
+  if is_self_signed; then
+    echo "⚠️ Self-signed certificate detected. Removing and reissuing proper certificate..."
+    rm -f "$CERT_FILE" "$KEY_FILE"
+    issue_certificate
+  else
+    echo "✅ Valid SSL certificate already exists."
+  fi
 fi
 
 echo "🔐 SSL setup completed successfully! ✅"
