@@ -20,5 +20,12 @@ if [ ! -f "$CERT_FILE" ] || [ ! -f "$KEY_FILE" ]; then
     chmod 600 "$KEY_FILE"
     echo "✅ Self-signed certificate generated successfully!"
 else
-    echo "🔐 SSL certificate already exists, skipping self-signing..."
+    echo "🔐 SSL certificate already exists, updating permissions..."
+    chmod 644 "$CERT_FILE"
+    chmod 600 "$KEY_FILE"
+    chmod 755 "$CERT_DIR"
 fi
+
+# Ensure nginx user has read access
+chown -R nginx:nginx "$CERT_DIR"
+chmod -R 755 "$CERT_DIR"
