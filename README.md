@@ -114,7 +114,7 @@ VITE_MAPTILER_API_KEY=your_maptiler_api_key
 
    ```sh
    cd dev
-   docker-compose -f docker-compose-dev.yml up --build -d postgis backend
+   docker compose -f docker-compose-dev.yml up --build -d postgis backend
    ```
 
 2. The backend will be available at http://localhost:3000
@@ -152,7 +152,6 @@ VITE_MAPTILER_API_KEY=your_maptiler_api_key
 #### 🗓️ Cron job executed in GitHub Actions on the 1st of every month
 
 - 🌍 Update the OSM data
-- 🔐 Renew the SSL certificate
 
 ### 📂 Project Structure
 

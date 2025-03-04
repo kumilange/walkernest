@@ -59,11 +59,11 @@ ssh -i $KEY_PAIR_FILE $USER@$INSTANCE_IP <<EOF
 
   # Step 1: Start docker containers
   echo "🐳 Starting containers..."
-  docker-compose up --build -d
+  docker compose up --build -d
 
   # Step 2: Restart nginx
   echo "🔄 Restarting Nginx..."
-  docker-compose restart nginx
+  docker compose restart nginx
 
   # Step 3: Check the status of all containers to ensure everything is up
   echo "🐳 Checking all containers status..."
