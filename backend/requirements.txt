@@ -13,4 +13,4 @@ osmnx==1.4.0
 numpy==1.26.3
 geopandas==0.14.1
 shapely==2.0.2
-scikit-learn==1.4.0 
+scikit-learn==1.4.0

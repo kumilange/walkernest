@@ -2,7 +2,6 @@ import '@testing-library/jest-dom';
 import { expect, afterEach, vi } from 'vitest';
 import { cleanup } from '@testing-library/react';
 import * as matchers from '@testing-library/jest-dom/matchers';
-import { createCanvas } from 'canvas';
 
 // Mock URL.createObjectURL
 global.URL.createObjectURL = vi.fn(() => 'mock-url');
@@ -31,54 +30,93 @@ class ImageData {
 global.ImageData = ImageData as unknown as typeof globalThis.ImageData;
 
 // Mock HTMLCanvasElement
-const mockCanvas = createCanvas(1000, 1000);
-const originalGetContext = HTMLCanvasElement.prototype.getContext;
+const mockCanvasContext = {
+	globalAlpha: 1,
+	globalCompositeOperation: 'source-over',
+	drawImage: () => { },
+	beginPath: () => { },
+	closePath: () => { },
+	moveTo: () => { },
+	lineTo: () => { },
+	stroke: () => { },
+	fill: () => { },
+	save: () => { },
+	restore: () => { },
+	scale: () => { },
+	rotate: () => { },
+	translate: () => { },
+	transform: () => { },
+	setTransform: () => { },
+	resetTransform: () => { },
+	createLinearGradient: () => ({
+		addColorStop: () => { }
+	}),
+	createRadialGradient: () => ({
+		addColorStop: () => { }
+	}),
+	createPattern: () => null,
+	clearRect: () => { },
+	fillRect: () => { },
+	strokeRect: () => { },
+	clip: () => { },
+	isPointInPath: () => false,
+	isPointInStroke: () => false,
+	fillText: () => { },
+	strokeText: () => { },
+	measureText: () => ({
+		width: 0,
+		actualBoundingBoxAscent: 0,
+		actualBoundingBoxDescent: 0,
+		actualBoundingBoxLeft: 0,
+		actualBoundingBoxRight: 0,
+		fontBoundingBoxAscent: 0,
+		fontBoundingBoxDescent: 0,
+		fontBoundingBoxLeft: 0,
+		fontBoundingBoxRight: 0,
+	}),
+	getContextAttributes: () => ({
+		alpha: true,
+		colorSpace: 'srgb',
+		desynchronized: false,
+		willReadFrequently: false,
+	}),
+	getImageData: () => new ImageData(1, 1),
+	putImageData: () => { },
+} as unknown as CanvasRenderingContext2D;
 
-// Create WebGL mock functions
-const createWebGLMock = (canvas: HTMLCanvasElement) => {
-	const buffers = new Map();
-	let bufferId = 1;
+const mockWebGLContext = {
+	getExtension: () => null,
+	getParameter: () => { },
+	getShaderPrecisionFormat: () => ({
+		precision: 23,
+		rangeMin: 127,
+		rangeMax: 127
+	}),
+	getContextAttributes: () => ({
+		antialias: true,
+		preserveDrawingBuffer: false,
+		stencil: true
+	}),
+	createBuffer: () => ({ id: 1 }),
+	bindBuffer: () => { },
+	bufferData: () => { },
+	deleteBuffer: () => { },
+	clearColor: () => { },
+	clear: () => { },
+	viewport: () => { },
+	enable: () => { },
+	disable: () => { },
+	blendFunc: () => { },
+	pixelStorei: () => { },
+} as unknown as WebGLRenderingContext;
 
-	return {
-		canvas,
-		getExtension: () => null,
-		getParameter: () => { },
-		getShaderPrecisionFormat: () => ({
-			precision: 23,
-			rangeMin: 127,
-			rangeMax: 127
-		}),
-		getContextAttributes: () => ({
-			antialias: true,
-			preserveDrawingBuffer: false,
-			stencil: true
-		}),
-		createBuffer: () => {
-			const id = bufferId++;
-			buffers.set(id, { id });
-			return { id };
-		},
-		bindBuffer: () => { },
-		bufferData: () => { },
-		deleteBuffer: (buffer: { id: number }) => {
-			buffers.delete(buffer.id);
-		},
-		clearColor: () => { },
-		clear: () => { },
-		viewport: () => { },
-		enable: () => { },
-		disable: () => { },
-		blendFunc: () => { },
-		pixelStorei: () => { },
-	} as unknown as WebGLRenderingContext;
-};
-
-HTMLCanvasElement.prototype.getContext = function (this: HTMLCanvasElement, contextType: string) {
+// Mock getContext
+HTMLCanvasElement.prototype.getContext = function (contextType: string) {
 	if (contextType === 'webgl' || contextType === 'webgl2') {
-		return createWebGLMock(this);
+		return mockWebGLContext;
 	}
-	return mockCanvas.getContext('2d');
-} as typeof originalGetContext;
+	return mockCanvasContext;
+} as unknown as typeof HTMLCanvasElement.prototype.getContext;
 
 // Mock Worker
 const mockWorker = {
@@ -118,4 +156,4 @@ expect.extend(matchers as any);
 // runs a cleanup after each test case (e.g. clearing jsdom)
 afterEach(() => {
 	cleanup();
-}); 
+});

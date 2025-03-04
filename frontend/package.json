@@ -63,7 +63,6 @@
     "@vitest/coverage-v8": "^1.2.2",
     "@vitest/ui": "^1.2.2",
     "autoprefixer": "^10.4.17",
-    "canvas": "^2.11.2",
     "concurrently": "^8.2.2",
     "eslint": "^8.56.0",
     "eslint-config-airbnb-typescript": "^18.0.0",
