@@ -5,7 +5,7 @@ from shapely.geometry import shape
 from utils.file import save_gdf_to_geojson, save_network_graph_to_json, save_network_nodes_to_json
 from utils.data_fetcher import fetch_and_normalize_data, generate_query
 from utils.geometry import add_boundary, add_centroid, get_geometry_by_objectid, generate_poly_string
-from utils.networkx import compress_network_graph, convert_gdf_to_network_nodes, create_network_graph
+from utils.network import compress_network_graph, convert_gdf_to_network_nodes, create_network_graph
 
 def load_data(csv_path, geojson_path):
     """Load CSV and GeoJSON data."""

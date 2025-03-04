@@ -4,7 +4,7 @@ import networkx as nx
 
 def deserialize_graph(graph_json) -> nx.MultiDiGraph:
     """Deserialize a graph JSON into a network graph."""
-    return nx.node_link_graph(graph_json, edges="links")
+    return nx.node_link_graph(graph_json, directed=True, multigraph=True, edges="links")
 
 def find_suitable_apartment_network_nodes(G, apartment_nnodes, **amenity_kwargs):
     """Find suitable apartment network nodes based on distance constraints to amenities."""

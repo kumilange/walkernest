@@ -7,7 +7,7 @@ from concurrent.futures import ThreadPoolExecutor
 from app.db import get_connection
 from app.crud import fetch_network_nodes, fetch_apartment_geom_and_centroid, fetch_network_graph
 from app.utils.geometry import create_gdf_with_centroid
-from app.utils.networkx import deserialize_graph, find_suitable_apartment_network_nodes, retrieve_suitable_apartments
+from app.utils.network import deserialize_graph, find_suitable_apartment_network_nodes, retrieve_suitable_apartments
 
 router = APIRouter()
 
