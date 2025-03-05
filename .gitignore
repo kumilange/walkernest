@@ -11,3 +11,4 @@ frontend/dist/
 .env.production
 .env.local
 **/*.pem
+.pytest_cache/

@@ -26,6 +26,5 @@ else
     chmod 755 "$CERT_DIR"
 fi
 
-# Ensure nginx user has read access
-chown -R nginx:nginx "$CERT_DIR"
+# Set permissions that allow both certbot and nginx to access
 chmod -R 755 "$CERT_DIR"

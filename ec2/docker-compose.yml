@@ -102,10 +102,11 @@ services:
       [
         '/bin/sh',
         '-c',
-        'sleep 10 && chmod +x /docker-entrypoint.d/ssl_setup.sh && /docker-entrypoint.d/ssl_setup.sh && trap exit TERM; while :; do certbot renew; sleep 24h & wait $${!}; done',
+        'sleep 10 && chmod +x /docker-entrypoint.d/ssl_setup.sh && /docker-entrypoint.d/ssl_setup.sh && certbot renew --dry-run && trap exit TERM; while :; do certbot renew; sleep 24h & wait $${!}; done',
       ]
     depends_on:
-      - nginx
+      nginx:
+        condition: service_started
     networks:
       - app-network
 

@@ -29,9 +29,20 @@ is_self_signed() {
 # Function to issue or renew a certificate
 issue_certificate() {
   echo "🔐 Issuing/Renewing SSL certificate for walkernest.com..."
+  
+  # Clean up existing certificate directory
+  echo "🧹 Cleaning up existing certificate directory..."
+  rm -rf "$CERT_DIR"
+  mkdir -p "$CERT_DIR"
+  chmod -R 755 "$CERT_DIR"
+  
   if certbot certonly --webroot -w /var/www/certbot -d walkernest.com -d www.walkernest.com \
     --agree-tos --no-eff-email --register-unsafely-without-email --force-renewal -v; then
     echo "✅ SSL certificate issued successfully!"
+    
+    # Set specific permissions for certificate files
+    chmod 644 "$CERT_FILE"
+    chmod 600 "$KEY_FILE"
   else
     echo "❌ Failed to issue/renew SSL certificate. Please check the certbot logs for more details."
     exit 1
@@ -49,7 +60,6 @@ else
   # If files exist, check if they're self-signed
   if is_self_signed; then
     echo "⚠️ Self-signed certificate detected. Removing and reissuing proper certificate..."
-    rm -f "$CERT_FILE" "$KEY_FILE"
     issue_certificate
   else
     echo "✅ Valid SSL certificate already exists."
