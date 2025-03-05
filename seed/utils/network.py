@@ -54,17 +54,19 @@ def convert_graph_to_json(G: nx.MultiDiGraph) -> str:
 def convert_gdf_to_network_nodes(G, gdf, use_centroid=True):
     """Convert GeoDataFrame geometries to network nodes."""    
     def add_nearest_nodes(geometry, nodes):
+        if geometry is None:
+            return
         if isinstance(geometry, Point):
             nodes.add(ox.distance.nearest_nodes(G, geometry.x, geometry.y))
-        elif isinstance(geometry, (LineString)):
+        elif isinstance(geometry, LineString):
             all_points = list(geometry.coords)
             for point in all_points:
                 nodes.add(ox.distance.nearest_nodes(G, point[0], point[1]))
-        elif isinstance(geometry, (MultiLineString)):
+        elif isinstance(geometry, MultiLineString):
             for part in geometry.geoms:
                 add_nearest_nodes(part, nodes)
         else:
-            raise TypeError("Unsupported geometry type")
+            raise TypeError(f"Unsupported geometry type: {type(geometry)}")
 
     if use_centroid:
         points = gdf['centroid']

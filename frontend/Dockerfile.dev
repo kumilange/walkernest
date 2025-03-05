@@ -1,17 +1,17 @@
 # Use the official Node.js image for development
-FROM node:20-alpine AS development
+FROM node:20-alpine
 
 # Set the working directory
 WORKDIR /app
 
-# Copy package.json and package-lock.json
+# Copy package files
 COPY frontend/package.json frontend/package-lock.json ./
 
-# Install dependencies in the container
+# Install all dependencies
 RUN npm install
 
-# Copy the rest of the application code
-COPY frontend/ ./
+# Copy the rest of the application
+COPY frontend/ .
 COPY shared/ ../shared/
 
 # Expose the development port

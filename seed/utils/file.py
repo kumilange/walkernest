@@ -1,6 +1,6 @@
 import os
 import json
-from utils.networkx import convert_graph_to_json
+from utils.network import convert_graph_to_json
 
 data_dir = "seed/data"
 

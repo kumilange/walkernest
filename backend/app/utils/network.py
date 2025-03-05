@@ -2,9 +2,9 @@ import numpy as np
 import osmnx as ox
 import networkx as nx
 
-def deserialize_graph(graph_json) -> nx.MultiDiGraph:
+def deserialize_graph(graph_json) -> nx.MultiGraph:
     """Deserialize a graph JSON into a network graph."""
-    return nx.node_link_graph(graph_json, edges="links")
+    return nx.node_link_graph(graph_json)
 
 def find_suitable_apartment_network_nodes(G, apartment_nnodes, **amenity_kwargs):
     """Find suitable apartment network nodes based on distance constraints to amenities."""
