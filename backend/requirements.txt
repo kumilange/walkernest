@@ -11,6 +11,6 @@ psycopg2-binary==2.9.9
 networkx==3.1
 osmnx==1.4.0
 numpy==1.26.3
-geopandas==0.14.1
+geopandas==1.0.1
 shapely==2.0.2
 scikit-learn==1.4.0
