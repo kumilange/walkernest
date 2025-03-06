@@ -54,6 +54,8 @@ jobs:
           echo "USER=${{ secrets.USER }}" >> .env
           echo "DOMAIN_NAME=${{ secrets.DOMAIN_NAME }}" >> .env
           echo "INSTANCE_IP=${{ secrets.INSTANCE_IP }}" >> .env
+          echo "INSTANCE_IP=${{ secrets.INSTANCE_IP }}" >> .env
+          echo "DOMAIN_NAME=${{ secrets.DOMAIN_NAME }}" >> .env
           echo "DB_USERNAME=${{ secrets.DB_USERNAME }}" >> .env
           echo "DB_PASSWORD=${{ secrets.DB_PASSWORD }}" >> .env
           echo "DB_HOST=${{ secrets.DB_HOST }}" >> .env
