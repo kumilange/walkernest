@@ -152,6 +152,7 @@ VITE_MAPTILER_API_KEY=your_maptiler_api_key
 #### 🗓️ Cron job executed in GitHub Actions on the 1st of every month
 
 - 🌍 Update the OSM data
+- 🌱 Reseed the database
 
 ### 📂 Project Structure
 
