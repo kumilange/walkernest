@@ -166,12 +166,12 @@ walkernest/
 │   └── Dockerfile
 ├── develop/
 │   ├── .env
-│   ├── docker-compose-dev.yml
+│   ├── docker-compose.yml
 │   └── run-dev.sh
 ├── deploy/
 │   ├── .env
 │   ├── docker-compose.yml
-│   ├── run-ec2.sh
+│   ├── run-prod.sh
 │   └── ...other scripts
 ├── frontend/
 │   ├── src/
