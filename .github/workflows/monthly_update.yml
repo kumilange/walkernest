@@ -41,3 +41,22 @@ jobs:
           git push origin main
         env:
           GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+
+      - name: Grant execute permissions to the run-pod script
+        run: chmod +x deploy/run-pod.sh
+
+      - name: Run the run-pod script
+        run: |
+          set -a
+          echo "KEY_PAIR_FILE=deploy/walkernest-key-pair.pem" >> .env
+          chmod 600 deploy/walkernest-key-pair.pem
+          echo "USER=${{ secrets.USER }}" >> .env
+          echo "INSTANCE_IP=${{ secrets.INSTANCE_IP }}" >> .env
+          echo "DOMAIN_NAME=${{ secrets.DOMAIN_NAME }}" >> .env
+          echo "DB_USERNAME=${{ secrets.DB_USERNAME }}" >> .env
+          echo "DB_PASSWORD=${{ secrets.DB_PASSWORD }}" >> .env
+          echo "DB_HOST=${{ secrets.DB_HOST }}" >> .env
+          echo "DB_PORT=${{ secrets.DB_PORT }}" >> .env
+          echo "DB_NAME=${{ secrets.DB_NAME }}" >> .env
+          set +a
+          ./deploy/run-pod.sh
