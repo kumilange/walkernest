@@ -113,8 +113,8 @@ VITE_MAPTILER_API_KEY=your_maptiler_api_key
 1. Run the following commands:
 
    ```sh
-   cd dev
-   docker-compose -f docker-compose-dev.yml up --build -d postgis backend
+   cd develop
+   docker-compose up --build -d postgis backend
    ```
 
 2. The backend will be available at http://localhost:3000
@@ -124,7 +124,7 @@ VITE_MAPTILER_API_KEY=your_maptiler_api_key
 1. Run the `run-dev.sh` script:
 
    ```sh
-   cd dev
+   cd develop
    ./run-dev.sh
    ```
 
@@ -138,11 +138,11 @@ VITE_MAPTILER_API_KEY=your_maptiler_api_key
 
 #### 🏢 Set up EC2 and Deploy the Apps with Docker
 
-1. Run the `run-ec2.sh` script:
+1. Run the `run-prod.sh` script:
 
    ```sh
-   cd ec2
-   ./run-ec2.sh
+   cd deploy
+   ./run-prod.sh
    ```
 
 2. The app will be available at `https://walkernest.com/`
@@ -164,11 +164,11 @@ walkernest/
 │   │   ├── routers/
 │   │   └── utils/
 │   └── Dockerfile
-├── dev/
+├── develop/
 │   ├── .env
 │   ├── docker-compose-dev.yml
 │   └── run-dev.sh
-├── ec2/
+├── deploy/
 │   ├── .env
 │   ├── docker-compose.yml
 │   ├── run-ec2.sh

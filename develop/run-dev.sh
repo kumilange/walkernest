@@ -14,7 +14,7 @@ fi
 
 # Variables
 ENV_FILE=".env"
-DOCKER_COMPOSE_FILE="docker-compose-dev.yml"
+DOCKER_COMPOSE_FILE="docker-compose.yml"
 SEED_SCRIPT="../seed/seed.sh"
 
 # Step 1: Run docker compose locally

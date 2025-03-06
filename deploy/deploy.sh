@@ -31,7 +31,7 @@ echo "🛠️ Building the frontend locally..."
 cd ../frontend
 npm install --legacy-peer-deps
 npm run build
-cd ../ec2
+cd ../deploy
 
 # Step 2: Create necessary directories on the EC2 instance
 echo "📁 Creating necessary directories on the EC2 instance..."

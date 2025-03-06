@@ -12,3 +12,4 @@ frontend/dist/
 .env.local
 **/*.pem
 .pytest_cache/
+.qodo
