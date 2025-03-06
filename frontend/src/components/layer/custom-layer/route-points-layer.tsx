@@ -48,7 +48,7 @@ export default function RoutePointsLayer({
 				return (<IconLayer
 					key={id}
 					data={geojson}
-					imageType={`routepoint`}
+					imageType={id}
 					imagePath={icon}
 					imageOffset={[0, 0]}
 					beforeId={beforeId}
