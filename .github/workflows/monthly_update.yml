@@ -2,7 +2,8 @@ name: Monthly Data Update
 
 on:
   schedule:
-    - cron: '0 10 1 * *' # Runs at 3 AM (MST) on the 1st of every month
+    - cron: '7 11 3 * *' # Runs at 11:06 AM (MST) on the 3rd of every month
+    # - cron: '0 10 1 * *' # Runs at 3 AM (MST) on the 1st of every month
   workflow_dispatch: # Allows manual triggering from GitHub Actions UI
 
 jobs:
