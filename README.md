@@ -136,7 +136,7 @@ VITE_MAPTILER_API_KEY=your_maptiler_api_key
 
 ### 🚢 Deployment
 
-#### 🏢 Set up EC2 and Deploy the Apps with Docker
+#### 🏢 Set up AWS EC2 and Deploy the Apps with Docker
 
 1. Run the `run-prod.sh` script:
 
