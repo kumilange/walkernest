@@ -3,15 +3,16 @@
 "name": "lafayette_cafe",
 "crs": { "type": "name", "properties": { "name": "urn:ogc:def:crs:OGC:1.3:CRS84" } },
 "features": [
-{ "type": "Feature", "properties": { "amenity": "cafe", "name": "Starbucks", "id": 400709926, "building": null }, "geometry": { "type": "Point", "coordinates": [ -105.1016642, 40.0016405 ] } },
-{ "type": "Feature", "properties": { "amenity": "cafe", "name": "Hannah's Specialty Foods", "id": 417159611, "building": null }, "geometry": { "type": "Point", "coordinates": [ -105.0902121, 39.9909498 ] } },
-{ "type": "Feature", "properties": { "amenity": "cafe", "name": null, "id": 417616742, "building": null }, "geometry": { "type": "Point", "coordinates": [ -105.0903105, 39.9903167 ] } },
-{ "type": "Feature", "properties": { "amenity": "cafe", "name": "Starbucks", "id": 1157630495, "building": null }, "geometry": { "type": "Point", "coordinates": [ -105.1023978, 40.0157796 ] } },
-{ "type": "Feature", "properties": { "amenity": "cafe", "name": "Espresso Vino by Brewing Market", "id": 2160508888, "building": null }, "geometry": { "type": "Point", "coordinates": [ -105.1320229, 40.0122767 ] } },
-{ "type": "Feature", "properties": { "amenity": "cafe", "name": "Starbucks", "id": 6362730368, "building": null }, "geometry": { "type": "Point", "coordinates": [ -105.1035982, 40.0045035 ] } },
-{ "type": "Feature", "properties": { "amenity": "cafe", "name": "Starbucks", "id": 7578769743, "building": null }, "geometry": { "type": "Point", "coordinates": [ -105.096955, 39.9874123 ] } },
-{ "type": "Feature", "properties": { "amenity": "cafe", "name": "Starbucks", "id": 10174264809, "building": null }, "geometry": { "type": "Point", "coordinates": [ -105.1012204, 40.01693 ] } },
-{ "type": "Feature", "properties": { "amenity": "cafe", "name": "OTIS Craft Collective", "id": 11587798276, "building": null }, "geometry": { "type": "Point", "coordinates": [ -105.0945762, 39.985836 ] } },
-{ "type": "Feature", "properties": { "amenity": "cafe", "name": "East Simpson Coffee Company", "id": 1286943503, "building": "yes" }, "geometry": { "type": "Polygon", "coordinates": [ [ [ -105.0891299, 39.9985369 ], [ -105.0891264, 39.9983674 ], [ -105.0890205, 39.9983687 ], [ -105.0890213, 39.9984057 ], [ -105.088922, 39.9984069 ], [ -105.0889248, 39.9985393 ], [ -105.0891299, 39.9985369 ] ] ] } }
+{ "type": "Feature", "properties": { "amenity": "cafe", "name": "Starbucks", "id": 400709926, "shop": null, "building": null }, "geometry": { "type": "Point", "coordinates": [ -105.1016642, 40.0016405 ] } },
+{ "type": "Feature", "properties": { "amenity": "cafe", "name": null, "id": 417616742, "shop": null, "building": null }, "geometry": { "type": "Point", "coordinates": [ -105.0903105, 39.9903167 ] } },
+{ "type": "Feature", "properties": { "amenity": "cafe", "name": "Starbucks", "id": 1157630495, "shop": null, "building": null }, "geometry": { "type": "Point", "coordinates": [ -105.1023978, 40.0157796 ] } },
+{ "type": "Feature", "properties": { "amenity": "cafe", "name": "Espresso Vino by Brewing Market", "id": 2160508888, "shop": null, "building": null }, "geometry": { "type": "Point", "coordinates": [ -105.1320229, 40.0122767 ] } },
+{ "type": "Feature", "properties": { "amenity": "cafe", "name": "Starbucks", "id": 6362730368, "shop": null, "building": null }, "geometry": { "type": "Point", "coordinates": [ -105.1035982, 40.0045035 ] } },
+{ "type": "Feature", "properties": { "amenity": "cafe", "name": "Starbucks", "id": 7578769743, "shop": null, "building": null }, "geometry": { "type": "Point", "coordinates": [ -105.096955, 39.9874123 ] } },
+{ "type": "Feature", "properties": { "amenity": "cafe", "name": "Starbucks", "id": 10174264809, "shop": null, "building": null }, "geometry": { "type": "Point", "coordinates": [ -105.1012204, 40.01693 ] } },
+{ "type": "Feature", "properties": { "amenity": "cafe", "name": "Tip Top Savory Pies", "id": 10679768175, "shop": "yes", "building": null }, "geometry": { "type": "Point", "coordinates": [ -105.0906188, 39.9986667 ] } },
+{ "type": "Feature", "properties": { "amenity": "cafe", "name": "OTIS Craft Collective", "id": 11587798276, "shop": null, "building": null }, "geometry": { "type": "Point", "coordinates": [ -105.0945762, 39.985836 ] } },
+{ "type": "Feature", "properties": { "amenity": "cafe", "name": "Brew Tea and Coffee Bar", "id": 12639795119, "shop": null, "building": null }, "geometry": { "type": "Point", "coordinates": [ -105.0902136, 39.9911204 ] } },
+{ "type": "Feature", "properties": { "amenity": "cafe", "name": "East Simpson Coffee Company", "id": 1286943503, "shop": null, "building": "yes" }, "geometry": { "type": "Polygon", "coordinates": [ [ [ -105.0891299, 39.9985369 ], [ -105.0891264, 39.9983674 ], [ -105.0890205, 39.9983687 ], [ -105.0890213, 39.9984057 ], [ -105.088922, 39.9984069 ], [ -105.0889248, 39.9985393 ], [ -105.0891299, 39.9985369 ] ] ] } }
 ]
 }
