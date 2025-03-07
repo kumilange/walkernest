@@ -6,8 +6,8 @@ import { convertKeysToSnakeCase, transformQueryParams } from '@/lib/misc';
 const BASE_AMENITY_URL = `${import.meta.env.VITE_API_PROTOCOL}://${import.meta.env.VITE_API_DOMAIN}/amenities`;
 const BASE_ANALYSIS_URL = `${import.meta.env.VITE_API_PROTOCOL}://${import.meta.env.VITE_API_DOMAIN}/analyze`;
 const BASE_FAVORITES_URL = `${import.meta.env.VITE_API_PROTOCOL}://${import.meta.env.VITE_API_DOMAIN}/favorites`;
+const BASE_OSRM_ROUTE_URL = `${import.meta.env.VITE_API_PROTOCOL}://${import.meta.env.VITE_API_DOMAIN}/proxy/osrm`;
 const BASE_OSM_NOMINATIM_URL = `https://nominatim.openstreetmap.org/reverse`;
-const BASE_OSRM_ROUTE_URL = `http://router.project-osrm.org/route/v1`;
 
 export const queryClient = new QueryClient({});
 
@@ -116,7 +116,7 @@ export async function fetchAddressName(lngLat: LngLat) {
 }
 
 export async function fetchRoute(coordinates: string) {
-	const url = `${BASE_OSRM_ROUTE_URL}/driving/${coordinates}?overview=full&geometries=geojson&steps=true`;
+	const url = `${BASE_OSRM_ROUTE_URL}?coordinates=${coordinates}`;
 
 	try {
 		const response = await fetch(url);

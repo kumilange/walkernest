@@ -1,7 +1,7 @@
 import os
 from fastapi import FastAPI, FastAPI
 from fastapi.middleware.cors import CORSMiddleware
-from app.routers import favorites, analyze, amenities, health
+from app.routers import favorites, analyze, amenities, proxy, health
 
 DOMAIN_NAME = os.getenv('DOMAIN_NAME')
 
@@ -25,3 +25,4 @@ app.include_router(health.router)
 app.include_router(amenities.router)
 app.include_router(favorites.router)
 app.include_router(analyze.router)
+app.include_router(proxy.router)
