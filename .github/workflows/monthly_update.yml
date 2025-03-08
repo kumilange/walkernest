@@ -47,7 +47,6 @@ jobs:
 
       - name: Run the seed script
         run: |
-          set -a
           echo "USER=${{ secrets.USER }}" >> .env
           echo "DOMAIN_NAME=${{ secrets.DOMAIN_NAME }}" >> .env
           echo "INSTANCE_IP=${{ secrets.INSTANCE_IP }}" >> .env
@@ -57,5 +56,6 @@ jobs:
           echo "DB_PORT=${{ secrets.DB_PORT }}" >> .env
           echo "DB_NAME=${{ secrets.DB_NAME }}" >> .env
           echo "RUN_SEED=true" >> .env
-          set +a
+          set -a
+          source .env
           ./seed/seed.sh
