@@ -1,0 +1,35 @@
+{
+  "name": "walkernest",
+  "version": "0.0.0",
+  "private": true,
+  "scripts": {
+    "start:frontend": "nx serve frontend",
+    "start:backend": "nx serve backend",
+    "preview": "nx run frontend:preview",
+    "dev": "nx run-many --target=serve --projects=frontend,backend",
+    "test": "nx run-many --target=test --projects=frontend,backend,seed",
+    "test:frontend": "nx run frontend:test",
+    "test:backend": "nx run backend:test",
+    "test:seed": "nx run seed:test",
+    "seed:generate": "nx run seed:generate",
+    "seed": "nx run seed:seed",
+    "docker:dev": "nx run develop:dev",
+    "docker:up": "nx run develop:up",
+    "docker:down": "nx run develop:down",
+    "deploy": "nx run deploy:deploy",
+    "graph": "nx graph"
+  },
+  "devDependencies": {
+    "nx": "^17.0.0",
+    "@nx/workspace": "^17.0.0",
+    "@nx/devkit": "^17.0.0",
+    "typescript": "~5.3.2"
+  },
+  "workspaces": [
+    "frontend",
+    "backend",
+    "seed",
+    "develop",
+    "deploy"
+  ]
+}

@@ -1,12 +1,12 @@
 # 🏠 Walkernest 🚶‍♀️
 
-[Walkernest](https://walkernest.com/) helps you find apartments by prioritizing the `surrounding environment`. Unlike traditional real estate sites, it focuses on amenities like parks, supermarkets, and cafes—ensuring a home that fits your lifestyle in Colorado, USA!
+[Walkernest](https://walkernest.com/) helps you find apartments by prioritizing the **surrounding environment**. Unlike traditional real estate sites, it focuses on amenities like parks, supermarkets, and cafes—ensuring a home that fits your lifestyle in Colorado, USA!
 
 ## ✨ Features
 
 - 🔍 Analyze Apartments
 
-  Find apartments that meet your criteria based on the distance to parks, supermarkets, and cafes, ensuring the surrounding environment matches your lifestyle.
+  Find apartments that meet your criteria based on their distance to parks, supermarkets, and cafes, so your surroundings align with your lifestyle.
 
 - ❤️ Save Favorites
 
@@ -14,15 +14,16 @@
 
 - 🚗 Check Route
 
-  Check the driving route and estimated travel time between two points, such as from an apartment to your workplace or your kids' school, to evaluate convenience.
+  View driving routes and estimated travel times between locations, such as from an apartment to your workplace or your kids' school, to evaluate convenience.
 
 ## 🌐 Dev Technology
 
-- 🎨 Frontend: `React`, `Tailwind CSS`, `Shadcn UI`, `Jotai`, `Vite`
-- ⚙️ Backend: `FastAPI`
-- 🗄️ Database: `PostgreSQL` with `PostGIS`
-- 🐳 Containerization: `Docker`
-- 🔧 Orchestration: `Docker Compose`
+- 🎨 Frontend: React, Tailwind CSS, Shadcn UI, Jotai, Vite
+- ⚙️ Backend: FastAPI
+- 🗄️ Database: PostgreSQL with PostGIS
+- 🐳 Containerization: Docker
+- 🔧 Orchestration: Docker Compose
+- 🧰 Monorepo: Nx
 
 ## 🌎 Map Technology
 
@@ -30,7 +31,7 @@
 
 - [OpenStreetMap](https://osm-queries.ldodds.com/): Provides data on apartments, parks, supermarkets, and cafes via the [Overpass API](https://osm-queries.ldodds.com/)
 - [Nominatim](https://nominatim.org/): Open-source geocoding service for finding addresses worldwide using OpenStreetMap data.
-- [OSRM](https://project-osrm.org/): Open-source geocoding service for finding addresses worldwide using OpenStreetMap data.
+- [OSRM](https://project-osrm.org/): Open-source routing engine for calculating driving, cycling, and walking routes.
 - [CDPHE Open Data](https://data-cdphe.opendata.arcgis.com/datasets/d618cdac50ac4ed7882db562c9b0ccfa_4/explore) – Colorado city boundary dataset.
 
 ### 📊 Geospatial Analysis
@@ -49,6 +50,7 @@
 - 📦 Node.js 20+ & npm
 - 🐍 Python 3.10+ & pip
 - 🐳 Docker & Docker Compose
+- 🧰 Nx CLI
 
 ## 🚀 Getting Started
 
@@ -88,14 +90,18 @@ VITE_MAPTILER_API_KEY=your_maptiler_api_key
 
 ### 💻 Development
 
-#### 🎨 Frontend
+#### 🧰 Install Dependencies
 
-1. Run the following commands:
+```sh
+npm install
+```
+
+#### 🎨 Start Frontend Development Server
+
+1. Run:
 
    ```sh
-   cd frontend
-   npm install
-   npm run dev
+   npm run start:frontend
    ```
 
    _NOTE_: Make sure to create an env file (e.g., `.env.local`, `.env.development`) and set the following variables for development:
@@ -108,24 +114,22 @@ VITE_MAPTILER_API_KEY=your_maptiler_api_key
 
 2. The frontend will be available at http://localhost:5173
 
-#### ⚙️ Backend
+#### ⚙️ Start Backend Development Server
 
-1. Run the following commands:
+1. Run:
 
    ```sh
-   cd develop
-   docker-compose up --build -d postgis backend
+   npm run start:backend
    ```
 
 2. The backend will be available at http://localhost:3000
 
-### 🏗 Build and Run the Apps
+#### 🚀 Start Both Frontend and Backend
 
-1. Run the `run-dev.sh` script:
+1. Run:
 
    ```sh
-   cd develop
-   ./run-dev.sh
+   npm run dev
    ```
 
    _NOTE_: Set the `RUN_SEED` environment variable to `false` to skip seeding the database if you only want to run the apps.
@@ -134,20 +138,56 @@ VITE_MAPTILER_API_KEY=your_maptiler_api_key
    - 🎨 Frontend: http://localhost:5173
    - ⚙️ Backend: http://localhost:3000
 
+#### 🏗 Build and Preview the Frontend App
+
+```sh
+npm run preview
+```
+
+#### 🧪 Running Tests
+
+```sh
+npm run test
+```
+
+#### 🌱 Seeding the Database
+
+```sh
+npm run seed:db
+```
+
+#### 🐳 Docker Development Environment
+
+- Start all Docker services with optional database seeding:
+
+  ```sh
+  npm run docker:dev
+  ```
+
+- Start all Docker services:
+
+  ```sh
+  npm run docker:up
+  ```
+
+- Stop all Docker services:
+  ```sh
+  npm run docker:down
+  ```
+
 ### 🚢 Deployment
 
-#### 🏢 Set up AWS EC2 and Deploy the Apps with Docker
+#### 🏢 Deploy to AWS EC2
 
-1. Run the `run-prod.sh` script:
+1. Run:
 
    ```sh
-   cd deploy
-   ./run-prod.sh
+   npm run deploy
    ```
 
 2. The app will be available at `https://walkernest.com/`
 
-### 🛠 Maintainance
+### 🛠 Maintenance
 
 #### 🗓️ Cron job executed in GitHub Actions on the 1st of every month
 
@@ -158,39 +198,61 @@ VITE_MAPTILER_API_KEY=your_maptiler_api_key
 
 ```
 walkernest/
-├── backend/
+├── backend/              # Backend service (FastAPI)
 │   ├── app/
 │   │   ├── main.py
-│   │   ├── ...other files
 │   │   ├── routers/
 │   │   └── utils/
+│   ├── project.json
 │   └── Dockerfile
-├── develop/
+├── develop/              # Development environment setup
 │   ├── .env
 │   ├── docker-compose.yml
+│   ├── project.json
 │   └── run-dev.sh
-├── deploy/
+├── deploy/               # Production deployment scripts
 │   ├── .env
 │   ├── docker-compose.yml
+│   ├── project.json
 │   ├── run-prod.sh
 │   └── ...other scripts
-├── frontend/
+├── frontend/             # Frontend service (React/Vite)
 │   ├── src/
 │   ├── .env.local
 │   ├── .env.production
+│   ├── project.json
 │   ├── index.html
 │   ├── package.json
 │   ├── Dockerfile
 │   ├── Dockerfile.dev
 │   └── ...other config files
-├── seed/
+├── seed/                 # Database seeding scripts
 │   ├── cdphe_open_data/
 │   ├── data/
-│   ├── utils/
+│   ├── project.json
 │   ├── generate_seed_data.py
 │   └── seed.sh
-├── shared/
-│   └──citydict.json
+├── shared/               # Shared resources
+│   └── citydict.json
+├── nx.json               # Nx workspace configuration
+├── package.json          # Root package.json with Nx scripts
 ├── .gitignore
-└── README.md
+├── README.md
+└── ...other config files
+```
+
+## 🧰 Nx Command Reference
+
+### 🏃‍♂️ Run a Specific Project
+
+```sh
+npx nx <target> <project>
+# Example: npx nx serve frontend
+```
+
+### 🔄 Run Multiple Projects
+
+```sh
+npx nx run-many --target=<target> --projects=<project1>,<project2>
+# Example: npx nx run-many --target=test --projects=frontend,backend
 ```

@@ -1,0 +1,16 @@
+{
+  "name": "deploy",
+  "$schema": "../node_modules/nx/schemas/project-schema.json",
+  "projectType": "application",
+  "sourceRoot": "deploy",
+  "targets": {
+    "deploy": {
+      "executor": "nx:run-commands",
+      "options": {
+        "cwd": "deploy",
+        "command": "./run-prod.sh"
+      }
+    }
+  },
+  "tags": ["infrastructure"]
+}
