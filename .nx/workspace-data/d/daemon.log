@@ -1,0 +1,12 @@
+[NX v20.5.0 Daemon Server] - 2025-03-10T16:40:39.540Z - Started listening on: /var/folders/nw/5j01njw92216_swkjf00st940000gn/T/58618888260b90cc50c0/d.sock
+[NX v20.5.0 Daemon Server] - 2025-03-10T16:40:39.545Z - [WATCHER]: Subscribed to changes within: /Users/kumiko/Developer/src/walkernest (native)
+[NX v20.5.0 Daemon Server] - 2025-03-10T16:40:39.549Z - Established a connection. Number of open connections: 1
+[NX v20.5.0 Daemon Server] - 2025-03-10T16:40:39.550Z - Established a connection. Number of open connections: 2
+[NX v20.5.0 Daemon Server] - 2025-03-10T16:40:39.553Z - Closed a connection. Number of open connections: 1
+[NX v20.5.0 Daemon Server] - 2025-03-10T16:40:39.555Z - [REQUEST]: Responding to the client. Shutdown initiated
+[NX v20.5.0 Daemon Server] - 2025-03-10T16:40:39.555Z - Done responding to the client Shutdown initiated
+[NX v20.5.0 Daemon Server] - 2025-03-10T16:40:39.556Z - Handled FORCE_SHUTDOWN. Handling time: 0. Response time: 1.
+[NX v20.5.0 Daemon Server] - 2025-03-10T16:40:39.558Z - Closed a connection. Number of open connections: 0
+[NX v20.5.0 Daemon Server] - 2025-03-10T16:40:39.559Z - [WATCHER]: Stopping the watcher for /Users/kumiko/Developer/src/walkernest (sources)
+[NX v20.5.0 Daemon Server] - 2025-03-10T16:40:39.559Z - [WATCHER]: Stopping the watcher for /Users/kumiko/Developer/src/walkernest (outputs)
+[NX v20.5.0 Daemon Server] - 2025-03-10T16:40:39.560Z - Server stopped because: "Request to shutdown"
