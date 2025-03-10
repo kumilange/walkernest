@@ -8,6 +8,7 @@ DOMAIN_NAME = os.getenv('DOMAIN_NAME')
 origins = [
 	"http://localhost", # local prod frontend URL
 	"http://localhost:5173", # local dev frontend URL
+	"http://localhost:4173", # local build frontend URL
 	"http://localhost:3000", # local backend URL
     f"http://{DOMAIN_NAME}", # public domain name
 	f"https://{DOMAIN_NAME}", # public domain name
