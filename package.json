@@ -13,9 +13,9 @@
     "test:seed": "nx run seed:test",
     "seed:generate": "nx run seed:generate",
     "seed": "nx run seed:seed",
-    "docker:dev": "nx run dev:dev",
-    "docker:up": "nx run dev:up",
-    "docker:down": "nx run dev:down",
+    "docker:dev": "nx run develop:dev",
+    "docker:up": "nx run develop:up",
+    "docker:down": "nx run develop:down",
     "deploy": "nx run deploy:deploy",
     "graph": "nx graph"
   },
@@ -29,7 +29,7 @@
     "frontend",
     "backend",
     "seed",
-    "deploy",
-    "develop"
+    "develop",
+    "deploy"
   ]
 }
