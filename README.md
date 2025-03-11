@@ -201,6 +201,7 @@ walkernest/
 ├── backend/              # Backend service (FastAPI)
 │   ├── app/
 │   │   ├── main.py
+│   │   ├── tests/
 │   │   ├── routers/
 │   │   └── utils/
 │   ├── project.json
@@ -218,6 +219,7 @@ walkernest/
 │   └── ...other scripts
 ├── frontend/             # Frontend service (React/Vite)
 │   ├── src/
+│   │   └── tests/
 │   ├── .env.local
 │   ├── .env.production
 │   ├── project.json
@@ -229,6 +231,7 @@ walkernest/
 ├── seed/                 # Database seeding scripts
 │   ├── cdphe_open_data/
 │   ├── data/
+│   ├── tests/
 │   ├── project.json
 │   ├── generate_seed_data.py
 │   └── seed.sh
