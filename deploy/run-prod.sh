@@ -5,15 +5,15 @@ set -euo pipefail
 trap 'echo "❌ Script failed at line $LINENO with exit code $?"' ERR
 
 # Load environment variables from .env file
-if [ -f .env ]; then
-  export $(cat .env | grep -v '#' | awk '/=/ {print $1}')
+if [ -f ../.env ]; then
+  export $(cat ../.env | grep -v '#' | awk '/=/ {print $1}')
 else
-  echo ".env file not found!"
+  echo "../.env file not found!"
   exit 1
 fi
 
 # Variables
-ENV_FILE=".env"
+ENV_FILE="../.env"
 REMOTE_DIR="/home/$USER/walkernest"
 DEPLOY_SCRIPT="deploy.sh"
 DOCKER_SETUP_SCRIPT="docker-setup.sh"

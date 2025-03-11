@@ -8,14 +8,14 @@
       "executor": "nx:run-commands",
       "options": {
         "cwd": "backend",
-        "command": "docker-compose -f ../develop/docker-compose.yml --env-file ../develop/.env down && docker-compose -f ../develop/docker-compose.yml --env-file ../develop/.env up -d postgis backend"
+        "command": "docker-compose -f ../develop/docker-compose.yml --env-file ../.env down && docker-compose -f ../develop/docker-compose.yml --env-file ../.env up -d postgis backend"
       }
     },
     "test": {
       "executor": "nx:run-commands",
       "options": {
         "cwd": "backend",
-        "command": "pytest app/tests"
+        "command": "cd .. && pytest backend/app/tests"
       }
     },
     "docker": {

@@ -15,7 +15,7 @@ services:
       postgis:
         condition: service_healthy
     env_file:
-      - .env
+      - ../.env.development
     environment:
       - DB_USERNAME=${DB_USERNAME}
       - DB_PASSWORD=${DB_PASSWORD}
@@ -37,7 +37,7 @@ services:
     depends_on:
       - backend
     env_file:
-      - .env
+      - ../.env.development
     environment:
       - VITE_API_DOMAIN=${VITE_API_DOMAIN}
       - VITE_API_PROTOCOL=${VITE_API_PROTOCOL}
@@ -48,7 +48,7 @@ services:
     container_name: postgis-db
     image: kartoza/postgis:16-3.4
     env_file:
-      - .env
+      - ../.env.development
     environment:
       - POSTGRES_USER=${DB_USERNAME}
       - POSTGRES_PASSWORD=${DB_PASSWORD}

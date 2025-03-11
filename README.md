@@ -220,8 +220,8 @@ walkernest/
 ├── frontend/             # Frontend service (React/Vite)
 │   ├── src/
 │   │   └── tests/
-│   ├── .env.local
-│   ├── .env.production
+│   ├── .env.local        # Env file for dev server
+│   ├── .env.production   # Env file for local build
 │   ├── project.json
 │   ├── index.html
 │   ├── package.json
@@ -241,6 +241,8 @@ walkernest/
 ├── package.json          # Root package.json with Nx scripts
 ├── .gitignore
 ├── README.md
+├── .env
+├── .env.development
 └── ...other config files
 ```
 

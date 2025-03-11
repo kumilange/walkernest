@@ -23,8 +23,8 @@ services:
   backend:
     container_name: fastapi-backend
     build:
-      context: ./backend
-      dockerfile: Dockerfile
+      context: .
+      dockerfile: backend/Dockerfile
     platform: linux/amd64
     ports:
       - '3000:3000'
