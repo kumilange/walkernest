@@ -63,7 +63,7 @@ cd walkernest
 
 ### 🔧 Environment Variables
 
-Create a `.env` file in the `dev`,`ec2` and `frontend` (if you're developing locally without Docker) directories, and add the following environment variables:
+Create `.env.development` and `.env` files in the root directory and `frontend` (if you're developing locally without Docker) directories, and add the following environment variables:
 
 ```sh
 # General settings
