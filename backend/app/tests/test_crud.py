@@ -5,6 +5,8 @@ from app.crud import fetch_amenities, fetch_apartment_geom_and_centroid, fetch_f
 # =============================================================================
 # Tests for fetch_favorites function
 # =============================================================================
+
+# Success Cases
 def test_fetch_favorites_returns_correct_amenities(mocker):
     """Test that function correctly fetches amenities when given valid IDs."""
     # Arrange
@@ -28,6 +30,7 @@ def test_fetch_favorites_returns_correct_amenities(mocker):
     assert result[0]["properties"]["name"] == "Park"
     assert result[1]["properties"]["name"] == "Restaurant"
 
+# Edge Cases
 def test_fetch_favorites_with_empty_ids_list(mocker):
     """Test that function returns an empty list when given an empty list of IDs."""
     # Arrange
@@ -46,6 +49,7 @@ def test_fetch_favorites_with_empty_ids_list(mocker):
     # Verify the result is an empty list
     assert result == []
 
+# Error Cases
 def test_fetch_favorites_raises_exception_for_invalid_ids(mocker):
     """Test that function raises HTTPException for invalid IDs."""
     # Arrange
@@ -64,6 +68,8 @@ def test_fetch_favorites_raises_exception_for_invalid_ids(mocker):
 # =============================================================================
 # Tests for fetch_amenities function
 # =============================================================================
+
+# Success Cases
 def test_fetch_amenities_with_centroid(mocker):
     """Test that function returns amenities with centroids."""
     # Arrange
@@ -125,6 +131,7 @@ def test_fetch_amenities_with_special_characters_in_name(mocker):
     assert mock_cursor.execute.call_args[0][1] == (city_id, name)
     assert result == mock_cursor.fetchall.return_value
 
+# Error Cases
 def test_fetch_amenities_raises_exception_for_invalid_city_id(mocker):
     """Test that function raises HTTPException for invalid city_id."""
     # Arrange
@@ -145,6 +152,8 @@ def test_fetch_amenities_raises_exception_for_invalid_city_id(mocker):
 # =============================================================================
 # Tests for fetch_network_graph function
 # =============================================================================
+
+# Success Cases
 def test_fetch_network_graph_returns_data_for_valid_city_id(mocker):
     """Test that function returns data for a valid city_id."""
     # Arrange
@@ -164,6 +173,7 @@ def test_fetch_network_graph_returns_data_for_valid_city_id(mocker):
     assert mock_cur.execute.call_args[0][1] == (city_id,)
     assert result == {"nodes": [], "edges": []}
 
+# Error Cases
 def test_fetch_network_graph_raises_exception_for_invalid_city_id(mocker):
     """Test that function raises HTTPException for invalid city_id."""
     # Arrange
@@ -182,6 +192,8 @@ def test_fetch_network_graph_raises_exception_for_invalid_city_id(mocker):
 # =============================================================================
 # Tests for fetch_network_nodes function
 # =============================================================================
+
+# Success Cases
 def test_fetch_network_nodes_returns_correct_nodes(mocker):
     """Test that function returns correct nodes for given amenities."""
     # Arrange
@@ -208,6 +220,7 @@ def test_fetch_network_nodes_returns_correct_nodes(mocker):
         assert amenity in actual_params
     assert result == mock_cursor.fetchall.return_value
 
+# Edge Cases
 def test_fetch_network_nodes_handles_empty_amenities_list(mocker):
     """Test that function handles empty list of amenities and returns default apartment data."""
     # Arrange
@@ -230,6 +243,7 @@ def test_fetch_network_nodes_handles_empty_amenities_list(mocker):
     assert mock_cursor.execute.call_args[0][1] == (city_id, "apartment")
     assert result == mock_cursor.fetchall.return_value
 
+# Error Cases
 def test_fetch_network_nodes_raises_exception_for_invalid_city_id(mocker):
     """Test that function raises HTTPException for invalid city_id."""
     # Arrange
@@ -249,16 +263,18 @@ def test_fetch_network_nodes_raises_exception_for_invalid_city_id(mocker):
 # =============================================================================
 # Tests for fetch_apartment_geom_and_centroid function
 # =============================================================================
+
+# Success Cases
 def test_fetch_apartment_geom_and_centroid_returns_correct_data(mocker):
     """Test that function returns correct data for given city_id."""
     # Arrange
     mock_cursor = mocker.MagicMock()
     mock_cursor.fetchall.return_value = [
-			{
-				"geom": '{"type":"Polygon","coordinates":[[[1,1],[1,2],[2,2],[2,1],[1,1]]]}',
-				"centroid": '{"type":"Point","coordinates":[1.5,1.5]}',
-				"properties": {"id": 1, "name": "apartment"}
-			}
+        {
+            "geom": '{"type":"Polygon","coordinates":[[[1,1],[1,2],[2,2],[2,1],[1,1]]]}',
+            "centroid": '{"type":"Point","coordinates":[1.5,1.5]}',
+            "properties": {"id": 1, "name": "apartment"}
+        }
     ]
     city_id = 1
 
@@ -275,6 +291,7 @@ def test_fetch_apartment_geom_and_centroid_returns_correct_data(mocker):
     assert mock_cursor.execute.call_args[0][1] == (city_id,)
     assert result == mock_cursor.fetchall.return_value
 
+# Edge Cases
 def test_fetch_apartment_geom_and_centroid_handles_nonexistent_city_id(mocker):
     """Test that function returns empty list for nonexistent city_id."""
     # Arrange
@@ -295,6 +312,7 @@ def test_fetch_apartment_geom_and_centroid_handles_nonexistent_city_id(mocker):
     assert mock_cursor.execute.call_args[0][1] == (city_id,)
     assert result == []  # Function should return empty list
 
+# Error Cases
 def test_fetch_apartment_geom_and_centroid_raises_exception_for_invalid_city_id(mocker):
     """Test that function raises HTTPException for invalid city_id."""
     # Arrange

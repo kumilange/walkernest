@@ -11,20 +11,24 @@ def find_suitable_apartment_network_nodes(G, apartment_nnodes, **amenity_kwargs)
     if not amenity_kwargs: 
         return apartment_nnodes
 
-    # Calculate nodes within max distance of each amenity type, returning dicts mapping node IDs to shortest path distances
-    matched_nodes = [
-        nx.multi_source_dijkstra_path_length(G, nodes, cutoff=max_distance, weight="length")
-        for nodes, max_distance in amenity_kwargs.values()
-        if nodes and max_distance
-    ]
+    try:
+        # Calculate nodes within max distance of each amenity type, returning dicts mapping node IDs to shortest path distances
+        matched_nodes = [
+            nx.multi_source_dijkstra_path_length(G, nodes, cutoff=max_distance, weight="length")
+            for nodes, max_distance in amenity_kwargs.values()
+            if nodes and max_distance
+        ]
 
-    # Keep only apartment nodes that are within range of every amenity type by checking presence in all distance dicts
-    suitable_apartment_nnodes = [
-        node for node in apartment_nnodes
-        if all(node in nodes for nodes in matched_nodes)
-    ]
+        # Keep only apartment nodes that are within range of every amenity type by checking presence in all distance dicts
+        suitable_apartment_nnodes = [
+            node for node in apartment_nnodes
+            if all(node in nodes for nodes in matched_nodes)
+        ]
 
-    return suitable_apartment_nnodes
+        return suitable_apartment_nnodes
+
+    except Exception as e:
+        raise ValueError(f"Error finding suitable apartment network nodes: {e}")
 
 def retrieve_suitable_apartments(apartment_gdf, G, suitable_apartment_nnodes):
     """Retrieve suitable apartments based on proximity to specified network nodes."""
