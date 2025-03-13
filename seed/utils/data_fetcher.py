@@ -50,4 +50,5 @@ def fetch_and_normalize_data(query):
     """Fetch data from the Overpass API and normalize it into a GeoDataFrame."""
     data = fetch_data_from_overpass(query)
     gdf = create_gdf(data)
+    
     return gdf
