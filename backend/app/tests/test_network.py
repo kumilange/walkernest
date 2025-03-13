@@ -14,7 +14,7 @@ from app.utils.network import (
 
 def test_deserialize_graph_valid_json():
     """Test that function correctly deserializes a valid graph JSON into a MultiDiGraph."""
-    # Create a sample graph JSON with nodes and edges
+    # Arrange
     graph_json = {
         "directed": True,
         "multigraph": True,
@@ -44,7 +44,7 @@ def test_deserialize_graph_valid_json():
 
 def test_deserialize_graph_empty_json():
     """Test that function correctly handles an empty graph JSON."""
-    # Create an empty graph JSON with no nodes or edges
+    # Arrange
     empty_graph_json = {
         "directed": True,
         "multigraph": True,
@@ -70,27 +70,21 @@ def test_find_suitable_nodes_satisfies_all_constraints(mocker):
     # Arrange
     G = nx.Graph()
     apartment_nnodes = [1, 2, 3, 4]
-
-    # Mock the multi_source_dijkstra_path_length function
     mock_dijkstra = mocker.patch.object(nx, 'multi_source_dijkstra_path_length')
-
-    # Set up mock return values for two amenity types
     mock_dijkstra.side_effect = [
-        {1: 100, 2: 200, 3: 300},  # Nodes 1, 2, 3 are within range of first amenity
-        {1: 150, 2: 250, 4: 350}   # Nodes 1, 2, 4 are within range of second amenity
+        {1: 100, 2: 200, 3: 300},
+        {1: 150, 2: 250, 4: 350}
     ]
-
-    # Define amenity constraints
     amenity_kwargs = {
-        'supermarket': ([10, 11], 500),  # Supermarket nodes and max distance
-        'park': ([20, 21], 600)          # Park nodes and max distance
+        'supermarket': ([10, 11], 500),
+        'park': ([20, 21], 600)
     }
 
     # Act
     result = find_suitable_apartment_network_nodes(G, apartment_nnodes, **amenity_kwargs)
 
     # Assert
-    assert result == [1, 2]  # Only nodes 1 and 2 satisfy both constraints
+    assert result == [1, 2]
     assert mock_dijkstra.call_count == 2
 
 def test_find_suitable_nodes_empty_apartment_nodes(mocker):
@@ -98,11 +92,7 @@ def test_find_suitable_nodes_empty_apartment_nodes(mocker):
     # Arrange
     G = nx.Graph()
     apartment_nnodes = []
-
-    # Mock the multi_source_dijkstra_path_length function
     mock_dijkstra = mocker.patch.object(nx, 'multi_source_dijkstra_path_length')
-
-    # Define amenity constraints
     amenity_kwargs = {
         'supermarket': ([10, 11], 500),
         'park': ([20, 21], 600)
@@ -120,29 +110,23 @@ def test_find_suitable_nodes_multiple_amenity_types(mocker):
     # Arrange
     G = nx.Graph()
     apartment_nnodes = [1, 2, 3, 4, 5]
-
-    # Mock the multi_source_dijkstra_path_length function
     mock_dijkstra = mocker.patch.object(nx, 'multi_source_dijkstra_path_length')
-
-    # Set up mock return values for three amenity types
     mock_dijkstra.side_effect = [
-        {1: 100, 2: 200, 3: 300},  # Nodes 1, 2, 3 are within range of first amenity
-        {1: 150, 2: 250, 4: 350},  # Nodes 1, 2, 4 are within range of second amenity
-        {1: 180, 5: 280}           # Nodes 1, 5 are within range of third amenity
+        {1: 100, 2: 200, 3: 300},
+        {1: 150, 2: 250, 4: 350},
+        {1: 180, 5: 280}
     ]
-
-    # Define amenity constraints
     amenity_kwargs = {
-        'supermarket': ([10, 11], 500),  # Supermarket nodes and max distance
-        'park': ([20, 21], 600),         # Park nodes and max distance
-        'school': ([30, 31], 400)        # School nodes and max distance
+        'supermarket': ([10, 11], 500),
+        'park': ([20, 21], 600),
+        'school': ([30, 31], 400)
     }
 
     # Act
     result = find_suitable_apartment_network_nodes(G, apartment_nnodes, **amenity_kwargs)
 
     # Assert
-    assert result == [1]  # Only node 1 satisfies all constraints
+    assert result == [1]
     assert mock_dijkstra.call_count == 3
 
 def test_find_suitable_nodes_no_constraints():
@@ -170,15 +154,9 @@ def test_retrieve_suitable_apartments_with_matching_nodes(mocker):
         'centroid': points
     }
     apartment_gdf = gpd.GeoDataFrame(data=data, geometry=points)
-
-    # Mock G network graph
     G = mocker.MagicMock()
-
-    # Mock the nearest_nodes function to return predictable values
     nearest_nodes_mock = mocker.patch('osmnx.distance.nearest_nodes')
     nearest_nodes_mock.return_value = np.array([100, 200, 300])
-
-    # Define suitable nodes - only include nodes for apartments 1 and 3
     suitable_apartment_nnodes = [100, 300]
 
     # Act
@@ -198,15 +176,9 @@ def test_retrieve_suitable_apartments_no_matching_nodes(mocker):
         'centroid': points
     }
     apartment_gdf = gpd.GeoDataFrame(data=data, geometry=points)
-
-    # Mock G network graph
     G = mocker.MagicMock()
-
-    # Mock the nearest_nodes function to return predictable values
     nearest_nodes_mock = mocker.patch('osmnx.distance.nearest_nodes')
     nearest_nodes_mock.return_value = np.array([400, 500, 600])
-
-    # Define suitable nodes - none of the nearest nodes are suitable
     suitable_apartment_nnodes = [700, 800, 900]
 
     # Act
@@ -225,15 +197,9 @@ def test_retrieve_suitable_apartments_empty_suitable_nodes(mocker):
         'centroid': points
     }
     apartment_gdf = gpd.GeoDataFrame(data=data, geometry=points)
-
-    # Mock G network graph
     G = mocker.MagicMock()
-
-    # Mock the nearest_nodes function to return predictable values
     nearest_nodes_mock = mocker.patch('osmnx.distance.nearest_nodes')
     nearest_nodes_mock.return_value = np.array([100, 200, 300])
-
-    # Define empty suitable nodes list
     suitable_apartment_nnodes = []
 
     # Act
@@ -241,4 +207,4 @@ def test_retrieve_suitable_apartments_empty_suitable_nodes(mocker):
 
     # Assert
     assert result.empty
-    nearest_nodes_mock.assert_called_once()
+    nearest_nodes_mock.assert_called_once() 
