@@ -10,28 +10,34 @@ import { Route } from '@/types';
 export default function useCheckRoutes() {
 	const [animatedRoute, setAnimatedRoute] = useState<GeoJSON.LineString | null>(null);
 	const { map, fitBounds } = useCityMap();
-	const { route, setRoute, startingPoint, setStartingPoint, endingPoint, setEndingPoint, isStartingPointSelecting, setIsStartingPointSelecting, isEndingPointSelecting, setIsEndingPointSelecting } = useAtomRoute();
+	const {
+		route,
+		setRoute,
+		startingPoint,
+		setStartingPoint,
+		endingPoint,
+		setEndingPoint,
+		isStartingPointSelecting,
+		setIsStartingPointSelecting,
+		isEndingPointSelecting,
+		setIsEndingPointSelecting
+	} = useAtomRoute();
+
 	const isSelectingPoint = isStartingPointSelecting || isEndingPointSelecting;
 	const isBothSelected = !!(startingPoint?.lngLat && endingPoint?.lngLat);
 
+	// Function to handle fetching the address name based on coordinates
 	const handleAddressName = async (lngLat: LngLat) => {
 		try {
 			const response = await fetchAddressName(lngLat);
-			const displayName = response;
-			const name = displayName || "N/A";
+			const displayName = response || "N/A";
 
 			if (isStartingPointSelecting) {
-				setStartingPoint({
-					lngLat,
-					name,
-				});
-				setIsStartingPointSelecting(false)
+				setStartingPoint({ lngLat, name: displayName });
+				setIsStartingPointSelecting(false);
 			} else if (isEndingPointSelecting) {
-				setEndingPoint({
-					lngLat,
-					name,
-				});
-				setIsEndingPointSelecting(false)
+				setEndingPoint({ lngLat, name: displayName });
+				setIsEndingPointSelecting(false);
 			}
 		} catch (error) {
 			toast({
@@ -42,9 +48,10 @@ export default function useCheckRoutes() {
 			});
 		}
 
-		setCursorStyle({ isSelecting: false })
-	}
+		setCursorStyle({ isSelecting: false });
+	};
 
+	// Function to fit the map bounds to the route
 	const handleFitBoundsForRoute = useCallback((data: Route) => {
 		if (!map) return;
 
@@ -54,20 +61,16 @@ export default function useCheckRoutes() {
 			[boundingBox[2], boundingBox[3]],
 		];
 
-		// if route geometry is outside of the screen, run fitBounds
+		// Fit bounds if route geometry is outside of the screen
 		if (!map.getBounds().contains(lngLatBounds[0]) || !map.getBounds().contains(lngLatBounds[1])) {
 			fitBounds({
 				bounds: lngLatBounds,
-				padding: {
-					top: 100,
-					right: 100,
-					bottom: 100,
-					left: 100,
-				}
+				padding: { top: 100, right: 100, bottom: 100, left: 100 }
 			});
 		}
-	}, [map, fitBounds])
+	}, [map, fitBounds]);
 
+	// Function to clear all route-related states
 	const clearAllRouteStates = useCallback(() => {
 		setRoute(null);
 		setAnimatedRoute(null);
@@ -75,15 +78,16 @@ export default function useCheckRoutes() {
 		setEndingPoint(null);
 		setIsStartingPointSelecting(false);
 		setIsEndingPointSelecting(false);
-		setCursorStyle({ isSelecting: false })
-	}, [])
+		setCursorStyle({ isSelecting: false });
+	}, []);
 
+	// Function to reverse the starting and ending points
 	const reversePoints = useCallback(() => {
-		const swap = startingPoint;
 		setStartingPoint(endingPoint);
-		setEndingPoint(swap);
-	}, [startingPoint, endingPoint])
+		setEndingPoint(startingPoint);
+	}, [startingPoint, endingPoint]);
 
+	// Function to animate the route
 	const animateRoute = (geometry: GeoJSON.LineString, duration: number) => {
 		const coordinates = geometry.coordinates;
 		const totalCoordinates = coordinates.length;
@@ -131,5 +135,5 @@ export default function useCheckRoutes() {
 		reversePoints,
 		handleAddressName,
 		handleFitBoundsForRoute,
-	}
+	};
 }

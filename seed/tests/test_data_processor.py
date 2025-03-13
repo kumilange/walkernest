@@ -55,7 +55,6 @@ def test_load_data_success():
 
 def test_load_data_file_not_found():
     """Test error handling when files are not found."""
-    # Arrange
     # Act
     with patch('pandas.read_csv', side_effect=FileNotFoundError('File not found')):
         csv_result, geojson_result = load_data('nonexistent.csv', 'nonexistent.geojson')
