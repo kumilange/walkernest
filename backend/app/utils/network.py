@@ -28,7 +28,7 @@ def find_suitable_apartment_network_nodes(G, apartment_nnodes, **amenity_kwargs)
         return suitable_apartment_nnodes
 
     except Exception as e:
-        raise ValueError(f"Error finding suitable apartment network nodes: {e}")
+        raise ValueError(f"Error finding suitable apartment network nodes: {e}") from e
 
 def retrieve_suitable_apartments(apartment_gdf, G, suitable_apartment_nnodes):
     """Retrieve suitable apartments based on proximity to specified network nodes."""

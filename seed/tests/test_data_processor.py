@@ -177,27 +177,7 @@ def test_generate_geojson_and_network_nodes():
     assert geometry_mock.add_boundary.call_count >= 1
     assert geometry_mock.add_centroid.call_count >= 3  # Should be called for apartment, supermarket, and cafe
     
-    # Get the kwargs from all calls to convert_gdf_to_network_nodes
-    call_kwargs = []
-    for call in network_mock.convert_gdf_to_network_nodes.call_args_list:
-        if len(call) >= 2:  # Make sure kwargs exist
-            call_kwargs.append(call[1])  # The kwargs are in the second element of the call tuple
-    
-    # Convert the keyword args to simple dictionary for easier checking
-    use_centroid_values = []
-    for kwargs in call_kwargs:
-        if 'use_centroid' in kwargs:
-            use_centroid_values.append(kwargs['use_centroid'])
-    
-    # If we didn't get any kwargs with use_centroid, try checking the positional args
-    if not use_centroid_values:
-        # The function signature might be using positional args rather than kwargs
-        call_args = [call[0] for call in network_mock.convert_gdf_to_network_nodes.call_args_list]
-        if len(call_args) >= 1 and len(call_args[0]) >= 3:
-            # Assuming use_centroid is the third positional arg
-            use_centroid_values = [args[2] for args in call_args if len(args) >= 3]
-    
-    # Check that we have at least some use_centroid values to validate
+    # Verify the number of calls to convert_gdf_to_network_nodes
     assert len(network_mock.convert_gdf_to_network_nodes.call_args_list) >= 4  # Should be called once per amenity
 
 # =============================================================================

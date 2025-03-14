@@ -185,7 +185,7 @@ def test_find_suitable_apartment_network_nodes_networkx_error(mocker):
     # Arrange
     G = nx.MultiGraph()
     apartment_nnodes = [1, 2, 3]
-    mock_dijkstra = mocker.patch.object(nx, 'multi_source_dijkstra_path_length', 
+    mocker.patch.object(nx, 'multi_source_dijkstra_path_length', 
                                         side_effect=nx.NetworkXNoPath("No path between nodes"))
     amenity_kwargs = {
         'cafe': ([2], 500)
@@ -284,7 +284,7 @@ def test_retrieve_suitable_apartments_error_handling(mocker):
         'centroid': points
     }
     apartment_gdf = gpd.GeoDataFrame(data=data, geometry=points)
-    nearest_nodes_mock = mocker.patch('osmnx.distance.nearest_nodes', 
+    mocker.patch('osmnx.distance.nearest_nodes', 
                                      side_effect=Exception("Network error"))
     
     # Act & Assert

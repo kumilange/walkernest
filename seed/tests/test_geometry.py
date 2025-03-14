@@ -1,9 +1,6 @@
 import pytest
-import json
-import numpy as np
 import geopandas as gpd
-from shapely.geometry import Point, LineString, Polygon, MultiPolygon, MultiLineString, shape
-import pandas as pd
+from shapely.geometry import Point, LineString, Polygon, MultiPolygon, MultiLineString
 
 from seed.utils.geometry import (
     get_geometry_by_objectid,

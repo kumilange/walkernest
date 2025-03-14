@@ -15,7 +15,7 @@ def fetch_favorites(cur, ids):
         
         return cur.fetchall()
     except Exception as e:
-        raise HTTPException(status_code=500, detail=f"Failed to fetch favorite amenities: {str(e)}")
+        raise HTTPException(status_code=500, detail=f"Failed to fetch favorite amenities: {str(e)}") from e
 
 def fetch_amenities(cur, city_id, name, is_centroid):
     """Fetch amenities by city ID and name, optionally fetching centroids."""
@@ -36,7 +36,7 @@ def fetch_amenities(cur, city_id, name, is_centroid):
             """, (city_id, name))
         return cur.fetchall()
     except Exception as e:
-        raise HTTPException(status_code=500, detail=f"Failed to fetch amenities: {str(e)}")
+        raise HTTPException(status_code=500, detail=f"Failed to fetch amenities: {str(e)}") from e
 
 def fetch_network_graph(cur, city_id):
     """Fetch the network graph for a given city ID."""
@@ -52,7 +52,7 @@ def fetch_network_graph(cur, city_id):
         else:
             raise HTTPException(status_code=404, detail="Network graph not found")
     except Exception as e:
-        raise HTTPException(status_code=500, detail=f"Failed to fetch network graph: {str(e)}")
+        raise HTTPException(status_code=500, detail=f"Failed to fetch network graph: {str(e)}") from e
 
 def fetch_network_nodes(cur, city_id, amenities):
     """Fetch network nodes for given amenities in a city."""
@@ -70,7 +70,7 @@ def fetch_network_nodes(cur, city_id, amenities):
         cur.execute(query, (city_id, *amenities))
         return cur.fetchall()
     except Exception as e:
-        raise HTTPException(status_code=500, detail=f"Failed to fetch network nodes: {str(e)}")
+        raise HTTPException(status_code=500, detail=f"Failed to fetch network nodes: {str(e)}") from e
 
 def fetch_apartment_geom_and_centroid(cur, city_id):
     """Fetch geometry and centroid for apartments in a city."""
@@ -82,4 +82,4 @@ def fetch_apartment_geom_and_centroid(cur, city_id):
         """, (city_id,))
         return cur.fetchall()
     except Exception as e:
-        raise HTTPException(status_code=500, detail=f"Failed to fetch apartment geometry and centroid: {str(e)}")
+        raise HTTPException(status_code=500, detail=f"Failed to fetch apartment geometry and centroid: {str(e)}") from e
