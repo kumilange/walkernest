@@ -54,6 +54,17 @@ def test_get_geometry_by_objectid_invalid():
     # Assert
     assert result is None
 
+def test_get_geometry_by_objectid_empty_features():
+    """Test retrieving geometry when features list is empty."""
+    # Arrange
+    mock_geojson = {'features': []}
+    
+    # Act
+    result = get_geometry_by_objectid(mock_geojson, 1)
+    
+    # Assert
+    assert result is None
+
 # =============================================================================
 # Tests for generate_poly_string function
 # =============================================================================
@@ -119,6 +130,18 @@ def test_generate_poly_string_with_tolerance():
     original_coords = "0.0 0.0 0.0 0.005 0.005 0.005 0.005 0.0 0.0 0.0"
     assert len(result.split()) < len(original_coords.split())
 
+def test_generate_poly_string_empty_coordinates():
+    """Test generating polygon string with empty coordinates."""
+    # Arrange
+    geometry = {
+        'type': 'Polygon',
+        'coordinates': [[]]
+    }
+    
+    # Act & Assert
+    with pytest.raises(ValueError):
+        generate_poly_string(geometry)
+
 # =============================================================================
 # Tests for add_centroid function
 # =============================================================================
@@ -166,6 +189,18 @@ def test_add_centroid_multipolygon():
     # The centroid of the multipoly is weighted by area, should be between the two polygons
     assert 1 < result['centroid'][0].x < 2
     assert 1 < result['centroid'][0].y < 2
+
+def test_add_centroid_empty_geodataframe():
+    """Test adding centroid to an empty GeoDataFrame."""
+    # Arrange
+    gdf = gpd.GeoDataFrame({'geometry': []})
+    
+    # Act
+    result = add_centroid(gdf)
+    
+    # Assert
+    assert 'centroid' in result.columns
+    assert len(result) == 0
 
 # =============================================================================
 # Tests for add_boundary function
@@ -504,3 +539,26 @@ def test_filter_properties_with_no_allowed_tags():
     
     # Assert
     assert result == {}
+
+def test_filter_properties_with_custom_allowed_tags():
+    """Test filtering properties with custom allowed tags."""
+    # Arrange
+    element = {
+        'tags': {
+            'building': 'yes',
+            'name': 'Test Building',
+            'layer': '1',
+            'custom_tag': 'value'
+        }
+    }
+    custom_allowed_tags = ['building', 'custom_tag']
+    
+    # Act
+    result = filter_properties(element, allowed_tags=custom_allowed_tags)
+    
+    # Assert
+    assert 'building' in result
+    assert 'custom_tag' in result
+    assert 'name' not in result
+    assert 'layer' not in result
+    assert len(result) == 2

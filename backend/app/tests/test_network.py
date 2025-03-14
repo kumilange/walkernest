@@ -131,6 +131,18 @@ def test_find_suitable_apartment_network_nodes_real_graph():
     # Assert
     assert suitable_nodes == [1, 2, 3]  # All nodes are suitable
 
+     # Test with more restrictive constraints where not all nodes meet criteria
+    amenity_kwargs_restrictive = {
+        'cafe': ([2], 0.5),  # Cafe at node 2 within 0.5 unit distance
+        'park': ([3], 2)     # Park at node 3 within 2 units distance
+    }
+    
+    # Act
+    restricted_nodes = find_suitable_apartment_network_nodes(G, apartment_nnodes, **amenity_kwargs_restrictive)
+    
+    # Assert
+    assert restricted_nodes == [2]  # Only node 2 should meet the more restrictive criteria
+
 # Edge Cases
 def test_find_suitable_apartment_network_nodes_no_constraints():
     """Test that function returns original nodes when no amenity constraints are provided."""
