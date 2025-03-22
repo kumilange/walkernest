@@ -20,7 +20,7 @@ jobs:
 
       - name: Install dependencies
         run: |
-          pip3 install --no-cache-dir fastapi uvicorn[standard] psycopg2-binary shapely numpy osmnx networkx scikit-learn geopandas python-multipart orjson
+          pip3 install --no-cache-dir fastapi uvicorn[standard] psycopg2-binary shapely numpy osmnx networkx scikit-learn geopandas python-multipart
 
       - name: Grant execute permissions to the script
         run: chmod +x seed/generate_seed_data.py

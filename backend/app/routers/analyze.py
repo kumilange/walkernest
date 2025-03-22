@@ -1,7 +1,7 @@
 import json
 import time
 from fastapi import APIRouter, Depends, Query, HTTPException
-from fastapi.responses import ORJSONResponse
+from fastapi.responses import JSONResponse
 from psycopg2 import DatabaseError
 from concurrent.futures import ThreadPoolExecutor
 from app.db import get_connection
@@ -74,7 +74,7 @@ def analyze_apartments(
 
             print(f"Execution time for Analize Suitable Apartments: {time.time() - start_time} seconds")
             
-            return ORJSONResponse(content={
+            return JSONResponse(content={
                 "polygon": json.loads(suitable_apartment_polygon.to_json()),
                 "centroid": json.loads(suitable_apartment_centroid.to_json())
             })

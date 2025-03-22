@@ -1,0 +1,8 @@
+# Combined requirements file for all Python dependencies
+# Includes both main and test dependencies
+
+# Import main requirements
+-r requirements.txt
+
+# Import test requirements
+-r requirements-test.txt 

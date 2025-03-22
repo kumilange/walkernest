@@ -33,7 +33,7 @@ export default function SelectPoint({ isStarting, point, setPoint, isPointSelect
 				?
 				<Input className="mx-1 overflow-hidden text-ellipsis whitespace-nowrap" value={point.name} onChange={() => { setPoint(null) }} />
 				:
-				<Button variant="outline" className={`w-full mx-1 ${isPointSelecting ? 'animate-blink' : ''}`} onClick={handleSelectPoint}>{`Click ${isStarting ? "starg" : "end"}ing point...`}</Button>
+				<Button variant="outline" className={`w-full mx-1 ${isPointSelecting ? 'animate-blink' : ''}`} onClick={handleSelectPoint}>{`Click ${isStarting ? "start" : "end"}ing point...`}</Button>
 			}
 			<button className="w-[24px] flex justify-end">
 				<CircleX

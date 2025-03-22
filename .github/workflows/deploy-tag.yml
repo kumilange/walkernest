@@ -1,0 +1,95 @@
+name: Deploy on Version Tag
+
+on:
+  push:
+    tags:
+      - 'v[0-9]+.[0-9]+.[0-9]+'
+
+jobs:
+  deploy:
+    runs-on: ubuntu-latest
+
+    steps:
+      - name: Checkout repository
+        uses: actions/checkout@v4
+
+      - name: Set up Node.js
+        uses: actions/setup-node@v4
+        with:
+          node-version: '20'
+          cache: 'npm'
+
+      - name: Install dependencies
+        run: |
+          npm ci
+
+      - name: Configure deployment build
+        run: |
+          original_dir=$(pwd)  # Save the current directory
+          cd frontend  # Change to the frontend directory
+
+          # Create a temporary build script that only runs vite build
+          echo 'import pkg from "./package.json" assert { type: "json" }; import { writeFileSync } from "fs"; pkg.scripts.build = "vite build"; writeFileSync("./package.json", JSON.stringify(pkg, null, 2));' > update-script.js
+          node update-script.js
+          rm update-script.js
+
+          # Create JSX declaration file
+          mkdir -p src
+          echo 'import React from "react"; declare global { namespace JSX { interface IntrinsicElements { [elemName: string]: any; } } }' > src/jsx.d.ts
+
+          cd "$original_dir"  # Return to the original directory
+
+      - name: Get version from tag
+        id: get_version
+        run: |
+          echo "VERSION=${GITHUB_REF#refs/tags/}" >> $GITHUB_OUTPUT  # Extract version from tag
+
+      - name: Create .env file
+        run: |
+          # Create .env file with all required variables
+          cat > .env << EOF
+          USER=${{ secrets.USER }}
+          DOMAIN_NAME=${{ secrets.DOMAIN_NAME }}
+          INSTANCE_IP=${{ secrets.INSTANCE_IP }}
+          DB_USERNAME=${{ secrets.DB_USERNAME }}
+          DB_PASSWORD=${{ secrets.DB_PASSWORD }}
+          DB_HOST=${{ secrets.DB_HOST }}
+          DB_PORT=${{ secrets.DB_PORT }}
+          DB_NAME=${{ secrets.DB_NAME }}
+          VERSION=${{ steps.get_version.outputs.VERSION }}
+          VITE_API_DOMAIN=${{ secrets.VITE_API_DOMAIN }}
+          VITE_API_PROTOCOL=${{ secrets.VITE_API_PROTOCOL }}
+          VITE_MAPTILER_API_KEY=${{ secrets.VITE_MAPTILER_API_KEY }}
+          KEY_PAIR_FILE=$(pwd)/deploy/walkernest-key-pair.pem
+          EOF
+
+          # Create SSH key file from secret
+          echo "${{ secrets.SSH_PRIVATE_KEY }}" > deploy/walkernest-key-pair.pem
+          chmod 600 deploy/walkernest-key-pair.pem
+
+          # Show .env content (with sensitive data redacted)
+          echo "Environment variables set (sensitive values redacted):"
+          grep -v "PASSWORD\|KEY" .env || true  # Display .env content without sensitive data
+        shell: bash
+
+      - name: Deploy application
+        run: |
+          # Debug information
+          echo "Current directory: $(pwd)"
+          echo "Listing files in deploy directory:"
+          ls -la deploy/
+
+          # Run the deploy command
+          npm run deploy  # Use npx to run the nx command
+        shell: bash
+        env:
+          NODE_ENV: production
+          VERSION: ${{ steps.get_version.outputs.VERSION }}
+
+      - name: Create GitHub Release
+        uses: softprops/action-gh-release@v1
+        with:
+          name: Release ${{ steps.get_version.outputs.VERSION }}
+          generate_release_notes: true
+        env:
+          GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}

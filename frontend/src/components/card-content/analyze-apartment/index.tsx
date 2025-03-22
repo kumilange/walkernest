@@ -12,6 +12,7 @@ import { generateCityDataParams } from '@/lib/misc';
 import FormFieldItem from './form-field-item';
 import { FormSchema, MinutesToMeters } from './types';
 import { METERS_TO_MINS_IN_WALK, MINS_TO_METERS_IN_WALK } from './constants';
+import { useRef } from 'react';
 
 export default function AnalyzeApartment() {
 	const { city } = useAtomCity();
@@ -20,6 +21,7 @@ export default function AnalyzeApartment() {
 	const { isAmenityOn, setIsAmenityOn } = useAtomIsAmenityOn();
 	const { isTmpAmenityOn } = useAtomIsTmpAmenityOn();
 	const params = generateCityDataParams({ maxDistance, isAmenityOn });
+	const closeButtonRef = useRef<HTMLButtonElement>(null);
 
 	const { isFetching } = useAnalysis({
 		cityId: cityId as number,
@@ -55,6 +57,13 @@ export default function AnalyzeApartment() {
 			MINS_TO_METERS_IN_WALK[cafe as keyof MinutesToMeters];
 		setMaxDistance({ park: parkMeter, supermarket: supermarketMeter, cafe: cafeMeter });
 		setIsAmenityOn({ park: parkCheckbox, supermarket: supermarketCheckbox, cafe: cafeCheckbox });
+
+		// Close the popup after 1 second
+		setTimeout(() => {
+			if (closeButtonRef.current) {
+				closeButtonRef.current.click();
+			}
+		}, 1000);
 	};
 
 	return (
@@ -73,7 +82,7 @@ export default function AnalyzeApartment() {
 					{/* Footer */}
 					<div className="w-full flex justify-between">
 						<PopoverClose asChild>
-							<Button variant="outline">Close</Button>
+							<Button ref={closeButtonRef} variant="outline">Close</Button>
 						</PopoverClose>
 						{isFetching ? (
 							<LoadingButton />

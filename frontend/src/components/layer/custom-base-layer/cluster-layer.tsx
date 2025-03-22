@@ -3,8 +3,9 @@ import { FeatureCollection } from 'geojson';
 import { filterFeaturesByType } from '../helper';
 import { twColors } from '@/constants';
 import { useIsLayerHidden } from '@/atoms';
+import type { CircleLayerSpecification, SymbolLayerSpecification } from 'maplibre-gl';
 
-const circleLayerStyle = {
+const circleLayerStyle: Omit<CircleLayerSpecification, 'id' | 'source'> = {
 	type: 'circle',
 	paint: {
 		'circle-color': twColors.clusterCircle,
@@ -15,7 +16,7 @@ const circleLayerStyle = {
 	},
 };
 
-const symbolLayerStyle = {
+const symbolLayerStyle: Omit<SymbolLayerSpecification, 'id' | 'source'> = {
 	type: 'symbol',
 	layout: {
 		'text-field': '{point_count_abbreviated}',
@@ -51,13 +52,11 @@ export default function ClusterLayer({
 			clusterMaxZoom={14}
 			clusterRadius={50}
 		>
-			{/* @ts-ignore */}
 			<Layer
 				id={`${cityId}_cluster-circle-layer`}
 				filter={['has', 'point_count']}
 				{...circleLayerStyle}
 			/>
-			{/* @ts-ignore */}
 			<Layer
 				id={`${cityId}_cluster-count-layer`}
 				filter={['has', 'point_count']}

@@ -7,6 +7,7 @@ data_dir = "seed/data"
 def save_gdf_to_geojson(gdf, city, data_type):
     """Save a GeoDataFrame to a GeoJSON file."""
     file_path = f"{data_dir}/geojson/{city.lower()}_{data_type}.geojson"
+    os.makedirs(os.path.dirname(file_path), exist_ok=True)
     gdf.to_file(file_path, driver='GeoJSON')
 
 def save_network_nodes_to_json(nodes, city, data_type):

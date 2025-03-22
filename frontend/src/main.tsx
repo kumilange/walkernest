@@ -5,7 +5,7 @@ import { MapProvider } from 'react-map-gl/maplibre';
 import { queryClient } from '@/lib/fetcher';
 import App from './app';
 
-ReactDOM.createRoot(document.getElementById('map') as HTMLElement).render(
+ReactDOM.createRoot(document.getElementById('app') as HTMLElement).render(
 	<React.StrictMode>
 		<QueryClientProvider client={queryClient}>
 			<MapProvider>
