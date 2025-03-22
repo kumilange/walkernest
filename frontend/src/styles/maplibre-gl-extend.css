@@ -1,21 +1,35 @@
-#map {
-  width: 100vw;
-  height: 100vh;
+/* Map Container */
+#map.maplibregl-map {
+  height: 100svh !important;
   overflow: hidden;
 }
 
+/* Control Styles */
+.maplibregl-ctrl-bottom-right {
+  display: flex;
+  flex-direction: row-reverse;
+  align-items: flex-end;
+}
+
 .maplibregl-ctrl-scale {
-  font-family: 'Noto Sans', sans-serif;
+  font-family: var(--text-font);
   border-color: #4a4a4a;
   box-shadow: var(--box-shadow);
+  height: 24px;
+}
+
+.maplibregl-ctrl-attrib {
+  font-family: var(--text-font);
 }
 
 .maplibregl-ctrl.maplibregl-ctrl-group {
   background-color: hsl(var(--card));
   border-radius: calc(var(--radius) - 2px);
   box-shadow: var(--box-shadow);
+  margin-top: 58px;
 }
 
+/* Popup Styles */
 .maplibregl-popup-content {
   min-width: 180px;
   font-size: 13.5px;
@@ -23,9 +37,10 @@
   background-color: hsl(var(--card));
   border-radius: calc(var(--radius) - 2px);
   box-shadow: var(--box-shadow);
-  font-family: 'Noto Sans', sans-serif;
+  font-family: var(--text-font);
 }
 
+/* Favorite Styles */
 .favorite .maplibregl-popup-content,
 .favorite .maplibregl-popup-content button:hover,
 .building .maplibregl-popup-content,
@@ -33,35 +48,45 @@
   background-color: var(--popup);
   color: var(--popup-txt-red);
 }
+
 .favorite .maplibregl-popup-content button:hover {
   opacity: 0.8;
 }
+
 .favorite .maplibregl-popup-content button.primary {
   background-color: var(--popup-txt-red);
   color: var(--popup);
 }
+
+/* Shop Styles */
 .shop .maplibregl-popup-content,
 .shop .maplibregl-popup-content button {
   background-color: var(--popup);
   color: var(--popup-txt-blue);
 }
+
+/* Amenity Styles */
 .amenity .maplibregl-popup-content,
 .amenity .maplibregl-popup-content button {
   background-color: var(--popup);
   color: var(--popup-txt-purple);
 }
+
+/* Leisure Styles */
 .leisure .maplibregl-popup-content,
 .leisure .maplibregl-popup-content button {
   background-color: var(--popup);
   color: var(--popup-txt-green);
 }
 
+/* Focus and Border Styles */
 .maplibregl-popup-content .focus-visible\:ring-ring:focus-visible,
 .maplibregl-popup-content .border-input {
   --tw-ring-color: var(--popup-txt-red);
   border-color: var(--popup-txt-red);
 }
 
+/* Popup Tip and Close Button */
 .maplibregl-popup-tip {
   visibility: hidden;
 }

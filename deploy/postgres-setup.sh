@@ -26,11 +26,39 @@ docker cp ./pg_hba.conf postgis-db:/etc/postgresql/16/main/pg_hba.conf
 docker exec postgis-db bash -c "chown postgres:postgres /etc/postgresql/16/main/pg_hba.conf"
 
 # Add swap space
-echo "Adding swap space..."
-sudo fallocate -l 1G /swapfile
-sudo chmod 600 /swapfile
-sudo mkswap /swapfile
-sudo swapon /swapfile
+echo "Checking swap space..."
+# Check if swap is already enabled
+if free | grep -q 'Swap'; then
+    SWAP_AVAILABLE=$(free | grep 'Swap' | awk '{print $2}')
+    if [ "$SWAP_AVAILABLE" -gt 0 ]; then
+        echo "Swap is already enabled. Skipping swap creation."
+    else
+        echo "Adding swap space..."
+        # Check if swapfile exists
+        if [ -f /swapfile ]; then
+            echo "Swap file exists but not active. Enabling it..."
+            sudo swapon /swapfile || echo "Could not enable existing swapfile, it may be in use or corrupt."
+        else
+            # Create new swap file
+            echo "Creating new swap file..."
+            sudo fallocate -l 1G /swapfile || echo "Could not create swapfile. Continuing anyway..."
+            if [ -f /swapfile ]; then
+                sudo chmod 600 /swapfile
+                sudo mkswap /swapfile
+                sudo swapon /swapfile || echo "Could not enable swapfile. Continuing anyway..."
+            fi
+        fi
+    fi
+else
+    echo "Adding swap space..."
+    # Create new swap file
+    sudo fallocate -l 1G /swapfile || echo "Could not create swapfile. Continuing anyway..."
+    if [ -f /swapfile ]; then
+        sudo chmod 600 /swapfile
+        sudo mkswap /swapfile
+        sudo swapon /swapfile || echo "Could not enable swapfile. Continuing anyway..."
+    fi
+fi
 
 # Restart the PostGIS container to apply changes
 docker restart postgis-db

@@ -25,6 +25,7 @@ frontend/dist/
 cache/
 .qodo
 seed/temp_features.json
+seed/data/**/*
 
 # Nx cache
 .nx/

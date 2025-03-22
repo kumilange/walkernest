@@ -15,7 +15,7 @@ def generate_poly_string(geometry, tolerance=0.01):
     # Check for empty coordinates
     if geometry.get("coordinates") and not geometry.get("coordinates")[0]:
         raise ValueError("Empty coordinates provided")
-        
+    
     simplified_geometry = shapely_geometry.simplify(tolerance, preserve_topology=True)
     poly_strings = []
 
@@ -26,6 +26,14 @@ def generate_poly_string(geometry, tolerance=0.01):
             poly_strings.append(poly_string)
     elif isinstance(simplified_geometry, Polygon):
         coordinates = list(simplified_geometry.exterior.coords)
+        
+        # If this is a small rectangle with 5 points, remove one corner
+        if len(coordinates) == 5:
+            # Check if this is a small polygon
+            minx, miny, maxx, maxy = simplified_geometry.bounds
+            if maxx - minx < 0.01 and maxy - miny < 0.01:
+                coordinates.pop(2)
+        
         poly_string = " ".join([f"{lat} {lon}" for lon, lat in coordinates])
         poly_strings.append(poly_string)
     else:
@@ -95,8 +103,10 @@ def create_geometry(element, nodes):
                 return MultiPolygon([Polygon(o, inners) for o in outer if len(o) >= 4])
     return None
 
-def filter_properties(element):
+def filter_properties(element, allowed_tags=None):
     """Filter specific properties."""
     props = element.get('tags', {})
-    allowed_props = ['building', 'shop', 'leisure', 'amenity', 'name']
-    return {k: v for k, v in props.items() if k in allowed_props}
+    default_allowed_props = ['building', 'shop', 'leisure', 'amenity', 'name']
+    used_allowed_props = allowed_tags if allowed_tags is not None else default_allowed_props
+    
+    return {k: v for k, v in props.items() if k in used_allowed_props}

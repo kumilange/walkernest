@@ -3,7 +3,7 @@ import MenuBar from '@/components/menu-bar';
 
 export default function Header() {
 	return (
-		<header className="w-screen h-12 flex items-center bg-primary shadow-md p-2">
+		<header className="fixed top-0 left-0 right-0 h-12 w-screen z-10 flex items-center bg-primary shadow-md p-2">
 			<Heading />
 			<MenuBar />
 		</header>

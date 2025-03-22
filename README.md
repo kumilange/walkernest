@@ -63,7 +63,7 @@ cd walkernest
 
 ### 🔧 Environment Variables
 
-Create `.env.development` and `.env` files in the root directory and `frontend` (if you're developing locally without Docker) directories, and add the following environment variables:
+Create `.env.development` and `.env` files in the `root` directory and `frontend` (if you're developing locally without Docker) directories, and add the following environment variables:
 
 ```sh
 # General settings
@@ -76,25 +76,42 @@ DB_HOST=your_db_host
 DB_PORT=your_db_port
 DB_NAME=your_db_name
 
-# Deployment settings
-DOMAIN_NAME=your_domain_name
-USER=your_iam_user_name
-INSTANCE_IP=your_ec2_ip
-KEY_PAIR_FILE=your_keypair_pem_file
-
 # Frontend settings
 VITE_API_DOMAIN=your_api_domain
 VITE_API_PROTOCOL=http_or_https
 VITE_MAPTILER_API_KEY=your_maptiler_api_key
+
+# Deployment settings (applicable only to the production .env file)
+DOMAIN_NAME=your_domain_name
+USER=your_iam_user_name
+INSTANCE_IP=your_ec2_ip
+KEY_PAIR_FILE=your_keypair_pem_file
+```
+
+### 🧰 Setup
+
+#### 🔰 First-Time
+
+```sh
+# Create a virtual environment named 'venv' using Python 3
+python3 -m venv venv
+
+# Activate the virtual environment
+# On MacOS/Linux:
+source venv/bin/activate
+# On Windows:
+venv\Scripts\activate
+
+# NOTE: Activating the virtual environment is necessary to ensure all Python dependencies are available.
+
+# Run the setup script (installs all dependencies)
+npm run setup
+
+# Start the development servers
+npm run dev
 ```
 
 ### 💻 Development
-
-#### 🧰 Install Dependencies
-
-```sh
-npm install
-```
 
 #### 🎨 Start Frontend Development Server
 
@@ -169,9 +186,16 @@ npm run test
 
 #### 🌱 Seeding the Database
 
-```sh
-npm run seed:db
-```
+1. Generate datasets for the database:
+
+   ```sh
+   npm run seed:generate
+   ```
+
+2. Seed the database:
+   ```sh
+   npm run seed:db
+   ```
 
 #### 🐳 Docker Development Environment
 
@@ -202,7 +226,7 @@ npm run seed:db
    npm run deploy
    ```
 
-2. The app will be available at `https://walkernest.com/`
+2. Once the deployment is complete, the application will be accessible at [https://walkernest.com/](https://walkernest.com/)
 
 ### 🛠 Maintenance
 

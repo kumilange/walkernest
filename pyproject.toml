@@ -1,0 +1,97 @@
+[build-system]
+requires = ["setuptools>=61.0.0", "wheel"]
+build-backend = "setuptools.build_meta"
+
+[project]
+name = "walkernest-backend"
+version = "0.0.0"
+description = "WalkerNest - Find apartments by prioritizing the surrounding environment"
+readme = "README.md"
+requires-python = ">=3.10"
+license = {text = "MIT"}
+authors = [
+    {name = "Kumiko Lange"}
+]
+dependencies = [
+    "fastapi>=0.109.2",
+    "uvicorn[standard]>=0.27.1",
+    "python-multipart>=0.0.18",
+    "psycopg2-binary>=2.9.9",
+    "networkx>=3.1",
+    "osmnx>=1.4.0",
+    "numpy>=1.26.3",
+    "pandas>=2.1.1",
+    "geopandas>=1.0.1",
+    "shapely>=2.0.2",
+    "scikit-learn>=1.5.2",
+]
+
+[project.urls]
+"Homepage" = "https://walkernest.com/"
+"Repository" = "https://github.com/kumilange/walkernest"
+
+[project.optional-dependencies]
+test = [
+    "pytest>=8.0.0",
+    "pytest-cov>=4.1.0",
+    "pytest-asyncio>=0.23.5",
+    "pytest-mock>=3.12.0",
+    "httpx>=0.26.0",
+]
+dev = [
+    "black",
+    "isort",
+    "ruff",
+    "mypy",
+]
+
+[tool.setuptools]
+packages = ["backend"]
+
+[tool.pytest]
+testpaths = ["backend/app/tests", "seed/tests"]
+python_files = "test_*.py"
+python_classes = "Test*"
+python_functions = "test_*"
+addopts = "-v --tb=short"
+markers = [
+    "unit: Unit tests",
+    "integration: Integration tests",
+    "slow: Tests that take longer to run",
+]
+
+[tool.isort]
+profile = "black"
+line_length = 88
+
+[tool.black]
+line-length = 88
+target-version = ["py310"]
+
+[tool.ruff]
+line-length = 88
+target-version = "py310"
+select = ["E", "F", "B", "I"]
+ignore = []
+
+[tool.mypy]
+python_version = "3.10"
+disallow_untyped_defs = true
+disallow_incomplete_defs = true
+check_untyped_defs = true
+disallow_untyped_decorators = true
+no_implicit_optional = true
+strict_optional = true
+warn_redundant_casts = true
+warn_return_any = true
+warn_unused_ignores = true
+
+[[tool.mypy.overrides]]
+module = [
+    "shapely.*",
+    "geopandas.*",
+    "networkx.*",
+    "osmnx.*",
+    "sklearn.*",
+]
+ignore_missing_imports = true 

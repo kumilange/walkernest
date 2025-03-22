@@ -19,7 +19,7 @@ mock_psycopg2.DatabaseError = MockDatabaseError
 sys.modules['psycopg2'] = mock_psycopg2
 sys.modules['psycopg2.pool'] = mock_pool
 
-from fastapi.responses import ORJSONResponse
+from fastapi.responses import JSONResponse
 from app.routers.analyze import analyze_apartments
 
 # =============================================================================
@@ -65,7 +65,7 @@ def test_analyze_apartments_with_valid_constraints(mocker):
     result = analyze_apartments(city_id=city_id, kwargs=kwargs, conn=mock_conn)
 
     # Assert
-    assert isinstance(result, ORJSONResponse)
+    assert isinstance(result, JSONResponse)
     content = json.loads(result.body)
     assert "polygon" in content
     assert "centroid" in content
@@ -116,7 +116,7 @@ def test_analyze_apartments_with_no_constraints(mocker):
     result = analyze_apartments(city_id=city_id, kwargs=kwargs, conn=mock_conn)
     
     # Assert
-    assert isinstance(result, ORJSONResponse)
+    assert isinstance(result, JSONResponse)
     content = json.loads(result.body)
     assert "polygon" in content
     assert "centroid" in content
