@@ -1,1 +1,1 @@
-export { default } from './layer-maneger';
+export { default } from "./layer-maneger";

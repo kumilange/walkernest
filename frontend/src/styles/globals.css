@@ -31,12 +31,11 @@
     --chart-5: 27 87% 67%;
     --box-shadow:
       0 4px 6px -1px rgb(0 0 0 / 0.1), 0 2px 4px -2px rgb(0 0 0 / 0.1);
-    --popup: #f6f5e1;
     --popup-txt-red: #dd2d4a;
     --popup-txt-blue: #0077b6;
     --popup-txt-green: #166534;
     --popup-txt-purple: #6a0dad;
-    --text-font: 'Noto Sans', sans-serif;
+    --text-font: "Noto Sans", sans-serif;
   }
 
   .dark {
