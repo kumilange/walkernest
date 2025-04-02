@@ -10,8 +10,8 @@ let mockProgress = 0;
 let mockIsError = false;
 let mockError: Error | null = null;
 
-// Mock the useLifecycle hook
-vi.mock("@/components/analysis-progress-dialog/use-lifecycle", () => {
+// Mock the useEffectHandlers hook
+vi.mock("@/components/analysis-progress-dialog/use-effect-handlers", () => {
 	return {
 		default: vi.fn().mockImplementation(() => ({
 			isOpen: mockIsOpen,

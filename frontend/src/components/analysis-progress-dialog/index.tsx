@@ -7,10 +7,10 @@ import {
 import { Progress } from "@/components/ui/progress";
 import { getErrorMessage } from "@/lib/misc";
 import ErrorDialogContent from "./error-dialog-content";
-import useLifecycle from "./use-lifecycle";
+import useEffectHandlers from "./use-effect-handlers";
 
 export default function AnalysisProgressDialog({ cityId }: { cityId: number }) {
-  const { isOpen, setIsOpen, progress, isError, error } = useLifecycle({
+  const { isOpen, setIsOpen, progress, isError, error } = useEffectHandlers({
     cityId,
   });
 

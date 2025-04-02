@@ -20,6 +20,8 @@ const layerStyle: LayerProps = {
   },
 };
 
+const ANIMATION_DURATION = 1000;
+
 export default function RouteLayer() {
   const {
     animatedRoute,
@@ -45,7 +47,7 @@ export default function RouteLayer() {
         setRoute(data);
         handleFitBoundsForRoute(data);
         // Start animation
-        animateRoute(data.geometry, 1000);
+        animateRoute(data.geometry, ANIMATION_DURATION);
       } catch (error) {
         toast({
           variant: "destructive",

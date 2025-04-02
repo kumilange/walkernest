@@ -65,7 +65,7 @@ export default function useCheckRoutes() {
         [boundingBox[2], boundingBox[3]],
       ];
 
-      const padding = window.innerWidth < 420 ? 20 : 100;
+      const padding = window.innerWidth < 420 ? 40 : 100;
 
       // Fit bounds if route geometry is outside of the screen
       if (

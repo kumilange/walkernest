@@ -23,21 +23,10 @@ jobs:
         run: |
           npm ci
 
-      - name: Configure deployment build
+      - name: Run tests
         run: |
-          original_dir=$(pwd)  # Save the current directory
-          cd frontend  # Change to the frontend directory
-
-          # Create a temporary build script that only runs vite build
-          echo 'import pkg from "./package.json" assert { type: "json" }; import { writeFileSync } from "fs"; pkg.scripts.build = "vite build"; writeFileSync("./package.json", JSON.stringify(pkg, null, 2));' > update-script.js
-          node update-script.js
-          rm update-script.js
-
-          # Create JSX declaration file
-          mkdir -p src
-          echo 'import React from "react"; declare global { namespace JSX { interface IntrinsicElements { [elemName: string]: any; } } }' > src/jsx.d.ts
-
-          cd "$original_dir"  # Return to the original directory
+          npm run test
+        shell: bash
 
       - name: Get version from tag
         id: get_version
@@ -46,6 +35,10 @@ jobs:
 
       - name: Create .env file
         run: |
+          # Create SSH key file from secret
+          echo "${{ secrets.SSH_PRIVATE_KEY }}" > deploy/walkernest-key-pair.pem
+          chmod 600 deploy/walkernest-key-pair.pem
+
           # Create .env file with all required variables
           cat > .env << EOF
           USER=${{ secrets.USER }}
@@ -62,10 +55,6 @@ jobs:
           VITE_MAPTILER_API_KEY=${{ secrets.VITE_MAPTILER_API_KEY }}
           KEY_PAIR_FILE=$(pwd)/deploy/walkernest-key-pair.pem
           EOF
-
-          # Create SSH key file from secret
-          echo "${{ secrets.SSH_PRIVATE_KEY }}" > deploy/walkernest-key-pair.pem
-          chmod 600 deploy/walkernest-key-pair.pem
 
           # Show .env content (with sensitive data redacted)
           echo "Environment variables set (sensitive values redacted):"

@@ -4,7 +4,7 @@ import { generateCityDataParams } from "@/lib/misc";
 import { useAtomIsAmenityOn, useAtomMaxDistance } from "@/atoms";
 import { CLOSE_DIALOG_DELAY_MS, PROGRESS_INCREMENT, PROGRESS_INTERVAL_MS, PROGRESS_MAX } from "./constants";
 
-export default function useLifecycle({ cityId }: { cityId: number }) {
+export default function useEffectHandlers({ cityId }: { cityId: number }) {
   const [isOpen, setIsOpen] = useState(false);
   const [progress, setProgress] = useState(0);
   const progressIntervalRef = useRef<NodeJS.Timeout | null>(null);
