@@ -1,5 +1,5 @@
-import { atom } from 'jotai';
-import type { Route, RoutePoint } from '@/types';
+import { atom } from "jotai";
+import type { Route, RoutePoint } from "@/types";
 
 export const routeAtom = atom<Route | null>(null);
 export const isStartingPointSelectingAtom = atom(false);

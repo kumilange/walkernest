@@ -2,7 +2,7 @@
  * Formats the given duration from seconds to minutes, rounding up to the nearest whole number.
  */
 export function formatDurationInMins(duration: number) {
-	return Math.ceil(duration / 60);
+  return Math.ceil(duration / 60);
 }
 
 /**
@@ -10,8 +10,8 @@ export function formatDurationInMins(duration: number) {
  * in kilometers and miles, both rounded to one decimal place.
  */
 export function formatDistance(distance: number) {
-	return {
-		km: (distance / 1000).toFixed(1),
-		mi: (distance / 1609).toFixed(1)
-	};
+  return {
+    km: (distance / 1000).toFixed(1),
+    mi: (distance / 1609).toFixed(1),
+  };
 }
