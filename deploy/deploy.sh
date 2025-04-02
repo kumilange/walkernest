@@ -47,7 +47,8 @@ scp -i $KEY_PAIR_FILE -r $FRONTEND_STATIC_DIR $USER@$INSTANCE_IP:$REMOTE_DIR/fro
 scp -i $KEY_PAIR_FILE $FRONTEND_DOCKER_FILE $USER@$INSTANCE_IP:$REMOTE_DIR/frontend
 scp -i $KEY_PAIR_FILE $BACKEND_DOCKER_API_FILE $USER@$INSTANCE_IP:$REMOTE_DIR/backend
 scp -i $KEY_PAIR_FILE $REQUIREMENTS_FILE $USER@$INSTANCE_IP:$REMOTE_DIR
-rsync -avz --exclude '__pycache__' -e "ssh -i $KEY_PAIR_FILE" $BACKEND_APP_DIR $USER@$INSTANCE_IP:$REMOTE_DIR/backend
+scp -i $KEY_PAIR_FILE $DOCKER_COMPOSE_FILE $USER@$INSTANCE_IP:$REMOTE_DIR
+rsync -avz --exclude '__pycache__' --exclude 'tests/' -e "ssh -i $KEY_PAIR_FILE" $BACKEND_APP_DIR $USER@$INSTANCE_IP:$REMOTE_DIR/backend
 
 # Step 4: SSH into the EC2 instance and run Docker Compose
 echo "🐳 Deploying to EC2 instance..."

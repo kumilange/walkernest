@@ -43,16 +43,6 @@ jobs:
           which nx
           nx --version
 
-      # Create a React JSX declaration file specifically for the build
-      - name: Create React JSX declaration file
-        run: |
-          echo 'declare module "react/jsx-runtime" {
-            export const jsx: any;
-            export const jsxs: any;
-            export const Fragment: any;
-            export default any;
-          }' > frontend/src/react-jsx-runtime.d.ts
-
       - name: Run tests
         run: |
           # Run tests directly with global nx to bypass npm scripts
