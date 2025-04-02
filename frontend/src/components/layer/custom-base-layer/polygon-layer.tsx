@@ -9,7 +9,11 @@ type PolygonLayerProps = {
   cityId: number;
 };
 
-export default function PolygonLayer({ data, type, cityId }: PolygonLayerProps) {
+export default function PolygonLayer({
+  data,
+  type,
+  cityId,
+}: PolygonLayerProps) {
   const isHidden = useIsLayerHidden(type);
   if (isHidden) {
     return null;

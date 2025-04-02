@@ -74,7 +74,12 @@ export default function useCheckRoutes() {
       ) {
         fitBounds({
           bounds: lngLatBounds,
-          padding: { top: padding, right: padding, bottom: padding, left: padding },
+          padding: {
+            top: padding,
+            right: padding,
+            bottom: padding,
+            left: padding,
+          },
         });
       }
     },

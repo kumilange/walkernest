@@ -2,7 +2,12 @@ import { useEffect, useRef, useState } from "react";
 import { useAnalysis } from "@/lib/fetcher";
 import { generateCityDataParams } from "@/lib/misc";
 import { useAtomIsAmenityOn, useAtomMaxDistance } from "@/atoms";
-import { CLOSE_DIALOG_DELAY_MS, PROGRESS_INCREMENT, PROGRESS_INTERVAL_MS, PROGRESS_MAX } from "./constants";
+import {
+  CLOSE_DIALOG_DELAY_MS,
+  PROGRESS_INCREMENT,
+  PROGRESS_INTERVAL_MS,
+  PROGRESS_MAX,
+} from "./constants";
 
 export default function useEffectHandlers({ cityId }: { cityId: number }) {
   const [isOpen, setIsOpen] = useState(false);

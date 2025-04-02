@@ -9,26 +9,26 @@ vi.mock("@tanstack/react-query", () => ({
     data: null,
     isError: false,
     error: null,
-    isFetching: false
+    isFetching: false,
   }),
   useQueryClient: () => ({
     invalidateQueries: vi.fn(),
     getQueryData: vi.fn(),
-    setQueryData: vi.fn()
-  })
+    setQueryData: vi.fn(),
+  }),
 }));
 
 // Mock fetcher.ts to avoid using actual useQuery
-vi.mock('@/lib/fetcher', () => ({
+vi.mock("@/lib/fetcher", () => ({
   useAnalysis: () => ({
     data: null,
     isError: false,
     error: null,
-    isFetching: false
+    isFetching: false,
   }),
   fetchAddressName: vi.fn(),
   fetchRoute: vi.fn(),
-  fetchAnalysis: vi.fn()
+  fetchAnalysis: vi.fn(),
 }));
 
 // Mocks
