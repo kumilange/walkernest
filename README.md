@@ -220,13 +220,29 @@ npm run test
 
 #### 🏢 Deploy to AWS EC2
 
-1. Run:
+There are two ways to deploy the application:
+
+1. **Deploy via GitHub Actions (Tagging)**:
+
+   ```sh
+   git tag vX.X.X
+   git push origin vX.X.X
+   ```
+
+   - Tag your commit with a version number in the format `vX.X.X` (e.g., `v1.0.0`).
+   - Push the tag to the repository. This will trigger the GitHub Actions workflow, which will build and deploy the application automatically.
+   - A GitHub release will be created upon successful deployment.
+
+2. **Deploy Locally**:
 
    ```sh
    npm run deploy
    ```
 
-2. Once the deployment is complete, the application will be accessible at [https://walkernest.com/](https://walkernest.com/)
+   - Run this command to deploy the application locally.
+   - This method does not create a GitHub release and is intended for local testing or development.
+
+Regardless of the deployment method used, the application will be accessible at [https://walkernest.com/](https://walkernest.com/)!🎉
 
 ### 🛠 Maintenance
 
