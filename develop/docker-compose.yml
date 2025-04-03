@@ -1,4 +1,23 @@
 services:
+  postgis:
+    container_name: postgis-db
+    image: kartoza/postgis:16-3.4
+    env_file:
+      - ../.env.development
+    environment:
+      - POSTGRES_USER=${DB_USERNAME}
+      - POSTGRES_PASSWORD=${DB_PASSWORD}
+      - POSTGRES_DB=${DB_NAME}
+    ports:
+      - '5432:5432'
+    volumes:
+      - postgis-data:/var/lib/postgresql
+    healthcheck:
+      test: ['CMD-SHELL', 'pg_isready']
+      interval: 10s
+      timeout: 10s
+      retries: 10
+
   backend:
     container_name: fastapi-backend
     build:
@@ -43,25 +62,6 @@ services:
       - VITE_API_PROTOCOL=${VITE_API_PROTOCOL}
       - VITE_MAPTILER_API_KEY=${VITE_MAPTILER_API_KEY}
       - NODE_ENV=development
-
-  postgis:
-    container_name: postgis-db
-    image: kartoza/postgis:16-3.4
-    env_file:
-      - ../.env.development
-    environment:
-      - POSTGRES_USER=${DB_USERNAME}
-      - POSTGRES_PASSWORD=${DB_PASSWORD}
-      - POSTGRES_DB=${DB_NAME}
-    ports:
-      - '5432:5432'
-    volumes:
-      - postgis-data:/var/lib/postgresql
-    healthcheck:
-      test: ['CMD-SHELL', 'pg_isready']
-      interval: 10s
-      timeout: 10s
-      retries: 10
 
 volumes:
   postgis-data:
