@@ -29,6 +29,12 @@ jobs:
           python -m pip install --upgrade pip
           pip install -r requirements-test.txt
 
+      - name: Install Nx dependencies for Linux
+        run: |
+          npm install -g @nx/nx-linux-x64-gnu
+          # OR if that doesn't work
+          npm install --save-dev @nx/nx-linux-x64-gnu
+
       - name: Install Node.js dependencies
         run: |
           # Clean npm cache and install all dependencies
