@@ -1,10 +1,25 @@
-import { useAtom } from "jotai";
-import {
-  lastLayerIdAtom,
-  layersVisibilityAtom,
-  hiddenLayersAtom,
-} from "./layer-atoms";
+import { atom, useAtom } from "jotai";
 import { isLayerHidden } from "@/components/layer/helper";
+import type { LayersVisibility } from "@/types";
+
+export const lastLayerIdAtom = atom<string>("");
+
+export const layersVisibilityAtom = atom<LayersVisibility>({
+  result: true,
+  cluster: true,
+  park: true,
+  supermarket: true,
+  cafe: true,
+  boundary: true,
+});
+
+export const hiddenLayersAtom = atom((get) => {
+  const layersVisibility = get(layersVisibilityAtom);
+  const hiddenLayers = Object.entries(layersVisibility)
+    .filter(([_, value]) => !value)
+    .map(([key, _]) => key);
+  return hiddenLayers;
+});
 
 export function useAtomLastLayerId() {
   const [lastLayerId, setLastLayerId] = useAtom(lastLayerIdAtom);

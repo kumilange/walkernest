@@ -1,11 +1,11 @@
-import { useAtom } from "jotai";
-import {
-  routeAtom,
-  isStartingPointSelectingAtom,
-  isEndingPointSelectingAtom,
-  startingPointAtom,
-  endingPointAtom,
-} from "./route-atoms";
+import { atom, useAtom } from "jotai";
+import type { Route, RoutePoint } from "@/types";
+
+export const routeAtom = atom<Route | null>(null);
+export const isStartingPointSelectingAtom = atom(false);
+export const isEndingPointSelectingAtom = atom(false);
+export const startingPointAtom = atom<RoutePoint | null>(null);
+export const endingPointAtom = atom<RoutePoint | null>(null);
 
 export function useAtomRoute() {
   const [route, setRoute] = useAtom(routeAtom);
