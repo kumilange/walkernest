@@ -1,13 +1,13 @@
 import { describe, it, expect, vi } from "vitest";
 import { render, screen } from "@testing-library/react";
-import Header from "@/components/header";
+import Header from "@/layouts/header";
 
 // Mocks
-vi.mock("@/components/heading", () => ({
+vi.mock("@/layouts/header/components/Heading", () => ({
   default: () => <div data-testid="mock-heading">Heading Component</div>,
 }));
 
-vi.mock("@/components/menu-bar", () => ({
+vi.mock("@/features/CityMap/components/MenuBar", () => ({
   default: () => <div data-testid="mock-menu-bar">Menu Bar Component</div>,
 }));
 

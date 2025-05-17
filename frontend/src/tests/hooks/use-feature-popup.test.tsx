@@ -1,6 +1,6 @@
 import { describe, it, expect, vi, beforeEach } from "vitest";
 import { renderHook, act, waitFor } from "@testing-library/react";
-import useFeaturePopup from "@/components/city-map/hooks/use-feature-popup";
+import { useFeaturePopup } from '@/features/map/components/FeaturePopup/hooks';
 import { LngLat } from "react-map-gl/maplibre";
 
 // Create a type for the atoms module with the mocked functions
@@ -12,7 +12,7 @@ interface MockedAtoms {
 }
 
 // Mock dependencies
-vi.mock("@/atoms", () => {
+vi.mock("@/features/map/stores/favoritesAtoms", () => {
   const mockSetIsFavPopupOpen = vi.fn();
   return {
     useAtomIsFavPopupOpen: () => ({
@@ -118,7 +118,7 @@ describe("useFeaturePopup hook", () => {
     });
 
     // Get access to the mock directly from the atoms module as a typed module
-    const atoms = (await import("@/atoms")) as unknown as MockedAtoms;
+    const atoms = (await import("@/features/map/stores/favoritesAtoms")) as unknown as MockedAtoms;
     const setIsFavPopupOpen = atoms.useAtomIsFavPopupOpen().setIsFavPopupOpen;
 
     expect(setIsFavPopupOpen).toHaveBeenCalledWith(false);

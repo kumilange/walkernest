@@ -1,6 +1,6 @@
 import { describe, it, expect, vi, beforeEach } from "vitest";
 import { renderHook, waitFor } from "@testing-library/react";
-import useSyncFavorites from "@/components/city-map/hooks/use-sync-favorites";
+import { useSyncFavorites } from '@/features/map/components/CityMap/hooks';
 
 // Declare a type for our mock favorite
 interface MockFavorite {

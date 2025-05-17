@@ -1,6 +1,6 @@
 import { describe, it, expect, vi, beforeEach } from "vitest";
 import { render, screen, fireEvent } from "@testing-library/react";
-import FavoritesList from "@/components/card-content/favorites-list";
+import FavoritesList from "@/features/map/components/CardContent/favorites-list";
 
 // Setup mocks
 const mockHandleSelect = vi.fn();
@@ -38,7 +38,7 @@ vi.mock("@/atoms", () => ({
   }),
 }));
 
-vi.mock("@/components/card-content/favorites-list/use-event-handlers", () => ({
+vi.mock("@/features/map/components/CardContent/favorites-list/use-event-handlers", () => ({
   __esModule: true,
   default: () => ({
     selectedId: "1",

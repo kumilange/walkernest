@@ -1,6 +1,6 @@
 import { describe, it, expect, vi, beforeEach } from "vitest";
 import { render, screen, fireEvent } from "@testing-library/react";
-import FeaturePopup from "@/components/popup/feature-popup";
+import FeaturePopup from "@/features/map/components/FeaturePopup";
 import { LngLat } from "react-map-gl/maplibre";
 
 // Mock handlers and state
@@ -41,7 +41,7 @@ vi.mock("@/atoms", () => ({
 }));
 
 // Mock helper functions
-vi.mock("@/components/popup/feature-popup/helper", () => ({
+vi.mock("@/features/map/components/FeaturePopup/helper", () => ({
   handleFavorites: vi.fn().mockImplementation(() => ({
     FavComponent: <span data-testid="mock-fav-component">★</span>,
     favItemName: "Favorite Coffee Shop",
@@ -54,7 +54,7 @@ vi.mock("@/components/popup/feature-popup/helper", () => ({
 }));
 
 // Mock constants
-vi.mock("@/components/layer/constants", () => ({
+vi.mock("@/features/map/layers/constants", () => ({
   VALID_PROPERTY_PAIRS: {
     "text-green-800": {
       icon: <span data-testid="mock-restaurant-icon">🍽️</span>,

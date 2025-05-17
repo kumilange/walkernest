@@ -1,7 +1,7 @@
 import { describe, it, expect, vi, beforeEach, afterEach } from "vitest";
 import { render, screen } from "@testing-library/react";
 import ErrorBoundary from "@/components/error/error-boundary";
-import { useAtomCity } from "@/atoms";
+import { useAtomCity } from "@/stores";
 
 // Mocks
 vi.mock("@/atoms", () => ({
@@ -34,7 +34,7 @@ const ErrorComponent = ({ shouldThrow = false }: { shouldThrow?: boolean }) => {
 
 describe("ErrorBoundary Component", () => {
   beforeEach(() => {
-    vi.spyOn(console, "error").mockImplementation(() => {});
+    vi.spyOn(console, "error").mockImplementation(() => { });
     (useAtomCity as any).mockReturnValue({
       setCity: vi.fn(),
     });
@@ -49,7 +49,7 @@ describe("ErrorBoundary Component", () => {
     const testChild = <div data-testid="test-child">Test Child</div>;
 
     // Act
-    render(<ErrorBoundary>{testChild}</ErrorBoundary>);
+    render(<ErrorBoundary onReset={() => { }}>{testChild}</ErrorBoundary>);
 
     // Assert
     expect(screen.getByTestId("test-child")).toBeInTheDocument();
@@ -59,7 +59,7 @@ describe("ErrorBoundary Component", () => {
   it("renders error fallback when an error occurs", () => {
     // Act
     render(
-      <ErrorBoundary>
+      <ErrorBoundary onReset={() => { }}>
         <ErrorComponent shouldThrow={true} />
       </ErrorBoundary>,
     );
@@ -77,7 +77,7 @@ describe("ErrorBoundary Component", () => {
 
     // Act
     render(
-      <ErrorBoundary>
+      <ErrorBoundary onReset={() => { }}>
         <ErrorComponent shouldThrow={true} />
       </ErrorBoundary>,
     );

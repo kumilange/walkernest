@@ -1,6 +1,6 @@
 import { describe, it, expect, vi, beforeEach, afterEach } from "vitest";
 import { render, screen, fireEvent } from "@testing-library/react";
-import AnalyzeApartment from "@/components/card-content/analyze-apartment";
+import AnalyzeApartment from "@/features/map/components/CardContent/analyze-apartment";
 
 // Basic mocks
 vi.mock("@/components/card-content/analyze-apartment/constants", () => ({

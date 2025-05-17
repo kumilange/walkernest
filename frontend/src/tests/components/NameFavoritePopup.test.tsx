@@ -1,6 +1,6 @@
 import { describe, it, expect, vi, beforeEach } from "vitest";
 import { render, screen, fireEvent, waitFor } from "@testing-library/react";
-import NameFavoritePopup from "@/components/popup/name-favorite-popup";
+import NameFavoritePopup from "@/features/map/components/NameFavoritePopup";
 import { LngLat } from "react-map-gl/maplibre";
 
 // Mock handlers and state
@@ -47,7 +47,7 @@ vi.mock("@/hooks", () => ({
 }));
 
 // Mock fetch functions
-vi.mock("@/lib/fetcher", () => ({
+vi.mock("@/features/map/api", () => ({
   fetchFavorites: vi
     .fn()
     .mockImplementation(() => Promise.resolve(mockFeatureResponse)),
@@ -199,7 +199,7 @@ describe("NameFavoritePopup Component", () => {
 
     (await import("@/utils/localstorage")).addToLocalStorageList =
       addToLocalStorageList;
-    (await import("@/lib/api")).fetchFavorites = fetchFavorites;
+    (await import("@/features/map/api")).fetchFavorites = fetchFavorites;
 
     const props = {
       city: mockCity,

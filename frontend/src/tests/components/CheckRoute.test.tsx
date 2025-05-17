@@ -1,7 +1,7 @@
 import { describe, it, expect, vi, beforeEach } from "vitest";
 import { render, screen, fireEvent } from "@testing-library/react";
-import CheckRoute from "@/components/card-content/check-route";
-import { useCheckRoutes } from "@/hooks";
+import CheckRoute from "@/features/map/components/CardContent/check-route";
+import { useCheckRoutes } from "@/features/map/hooks";
 import { LngLat } from "react-map-gl/maplibre";
 
 // Mock implementations
@@ -28,7 +28,7 @@ const mockEndingPoint = {
 };
 
 // Mock hooks
-vi.mock("@/hooks", () => ({
+vi.mock("@/features/map/hooks", () => ({
   useCheckRoutes: vi.fn().mockImplementation(() => ({
     route: null,
     animatedRoute: null,

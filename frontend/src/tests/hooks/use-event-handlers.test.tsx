@@ -1,6 +1,6 @@
 import { describe, it, expect, vi, beforeEach, type Mock } from "vitest";
 import { renderHook, act, waitFor } from "@testing-library/react";
-import useEventHandlers from "@/components/city-map/hooks/use-event-handlers";
+import useEventHandlers from "@/features/map/components/CityMap/hooks/useEventHandlers";
 import { MapLayerMouseEvent } from "react-map-gl/maplibre";
 
 // Define types for our mocked modules
@@ -38,7 +38,7 @@ interface MockAtomsModule {
 let isSelecting = false;
 
 // Mock feature popup hook
-vi.mock("@/components/city-map/hooks/use-feature-popup", () => {
+vi.mock("@/features/map/components/FeaturePopup/hooks/useFeaturePopup", () => {
   const mockSetLngLat = vi.fn();
   const mockSetIsPopupOpen = vi.fn();
   const mockSetProperties = vi.fn();
@@ -66,7 +66,7 @@ vi.mock("@/components/city-map/hooks/use-feature-popup", () => {
 });
 
 // Mock check routes hook
-vi.mock("@/hooks", () => {
+vi.mock("@/features/map/hooks", () => {
   const mockHandleAddressName = vi.fn().mockResolvedValue(undefined);
 
   return {
@@ -143,15 +143,15 @@ describe("useEventHandlers hook", () => {
     // Import and store mocks for easy access in tests
     featurePopupMocks = (
       (await import(
-        "@/components/city-map/hooks/use-feature-popup"
+        "@/features/map/components/FeaturePopup/hooks/useFeaturePopup"
       )) as unknown as MockFeaturePopupModule
     ).__mocks;
-    hooksMocks = ((await import("@/hooks")) as unknown as MockHooksModule)
+    hooksMocks = ((await import("@/features/map/hooks")) as unknown as MockHooksModule)
       .__mocks;
     mapMocks = (
       (await import("react-map-gl/maplibre")) as unknown as MockMapLibreModule
     ).__mocks;
-    atomsMocks = ((await import("@/atoms")) as unknown as MockAtomsModule)
+    atomsMocks = ((await import("@/stores")) as unknown as MockAtomsModule)
       .__mocks;
   });
 
