@@ -1,6 +1,6 @@
 import { useEffect, useRef, useState } from "react";
-import { useAnalysis } from "@/lib/fetcher";
-import { generateCityDataParams } from "@/lib/misc";
+import { useAnalysis } from "@/lib/api";
+import { generateCityDataParams } from "@/utils/misc";
 import { useAtomIsAmenityOn, useAtomMaxDistance } from "@/atoms";
 import {
   CLOSE_DIALOG_DELAY_MS,

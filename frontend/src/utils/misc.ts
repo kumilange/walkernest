@@ -96,7 +96,7 @@ export function transformQueryParams(queryParams: string[]): string[] {
 export function convertKeysToSnakeCase(obj: { [key: string]: number }): {
   [key: string]: number;
 } {
-  const result: { [key: string]: number } = {};
+  const result: Record<string, number> = {};
 
   for (const key in obj) {
     if (Object.hasOwn(obj, key)) {

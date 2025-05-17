@@ -2,8 +2,8 @@ import { useCallback, useEffect, useRef, useState } from "react";
 import { useAtomRoute } from "@/atoms";
 import { bbox } from "@turf/turf";
 import { LngLat, LngLatBoundsLike } from "react-map-gl/maplibre";
-import { setCursorStyle } from "@/lib/misc";
-import { fetchAddressName } from "@/lib/fetcher";
+import { setCursorStyle } from "@/utils/misc";
+import { fetchAddressName } from "@/lib/api";
 import { toast, useCityMap } from "@/hooks";
 import { Route } from "@/types";
 

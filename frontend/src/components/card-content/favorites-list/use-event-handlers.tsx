@@ -1,6 +1,6 @@
 import { useCallback, useState } from "react";
 import { useMap, LngLat } from "react-map-gl/maplibre";
-import { removeFromLocalStorageList } from "@/lib/localstorage";
+import { removeFromLocalStorageList } from "@/utils/localstorage";
 import { useAtomCity, useAtomFavItems } from "@/atoms";
 import type { FavoriteItem } from "@/types";
 

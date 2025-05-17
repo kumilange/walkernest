@@ -1,7 +1,7 @@
 import { useMemo, useState } from "react";
 import { Check, ChevronsUpDown } from "lucide-react";
 import { useAtomCity } from "@/atoms";
-import { cn } from "@/lib/misc";
+import { cn } from "@/utils/misc";
 import { Button } from "@/components/ui/button";
 import {
   Command,

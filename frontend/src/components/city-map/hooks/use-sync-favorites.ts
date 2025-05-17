@@ -1,6 +1,6 @@
 import { useEffect } from "react";
 import { useAtomFavItems } from "@/atoms";
-import { getLocalStorageList } from "@/lib/localstorage";
+import { getLocalStorageList } from "@/utils/localstorage";
 import { FavoriteItem } from "@/types";
 
 export default function useSyncFavorites() {

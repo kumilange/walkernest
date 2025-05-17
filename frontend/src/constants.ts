@@ -1,5 +1,5 @@
 import cityListDict from "../../shared/citydict.json";
-import { transformToCityListArray } from "@/lib/misc";
+import { transformToCityListArray } from "@/utils/misc";
 import type { CityDictItem, CityArrayItem } from "@/types";
 import tailwindConfig from "../tailwind.config";
 

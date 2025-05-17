@@ -197,9 +197,9 @@ describe("NameFavoritePopup Component", () => {
     const addToLocalStorageList = vi.fn();
     const fetchFavorites = vi.fn().mockResolvedValue(mockFeatureResponse);
 
-    (await import("@/lib/localstorage")).addToLocalStorageList =
+    (await import("@/utils/localstorage")).addToLocalStorageList =
       addToLocalStorageList;
-    (await import("@/lib/fetcher")).fetchFavorites = fetchFavorites;
+    (await import("@/lib/api")).fetchFavorites = fetchFavorites;
 
     const props = {
       city: mockCity,

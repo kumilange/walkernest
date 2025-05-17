@@ -1,6 +1,6 @@
 import { LngLat } from "maplibre-gl";
 import { Trash2 } from "lucide-react";
-import { capitalize, cn } from "@/lib/misc";
+import { capitalize, cn } from "@/utils/misc";
 import { useAtomFavItems } from "@/atoms";
 import type { FavoriteItem } from "@/types";
 import useEventHandlers from "./use-event-handlers";

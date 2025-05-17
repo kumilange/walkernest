@@ -7,7 +7,7 @@ import {
   FormLabel,
 } from "@/components/ui/form";
 import { Input } from "@/components/ui/input";
-import { capitalize } from "@/lib/misc";
+import { capitalize } from "@/utils/misc";
 import { Checkbox } from "@/components/ui/checkbox";
 import { useAtomIsTmpAmenityOn } from "@/atoms";
 

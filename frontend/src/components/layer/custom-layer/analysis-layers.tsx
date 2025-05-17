@@ -1,5 +1,5 @@
 import { useEffect } from "react";
-import { useAnalysis } from "@/lib/fetcher";
+import { useAnalysis } from "@/lib/api";
 import apartmentIconPath from "@/assets/apartment-icon.png";
 import {
   useAtomIsAmenityOn,
@@ -8,7 +8,7 @@ import {
 } from "@/atoms";
 import { useToast } from "@/hooks";
 import { ToastAction } from "@/components/ui/toast";
-import { generateCityDataParams } from "@/lib/misc";
+import { generateCityDataParams } from "@/utils/misc";
 import { ClusterLayer, PolygonLayer, IconLayer } from "../custom-base-layer";
 
 export default function AnalysisLayers({ cityId }: { cityId: number }) {

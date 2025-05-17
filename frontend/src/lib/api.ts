@@ -1,7 +1,7 @@
 import { QueryClient, useQuery } from "@tanstack/react-query";
 import { FeatureCollection } from "geojson";
 import { LngLat } from "react-map-gl/maplibre";
-import { convertKeysToSnakeCase, transformQueryParams } from "@/lib/misc";
+import { convertKeysToSnakeCase, transformQueryParams } from "@/utils/misc";
 
 const BASE_AMENITY_URL = `${import.meta.env.VITE_API_PROTOCOL}://${import.meta.env.VITE_API_DOMAIN}/amenities`;
 const BASE_ANALYSIS_URL = `${import.meta.env.VITE_API_PROTOCOL}://${import.meta.env.VITE_API_DOMAIN}/analyze`;
@@ -64,8 +64,7 @@ async function fetchAnalysis(params: FetchAnalysisParams) {
       throw new Error("Network response was not ok");
     }
     const data = await response.json();
-    const { polygon, centroid } = data;
-    return { polygon, centroid };
+    return { polygon: data.polygon, centroid: data.centroid };
   } catch (error) {
     console.error("Error fetching analysis", error);
     throw error;

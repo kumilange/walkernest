@@ -1,6 +1,6 @@
 import { useEffect } from "react";
 import { Layer, LayerProps, Source } from "react-map-gl/maplibre";
-import { fetchRoute } from "@/lib/fetcher";
+import { fetchRoute } from "@/lib/api";
 import { RoutePoint } from "@/types";
 import { toast, useCheckRoutes } from "@/hooks";
 import { twColors } from "@/constants";

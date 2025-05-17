@@ -1,6 +1,6 @@
 import { Popup } from "react-map-gl/maplibre";
 import { useAtomFavItems } from "@/atoms";
-import { capitalize } from "@/lib/misc";
+import { capitalize } from "@/utils/misc";
 import { CloseButton } from "@/components/button";
 import { VALID_PROPERTY_PAIRS } from "@/components/layer/constants";
 import { handleFavorites, processProperties } from "./helper";

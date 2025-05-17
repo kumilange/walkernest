@@ -1,6 +1,6 @@
 import { useEffect } from "react";
 import { useToast } from "@/hooks";
-import { useAmenities } from "@/lib/fetcher";
+import { useAmenities } from "@/lib/api";
 import supermarketIconPath from "@/assets/supermarket-icon.png";
 import cafeIconPath from "@/assets/cafe-icon.png";
 import { extractBaseName } from "../helper";

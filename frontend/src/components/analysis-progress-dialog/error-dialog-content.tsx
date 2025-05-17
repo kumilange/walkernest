@@ -1,4 +1,4 @@
-import { getErrorMessage } from "@/lib/misc";
+import { getErrorMessage } from "@/utils/misc";
 import { AlertTriangle } from "lucide-react";
 
 export default function ErrorDialogContent({

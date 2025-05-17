@@ -1,5 +1,5 @@
 import { CircleX, Locate, LocateFixed } from "lucide-react";
-import { setCursorStyle } from "@/lib/misc";
+import { setCursorStyle } from "@/utils/misc";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
 import { RoutePoint } from "@/types";

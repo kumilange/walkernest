@@ -6,7 +6,7 @@ import {
   transformQueryParams,
   convertKeysToSnakeCase,
   generateCityDataParams,
-} from "@/lib/misc";
+} from "@/utils/misc";
 import type { CityDictItem } from "@/types";
 
 describe("capitalize function", () => {

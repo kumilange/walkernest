@@ -15,9 +15,9 @@ import {
 } from "@/components/ui/form";
 import { CloseButton } from "@/components/button";
 import { ToastAction } from "@/components/ui/toast";
-import { addToLocalStorageList } from "@/lib/localstorage";
+import { addToLocalStorageList } from "@/utils/localstorage";
 import { useAtomFavItems } from "@/atoms";
-import { fetchFavorites } from "@/lib/fetcher";
+import { fetchFavorites } from "@/lib/api";
 import { useToast } from "@/hooks";
 import type { FavoriteItem } from "@/types";
 

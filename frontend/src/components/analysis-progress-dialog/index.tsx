@@ -5,7 +5,7 @@ import {
   DialogDescription,
 } from "@/components/ui/dialog";
 import { Progress } from "@/components/ui/progress";
-import { getErrorMessage } from "@/lib/misc";
+import { getErrorMessage } from "@/utils/misc";
 import ErrorDialogContent from "./error-dialog-content";
 import useEffectHandlers from "./use-effect-handlers";
 
