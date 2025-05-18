@@ -44,7 +44,7 @@ const mockSetFavItems = vi.fn().mockImplementation((items) => {
 const getMockFavorites = () => [...FAVORITES_MOCK_DATA];
 
 // Mock dependencies with proper hoisting
-vi.mock("@/atoms", () => {
+vi.mock("@/features/map/stores/favoritesAtoms", () => {
   return {
     useAtomFavItems: () => ({
       favItems: currentFavItems,
@@ -53,7 +53,7 @@ vi.mock("@/atoms", () => {
   };
 });
 
-vi.mock("@/lib/localstorage", () => {
+vi.mock("@/utils/localstorage", () => {
   return {
     getLocalStorageList: vi.fn().mockImplementation(() => getMockFavorites()),
   };

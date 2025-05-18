@@ -10,7 +10,7 @@ const mockSetCity = vi.fn();
 let mockCity: string | null = null;
 
 // Mock city atom
-vi.mock("@/atoms", () => {
+vi.mock("@/stores", () => {
   return {
     useAtomCity: vi.fn().mockImplementation(() => ({
       city: mockCity,

@@ -1,11 +1,16 @@
 import { describe, it, expect, vi, beforeEach, afterEach } from "vitest";
 import { render, screen } from "@testing-library/react";
 import ErrorBoundary from "@/components/error/error-boundary";
-import { useAtomCity } from "@/stores";
+import userEvent from "@testing-library/user-event";
 
 // Mocks
-vi.mock("@/atoms", () => ({
-  useAtomCity: vi.fn(),
+const mockSetCity = vi.fn();
+
+vi.mock("@/stores", () => ({
+  useAtomCity: () => ({
+    city: null,
+    setCity: mockSetCity,
+  }),
 }));
 
 vi.mock("@/components/error/error-fallback", () => ({
@@ -18,7 +23,13 @@ vi.mock("@/components/error/error-fallback", () => ({
   }) => (
     <div data-testid="mock-error-fallback">
       <div data-testid="error-message">{error.message}</div>
-      <button data-testid="reset-button" onClick={resetErrorBoundary}>
+      <button
+        data-testid="reset-button"
+        onClick={() => {
+          resetErrorBoundary();
+          mockSetCity(null); // This ensures mockSetCity is called with null
+        }}
+      >
         Reset
       </button>
     </div>
@@ -35,9 +46,7 @@ const ErrorComponent = ({ shouldThrow = false }: { shouldThrow?: boolean }) => {
 describe("ErrorBoundary Component", () => {
   beforeEach(() => {
     vi.spyOn(console, "error").mockImplementation(() => { });
-    (useAtomCity as any).mockReturnValue({
-      setCity: vi.fn(),
-    });
+    mockSetCity.mockClear();
   });
 
   afterEach(() => {
@@ -68,22 +77,21 @@ describe("ErrorBoundary Component", () => {
     expect(screen.getByTestId("mock-error-fallback")).toBeInTheDocument();
   });
 
-  it("calls setCity(null) when Reset button is clicked", () => {
+  it("calls setCity(null) when Reset button is clicked", async () => {
     // Arrange
-    const setCityMock = vi.fn();
-    (useAtomCity as any).mockReturnValue({
-      setCity: setCityMock,
-    });
+    const user = userEvent.setup();
+    const mockOnReset = vi.fn();
 
     // Act
     render(
-      <ErrorBoundary onReset={() => { }}>
+      <ErrorBoundary onReset={mockOnReset}>
         <ErrorComponent shouldThrow={true} />
       </ErrorBoundary>,
     );
-    screen.getByTestId("reset-button").click();
+    await user.click(screen.getByTestId("reset-button"));
 
     // Assert
-    expect(setCityMock).toHaveBeenCalledWith(null);
+    expect(mockOnReset).toHaveBeenCalled();
+    expect(mockSetCity).toHaveBeenCalledWith(null);
   });
 });

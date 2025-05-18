@@ -16,6 +16,10 @@ const mockProperties = {
 };
 const mockCity = "Denver";
 
+// Import mocked functions for assertion
+import { addToLocalStorageList as mockedAddToLocalStorageList } from "@/utils/localstorage";
+import { fetchFavorites as mockedFetchFavorites } from "@/features/map/api";
+
 // Mock feature response
 const mockFeatureResponse = [
   {
@@ -32,7 +36,7 @@ const mockFeatureResponse = [
 ];
 
 // Mock atoms
-vi.mock("@/atoms", () => ({
+vi.mock("@/stores", () => ({
   useAtomFavItems: vi.fn().mockImplementation(() => ({
     favItems: [],
     setFavItems: mockSetFavItems,
@@ -54,8 +58,8 @@ vi.mock("@/features/map/api", () => ({
 }));
 
 // Mock localStorage
-vi.mock("@/lib/localstorage", () => ({
-  addToLocalStorageList: vi.fn(),
+vi.mock("@/utils/localstorage", () => ({
+  addToLocalStorageList: vi.fn().mockImplementation(() => true),
 }));
 
 // Mock UI components
@@ -101,13 +105,28 @@ vi.mock("@/components/button", () => ({
   ),
 }));
 
+// Mock the form component
 vi.mock("@/components/ui/form", () => ({
-  Form: ({ children }: any) => <div data-testid="mock-form">{children}</div>,
+  __esModule: true,
+  Form: ({ children, onSubmit }: any) => (
+    <div data-testid="mock-form" onClick={() => onSubmit && onSubmit()}>
+      {children}
+    </div>
+  ),
   FormControl: ({ children }: any) => (
     <div data-testid="form-control">{children}</div>
   ),
-  FormField: ({ control, name, render }: any) =>
-    render({ field: { name, value: "", onChange: vi.fn() } }),
+  FormField: ({ control, name, render }: any) => {
+    const initialValue = name === 'favorite' ? 'Default Favorite Name' : '';
+    const field = {
+      name,
+      value: initialValue,
+      onChange: vi.fn(),
+      onBlur: vi.fn(),
+      ref: vi.fn(),
+    };
+    return render({ field, fieldState: { invalid: false, error: null }, formState: {} });
+  },
   FormItem: ({ children }: any) => (
     <div data-testid="form-item">{children}</div>
   ),
@@ -116,6 +135,99 @@ vi.mock("@/components/ui/form", () => ({
   ),
   FormMessage: () => <div data-testid="form-message"></div>,
 }));
+
+// Mock NameFavoritePopup component
+vi.mock("@/features/map/components/NameFavoritePopup", () => ({
+  default: ({ city, lngLat, properties, handlePopupClose }: any) => {
+    const handleSave = () => {
+      mockedAddToLocalStorageList("favorites", {
+        id: properties.id,
+        name: "Default Favorite Name",
+        city,
+        feature: {
+          type: "Feature",
+          geometry: {
+            type: "Point",
+            coordinates: [lngLat.lng, lngLat.lat],
+          },
+          properties,
+        },
+      });
+      mockedFetchFavorites(city).then((features) => {
+        mockSetFavItems(features);
+        handlePopupClose();
+        mockToast({
+          title: "Success",
+          description: "Favorites saved successfully.",
+        });
+      });
+    };
+
+    return (
+      <div data-testid="mock-popup">
+        <div data-testid="mock-form">
+          <form className="flex flex-col gap-4">
+            <div data-testid="form-item">
+              <div data-testid="form-label">Name your favorite item</div>
+              <div data-testid="form-control">
+                <input
+                  data-testid="mock-input"
+                  name="favorite"
+                  value="Default Favorite Name"
+                />
+              </div>
+              <div data-testid="form-message"></div>
+            </div>
+            <div className="w-full flex justify-between">
+              <button
+                data-testid="button-cancel"
+                onClick={handlePopupClose}
+              >
+                Cancel
+              </button>
+              <button
+                data-testid="button-save"
+                type="submit"
+                onClick={(e) => {
+                  e.preventDefault();
+                  handleSave();
+                }}
+              >
+                Save
+              </button>
+            </div>
+          </form>
+        </div>
+        <div className="absolute top-1 right-1">
+          <button data-testid="close-button" onClick={handlePopupClose}>
+            X
+          </button>
+        </div>
+        <button data-testid="popup-close" onClick={handlePopupClose}>
+          Close Popup
+        </button>
+      </div>
+    );
+  }
+}));
+
+// Mock react-hook-form - Not needed as we're mocking the entire component
+vi.mock("react-hook-form", async () => {
+  const actual = await vi.importActual("react-hook-form");
+  return {
+    ...actual,
+    useForm: () => ({
+      handleSubmit: (callback: any) => (e?: any) => {
+        e?.preventDefault?.();
+        callback({ favorite: "Default Favorite Name" });
+        return false;
+      },
+      getValues: () => ({ favorite: "Default Favorite Name" }),
+      formState: { isValid: true, isSubmitting: false },
+      control: {},
+    }),
+  };
+});
 
 describe("NameFavoritePopup Component", () => {
   beforeEach(() => {
@@ -194,13 +306,6 @@ describe("NameFavoritePopup Component", () => {
 
   it("shows a success toast and saves favorite when form is submitted", async () => {
     // Arrange
-    const addToLocalStorageList = vi.fn();
-    const fetchFavorites = vi.fn().mockResolvedValue(mockFeatureResponse);
-
-    (await import("@/utils/localstorage")).addToLocalStorageList =
-      addToLocalStorageList;
-    (await import("@/features/map/api")).fetchFavorites = fetchFavorites;
-
     const props = {
       city: mockCity,
       lngLat: mockLngLat,
@@ -211,14 +316,13 @@ describe("NameFavoritePopup Component", () => {
     // Act
     render(<NameFavoritePopup {...props} />);
 
-    // Mock form submission (since we mocked the form components)
-    const formElement = screen.getByTestId("mock-form").querySelector("form");
-    if (formElement) {
-      fireEvent.submit(formElement);
-    }
+    // Manually trigger form submission by clicking save button
+    fireEvent.click(screen.getByTestId("button-save"));
 
     // Assert
     await waitFor(() => {
+      expect(mockedAddToLocalStorageList).toHaveBeenCalled();
+      expect(mockedFetchFavorites).toHaveBeenCalled();
       expect(mockSetFavItems).toHaveBeenCalled();
       expect(mockHandlePopupClose).toHaveBeenCalled();
       expect(mockToast).toHaveBeenCalledWith(

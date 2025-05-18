@@ -7,7 +7,7 @@ vi.mock("@/layouts/header/components/Heading", () => ({
   default: () => <div data-testid="mock-heading">Heading Component</div>,
 }));
 
-vi.mock("@/features/CityMap/components/MenuBar", () => ({
+vi.mock("@/features/map/components/MenuBar", () => ({
   default: () => <div data-testid="mock-menu-bar">Menu Bar Component</div>,
 }));
 

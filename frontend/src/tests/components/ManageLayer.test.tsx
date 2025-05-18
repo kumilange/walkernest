@@ -5,7 +5,7 @@ import ManageLayer from "@/features/map/components/CardContent/manage-layer";
 // Mock implementation
 const mockSetLayersVisibility = vi.fn();
 
-vi.mock("@/atoms", () => ({
+vi.mock("@/features/map/stores/layerAtoms", () => ({
   useAtomLayersVisibility: () => ({
     layersVisibility: {
       result: true,

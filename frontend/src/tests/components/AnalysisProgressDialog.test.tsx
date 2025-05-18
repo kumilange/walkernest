@@ -1,5 +1,6 @@
 import { describe, it, expect, vi, beforeEach } from "vitest";
 import { render, screen } from "@testing-library/react";
+import { QueryClient, QueryClientProvider } from "@tanstack/react-query";
 import AnalysisProgressDialog from "@/features/map/components/AnalysisProgressDialog"
 import userEvent from "@testing-library/user-event";
 
@@ -11,7 +12,7 @@ let mockIsError = false;
 let mockError: Error | null = null;
 
 // Mock the useEffectHandlers hook
-vi.mock("@/components/analysis-progress-dialog/use-effect-handlers", () => {
+vi.mock("@/features/map/components/AnalysisProgressDialog/hooks/useEffectHandlers", () => {
   return {
     default: vi.fn().mockImplementation(() => ({
       isOpen: mockIsOpen,
@@ -83,7 +84,7 @@ vi.mock("@/components/ui/progress", () => ({
 }));
 
 // Mock the ErrorDialogContent component
-vi.mock("@/components/analysis-progress-dialog/error-dialog-content", () => ({
+vi.mock("@/features/map/components/AnalysisProgressDialog/ErrorDialogContent", () => ({
   default: ({
     setOpen,
     error,
@@ -108,12 +109,21 @@ vi.mock("@/lib/misc", () => ({
 }));
 
 describe("AnalysisProgressDialog Component", () => {
+  let queryClient: QueryClient;
+
   beforeEach(() => {
     vi.clearAllMocks();
     mockIsOpen = false;
     mockProgress = 0;
     mockIsError = false;
     mockError = null;
+    queryClient = new QueryClient({
+      defaultOptions: {
+        queries: {
+          retry: false,
+        },
+      },
+    });
   });
 
   it("displays progress information when not in error state", () => {
@@ -122,7 +132,11 @@ describe("AnalysisProgressDialog Component", () => {
     mockProgress = 50;
 
     // Act
-    render(<AnalysisProgressDialog cityId={1} />);
+    render(
+      <QueryClientProvider client={queryClient}>
+        <AnalysisProgressDialog cityId={1} />
+      </QueryClientProvider>,
+    );
 
     // Assert
     // Use a more specific selector to avoid ambiguity
@@ -142,7 +156,11 @@ describe("AnalysisProgressDialog Component", () => {
     mockError = new Error("Test error message");
 
     // Act
-    render(<AnalysisProgressDialog cityId={1} />);
+    render(
+      <QueryClientProvider client={queryClient}>
+        <AnalysisProgressDialog cityId={1} />
+      </QueryClientProvider>,
+    );
 
     // Assert
     expect(screen.getByTestId("mock-error-dialog-content")).toBeInTheDocument();
@@ -159,7 +177,11 @@ describe("AnalysisProgressDialog Component", () => {
     const user = userEvent.setup();
 
     // Act
-    render(<AnalysisProgressDialog cityId={1} />);
+    render(
+      <QueryClientProvider client={queryClient}>
+        <AnalysisProgressDialog cityId={1} />
+      </QueryClientProvider>,
+    );
     await user.click(screen.getByTestId("mock-close-button"));
 
     // Assert
@@ -171,7 +193,11 @@ describe("AnalysisProgressDialog Component", () => {
     mockIsOpen = true;
 
     // Act
-    render(<AnalysisProgressDialog cityId={1} />);
+    render(
+      <QueryClientProvider client={queryClient}>
+        <AnalysisProgressDialog cityId={1} />
+      </QueryClientProvider>,
+    );
 
     // Assert
     expect(screen.getByTestId("mock-dialog-title")).toHaveClass("sr-only");
@@ -193,7 +219,11 @@ describe("AnalysisProgressDialog Component", () => {
     mockError = new Error("Test error message");
 
     // Act
-    render(<AnalysisProgressDialog cityId={1} />);
+    render(
+      <QueryClientProvider client={queryClient}>
+        <AnalysisProgressDialog cityId={1} />
+      </QueryClientProvider>,
+    );
 
     // Assert
     expect(screen.getByTestId("mock-dialog-description")).toHaveTextContent(

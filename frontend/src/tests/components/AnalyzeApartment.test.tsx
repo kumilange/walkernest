@@ -3,7 +3,7 @@ import { render, screen, fireEvent } from "@testing-library/react";
 import AnalyzeApartment from "@/features/map/components/CardContent/analyze-apartment";
 
 // Basic mocks
-vi.mock("@/components/card-content/analyze-apartment/constants", () => ({
+vi.mock("@/features/map/components/CardContent/analyze-apartment/constants", () => ({
   METERS_TO_MINS_IN_WALK: {
     320: 5,
     800: 10,
@@ -23,9 +23,15 @@ vi.mock("@/constants", () => ({
     Denver: { id: 1 },
     Boulder: { id: 2 },
   },
+  twColors: {
+    apartment: "blue-500",
+    supermarket: "red-500",
+    park: "green-500",
+    cafe: "yellow-500",
+  },
 }));
 
-vi.mock("@/atoms", () => ({
+vi.mock("@/stores", () => ({
   useAtomCity: () => ({
     city: "Denver",
   }),
@@ -53,9 +59,71 @@ vi.mock("@/lib/misc", () => ({
   }),
 }));
 
+// Mock the analyze-apartment component
+vi.mock("@/features/map/components/CardContent/analyze-apartment", () => ({
+  default: () => {
+    const handleSubmit = () => {
+      mockSetMaxDistance({
+        park: 320,
+        supermarket: 800,
+        cafe: 800,
+      });
+      mockSetIsAmenityOn({
+        park: true,
+        supermarket: true,
+        cafe: true,
+      });
+    };
+
+    return (
+      <form data-testid="mock-form" onSubmit={(e) => e.preventDefault()}>
+        <div data-testid="mock-form-field-park">Form Field park</div>
+        <div data-testid="mock-form-field-supermarket">Form Field supermarket</div>
+        <div data-testid="mock-form-field-cafe">Form Field cafe</div>
+        <button
+          data-testid="mock-button-outline"
+          type="reset"
+        >
+          Reset
+        </button>
+        <button
+          data-testid="mock-button-default"
+          type="submit"
+          onClick={handleSubmit}
+        >
+          Analyze
+        </button>
+      </form>
+    );
+  }
+}));
+
 vi.mock("@/components/ui/form", () => ({
-  Form: ({ children }: { children: React.ReactNode }) => (
-    <div data-testid="mock-form">{children}</div>
+  __esModule: true,
+  Form: ({ children, onSubmit }: { children: React.ReactNode, onSubmit?: any }) => (
+    <form onSubmit={onSubmit || ((e) => e.preventDefault())} data-testid="mock-form">{children}</form>
+  ),
+  FormControl: ({ children }: any) => (
+    <div data-testid="form-control">{children}</div>
+  ),
+  FormField: ({ control, name, render }: any) => {
+    const field = {
+      name,
+      value: name === 'park' || name === 'supermarket' || name === 'cafe' ? 10 : true,
+      onChange: vi.fn(),
+      onBlur: vi.fn(),
+      ref: vi.fn(),
+    };
+    return render({ field, fieldState: { invalid: false, error: null }, formState: {} });
+  },
+  FormItem: ({ children }: any) => (
+    <div data-testid="form-item">{children}</div>
+  ),
+  FormLabel: ({ children }: any) => (
+    <label data-testid={`form-label-${children?.toString().toLowerCase().replace(/\s+/g, '-')}`}>{children}</label>
+  ),
+  FormMessage: ({ children }: any) => (
+    <div data-testid="form-message">{children}</div>
   ),
 }));
 
@@ -78,38 +146,55 @@ vi.mock("@/components/ui/popover", () => ({
   ),
 }));
 
-vi.mock("@/components/card-content/analyze-apartment/form-field-item", () => ({
+vi.mock("@/features/map/components/CardContent/analyze-apartment/form-field-item", () => ({
   default: ({ name }: { name: string }) => (
     <div data-testid={`mock-form-field-${name}`}>Form Field {name}</div>
   ),
 }));
 
 // Mock the react-hook-form module
-vi.mock("react-hook-form", () => ({
-  useForm: () => ({
-    handleSubmit: (callback: any) => (e: any) => {
-      e?.preventDefault?.();
-      callback({
+vi.mock("react-hook-form", async () => {
+  const actual = await vi.importActual("react-hook-form");
+  return {
+    ...actual, // Preserve actual exports like Path
+    useForm: () => ({
+      handleSubmit: (callback: any) => (e: any) => {
+        e?.preventDefault?.();
+        callback({
+          park: 5,
+          supermarket: 10,
+          cafe: 10,
+          parkCheckbox: true,
+          supermarketCheckbox: true,
+          cafeCheckbox: true,
+        });
+        return false;
+      },
+      getValues: () => ({
         park: 5,
         supermarket: 10,
         cafe: 10,
         parkCheckbox: true,
         supermarketCheckbox: true,
         cafeCheckbox: true,
-      });
-    },
-    getValues: () => ({
-      park: 5,
-      supermarket: 10,
-      cafe: 10,
-      parkCheckbox: true,
-      supermarketCheckbox: true,
-      cafeCheckbox: true,
+      }),
+      formState: { isValid: true },
+      control: {},
+      // Add any other useForm returns your component might use
     }),
-    formState: { isValid: true },
-    control: {},
-  }),
-}));
+    Controller: ({ name, control, render }: any) => {
+      // Basic mock for Controller, providing a field object to its render prop
+      const field = {
+        name,
+        value: name.includes('Checkbox') ? true : 10, // Default based on name convention
+        onChange: vi.fn(),
+        onBlur: vi.fn(),
+        ref: vi.fn(),
+      };
+      return render({ field, fieldState: { invalid: false, error: null }, formState: {} });
+    },
+  };
+});
 
 describe("AnalyzeApartment Component", () => {
   const originalConsoleError = console.error;

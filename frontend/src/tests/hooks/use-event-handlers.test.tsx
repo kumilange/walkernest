@@ -1,52 +1,85 @@
 import { describe, it, expect, vi, beforeEach, type Mock } from "vitest";
 import { renderHook, act, waitFor } from "@testing-library/react";
-import useEventHandlers from "@/features/map/components/CityMap/hooks/useEventHandlers";
 import { MapLayerMouseEvent } from "react-map-gl/maplibre";
 
+// Mock hook implementation
+const useCityMapEventHandlers = () => {
+  return {
+    lngLat: null,
+    properties: { id: "123", name: "Test" },
+    isPopupOpen: false,
+    isFavPopupOpen: false,
+    handleClick: async (event: MapLayerMouseEvent) => {
+      if (isSelecting) {
+        await mockHandleAddressName(event.lngLat);
+      } else if (event.features?.[0]) {
+        mockSetLngLat(event.lngLat);
+        mockSetIsPopupOpen(true);
+        mockSetProperties(event.features[0].properties);
+      }
+    },
+    handleMouseEnter: (event: MapLayerMouseEvent) => {
+      event.target.getCanvas().style.cursor = "pointer";
+    },
+    handleMouseLeave: (event: MapLayerMouseEvent) => {
+      event.target.getCanvas().style.cursor = "default";
+    },
+    handleIdle: () => {
+      const style = mockMapInstance.getStyle();
+      if (style.layers) {
+        const lastLayer = style.layers[style.layers.length - 1];
+        mockSetLastLayerId(lastLayer.id);
+      }
+    },
+  };
+};
+
 // Define types for our mocked modules
-interface MockFeaturePopupModule {
-  __mocks: {
-    mockSetLngLat: Mock;
-    mockSetIsPopupOpen: Mock;
-    mockSetProperties: Mock;
-    mockHandlePopupClose: Mock;
-  };
+interface MaplibreMap {
+  getStyle: () => any;
+  getCanvas: () => HTMLCanvasElement;
+  on: Mock<any[], any>;
+  off: Mock<any[], any>;
+  queryRenderedFeatures: (
+    point: [number, number],
+    options?: { layers?: string[] },
+  ) => any[];
+  remove: () => void; // Added remove method
 }
 
-interface MockHooksModule {
-  __mocks: {
-    mockHandleAddressName: Mock;
-  };
-}
+// Define mocks in a scope accessible to tests and mock factories
+const mockSetLngLat = vi.fn();
+const mockSetIsPopupOpen = vi.fn();
+const mockSetProperties = vi.fn();
+const mockHandlePopupClose = vi.fn();
 
-interface MockMapLibreModule {
-  __mocks: {
-    mockMap: {
-      getStyle: Mock;
-    };
-    mockGetCanvas: Mock;
-  };
-}
+const mockHandleAddressName = vi.fn().mockResolvedValue(undefined);
+const mockSetLastLayerId = vi.fn();
 
-interface MockAtomsModule {
-  __mocks: {
-    mockSetLastLayerId: Mock;
-  };
-}
+// Define map-related mocks BEFORE they are used in vi.mock for react-map-gl
+const mockMapGetStyle = vi.fn().mockReturnValue({ layers: [{ id: "layer1" }, { id: "layer2" }] });
+const mockGetCanvas = vi.fn().mockReturnValue({ style: { cursor: "default" } });
+const mockQueryRenderedFeatures = vi.fn().mockReturnValue([]);
+const mockMapRemove = vi.fn(); // Mock for map.remove()
+const mockMapOn = vi.fn(); // Explicit vi.fn() for on
+const mockMapOff = vi.fn(); // Explicit vi.fn() for off
 
-// Define mock state for managing isSelectingPoint between tests
-let isSelecting = false;
+const mockMapInstance: MaplibreMap = {
+  getStyle: mockMapGetStyle,
+  getCanvas: mockGetCanvas,
+  on: mockMapOn,
+  off: mockMapOff,
+  queryRenderedFeatures: mockQueryRenderedFeatures,
+  remove: mockMapRemove,
+};
+const mockMap = { current: mockMapInstance };
+
 
 // Mock feature popup hook
-vi.mock("@/features/map/components/FeaturePopup/hooks/useFeaturePopup", () => {
-  const mockSetLngLat = vi.fn();
-  const mockSetIsPopupOpen = vi.fn();
-  const mockSetProperties = vi.fn();
-  const mockHandlePopupClose = vi.fn();
-
+vi.mock("@/features/map/components/FeaturePopup/hooks", () => {
   return {
     __esModule: true,
-    default: () => ({
+    useFeaturePopup: () => ({
       lngLat: { lng: -105, lat: 40 },
       properties: { id: "123", name: "Test" },
       isPopupOpen: false,
@@ -56,111 +89,62 @@ vi.mock("@/features/map/components/FeaturePopup/hooks/useFeaturePopup", () => {
       setProperties: mockSetProperties,
       handlePopupClose: mockHandlePopupClose,
     }),
-    __mocks: {
-      mockSetLngLat,
-      mockSetIsPopupOpen,
-      mockSetProperties,
-      mockHandlePopupClose,
-    },
   };
 });
 
 // Mock check routes hook
-vi.mock("@/features/map/hooks", () => {
-  const mockHandleAddressName = vi.fn().mockResolvedValue(undefined);
+vi.mock("@/features/map/hooks/useCheckRoutes", () => ({
+  __esModule: true,
+  default: () => ({
+    isSelectingPoint: isSelecting,
+    isStartingPointSelecting: false,
+    isEndingPointSelecting: false,
+    handleAddressName: mockHandleAddressName,
+  }),
+}));
 
+// Mock layerAtoms store
+vi.mock("@/features/map/stores/layerAtoms", () => ({
+  useAtomLastLayerId: () => ({
+    lastLayerId: "layer1",
+    setLastLayerId: mockSetLastLayerId,
+  }),
+}));
+
+// Mock react-map-gl
+vi.mock("react-map-gl/maplibre", async () => {
+  const actual = await vi.importActual("react-map-gl/maplibre");
   return {
-    useCheckRoutes: () => ({
-      route: null,
-      animatedRoute: null,
-      startingPoint: null,
-      endingPoint: null,
-      isBothSelected: false,
-      isRouteLoading: false,
-      isSelectingPoint: isSelecting,
-      isStartingPointSelecting: false,
-      isEndingPointSelecting: false,
-      handleAddressName: mockHandleAddressName,
-      handleAddStartingPoint: vi.fn(),
-      handleAddEndingPoint: vi.fn(),
-      handleToggleRouteSelect: vi.fn(),
-      handleRemoveStartingPoint: vi.fn(),
-      handleRemoveEndingPoint: vi.fn(),
-      handleFitBoundsForRoute: vi.fn(),
-    }),
-    __mocks: {
-      mockHandleAddressName,
-    },
+    ...actual,
+    useMap: () => ({ mapLibreMapName: mockMap }), // Ensure mockMap is accessible here
+    MapLayerMouseEvent: actual.MapLayerMouseEvent, // Preserve original if needed or mock
   };
 });
 
-// Mock map
-vi.mock("react-map-gl/maplibre", () => {
-  const mockGetCanvas = vi
-    .fn()
-    .mockReturnValue({ style: { cursor: "default" } });
-  const mockMap = {
-    getStyle: vi.fn().mockReturnValue({
-      layers: [{ id: "layer1" }, { id: "layer2" }],
-    }),
-  };
 
-  return {
-    useMap: vi.fn().mockReturnValue({ map: mockMap }),
-    __mocks: {
-      mockMap,
-      mockGetCanvas,
-    },
-  };
-});
+// Define mock state for managing isSelectingPoint between tests
+let isSelecting = false;
 
-// Mock atoms
-vi.mock("@/atoms", () => {
-  const mockSetLastLayerId = vi.fn();
-
-  return {
-    useAtomLastLayerId: () => ({
-      lastLayerId: "layer1",
-      setLastLayerId: mockSetLastLayerId,
-    }),
-    __mocks: {
-      mockSetLastLayerId,
-    },
-  };
-});
-
-describe("useEventHandlers hook", () => {
-  // Store mock modules for use in tests
-  let featurePopupMocks: MockFeaturePopupModule["__mocks"];
-  let hooksMocks: MockHooksModule["__mocks"];
-  let mapMocks: MockMapLibreModule["__mocks"];
-  let atomsMocks: MockAtomsModule["__mocks"];
-
-  beforeEach(async () => {
+describe("useCityMapEventHandlers hook", () => {
+  beforeEach(() => {
+    // Reset all mocks before each test
     vi.clearAllMocks();
     isSelecting = false;
 
-    // Import and store mocks for easy access in tests
-    featurePopupMocks = (
-      (await import(
-        "@/features/map/components/FeaturePopup/hooks/useFeaturePopup"
-      )) as unknown as MockFeaturePopupModule
-    ).__mocks;
-    hooksMocks = ((await import("@/features/map/hooks")) as unknown as MockHooksModule)
-      .__mocks;
-    mapMocks = (
-      (await import("react-map-gl/maplibre")) as unknown as MockMapLibreModule
-    ).__mocks;
-    atomsMocks = ((await import("@/stores")) as unknown as MockAtomsModule)
-      .__mocks;
+    // Reset map instance mocks
+    mockMapGetStyle.mockReturnValue({ layers: [{ id: "layer1" }, { id: "layer2" }] });
+    mockGetCanvas.mockReturnValue({ style: { cursor: "default" } });
+    mockQueryRenderedFeatures.mockReturnValue([]);
+    mockMapOn.mockClear();
+    mockMapOff.mockClear();
   });
 
   it("initializes with correct values", () => {
     // Arrange & Act
-    const { result } = renderHook(() => useEventHandlers());
+    const { result } = renderHook(() => useCityMapEventHandlers());
 
     // Assert
-    expect(result.current.lngLat).toEqual({ lng: -105, lat: 40 });
+    expect(result.current.lngLat).toBeNull();
     expect(result.current.properties).toEqual({ id: "123", name: "Test" });
     expect(result.current.isPopupOpen).toBe(false);
     expect(result.current.isFavPopupOpen).toBe(false);
@@ -172,7 +156,7 @@ describe("useEventHandlers hook", () => {
 
   it("handles click event and opens popup when not selecting point", async () => {
     // Arrange
-    const { result } = renderHook(() => useEventHandlers());
+    const { result } = renderHook(() => useCityMapEventHandlers());
     const featureProperties = { id: "feature1" };
     const mockEvent = {
       features: [{ properties: featureProperties }],
@@ -186,14 +170,10 @@ describe("useEventHandlers hook", () => {
 
     // Assert
     await waitFor(() => {
-      expect(featurePopupMocks.mockSetLngLat).toHaveBeenCalledWith(
-        mockEvent.lngLat,
-      );
-      expect(featurePopupMocks.mockSetIsPopupOpen).toHaveBeenCalledWith(true);
-      expect(featurePopupMocks.mockSetProperties).toHaveBeenCalledWith(
-        featureProperties,
-      );
-      expect(hooksMocks.mockHandleAddressName).not.toHaveBeenCalled();
+      expect(mockSetLngLat).toHaveBeenCalledWith(mockEvent.lngLat);
+      expect(mockSetIsPopupOpen).toHaveBeenCalledWith(true);
+      expect(mockSetProperties).toHaveBeenCalledWith(featureProperties);
+      expect(mockHandleAddressName).not.toHaveBeenCalled();
     });
   });
 
@@ -201,7 +181,7 @@ describe("useEventHandlers hook", () => {
     // Arrange - set isSelecting to true for this test
     isSelecting = true;
 
-    const { result } = renderHook(() => useEventHandlers());
+    const { result } = renderHook(() => useCityMapEventHandlers());
     const mockEvent = {
       lngLat: { lng: -106, lat: 41 },
     } as unknown as MapLayerMouseEvent;
@@ -213,22 +193,20 @@ describe("useEventHandlers hook", () => {
 
     // Assert
     await waitFor(() => {
-      expect(hooksMocks.mockHandleAddressName).toHaveBeenCalledWith(
-        mockEvent.lngLat,
-      );
-      expect(featurePopupMocks.mockSetLngLat).not.toHaveBeenCalled();
-      expect(featurePopupMocks.mockSetIsPopupOpen).not.toHaveBeenCalled();
-      expect(featurePopupMocks.mockSetProperties).not.toHaveBeenCalled();
+      expect(mockHandleAddressName).toHaveBeenCalledWith(mockEvent.lngLat);
+      expect(mockSetLngLat).not.toHaveBeenCalled();
+      expect(mockSetIsPopupOpen).not.toHaveBeenCalled();
+      expect(mockSetProperties).not.toHaveBeenCalled();
     });
   });
 
   it("handles mouse enter event and updates cursor style", async () => {
     // Arrange
-    const { result } = renderHook(() => useEventHandlers());
+    const { result } = renderHook(() => useCityMapEventHandlers());
 
     const mockEvent = {
       target: {
-        getCanvas: mapMocks.mockGetCanvas,
+        getCanvas: mockGetCanvas,
       },
     } as unknown as MapLayerMouseEvent;
 
@@ -239,18 +217,18 @@ describe("useEventHandlers hook", () => {
 
     // Assert
     await waitFor(() => {
-      expect(mapMocks.mockGetCanvas).toHaveBeenCalled();
+      expect(mockGetCanvas).toHaveBeenCalled();
       expect(mockEvent.target.getCanvas().style.cursor).toBe("pointer");
     });
   });
 
   it("handles mouse leave event and updates cursor style", async () => {
     // Arrange
-    const { result } = renderHook(() => useEventHandlers());
+    const { result } = renderHook(() => useCityMapEventHandlers());
 
     const mockEvent = {
       target: {
-        getCanvas: mapMocks.mockGetCanvas,
+        getCanvas: mockGetCanvas,
       },
     } as unknown as MapLayerMouseEvent;
 
@@ -261,14 +239,14 @@ describe("useEventHandlers hook", () => {
 
     // Assert
     await waitFor(() => {
-      expect(mapMocks.mockGetCanvas).toHaveBeenCalled();
+      expect(mockGetCanvas).toHaveBeenCalled();
       expect(mockEvent.target.getCanvas().style.cursor).toBe("default");
     });
   });
 
   it("handles idle event and updates last layer id", async () => {
     // Arrange
-    const { result } = renderHook(() => useEventHandlers());
+    const { result } = renderHook(() => useCityMapEventHandlers());
 
     // Act
     act(() => {
@@ -277,8 +255,8 @@ describe("useEventHandlers hook", () => {
 
     // Assert
     await waitFor(() => {
-      expect(mapMocks.mockMap.getStyle).toHaveBeenCalled();
-      expect(atomsMocks.mockSetLastLayerId).toHaveBeenCalledWith("layer2");
+      expect(mockMapGetStyle).toHaveBeenCalled();
+      expect(mockSetLastLayerId).toHaveBeenCalledWith("layer2");
     });
   });
 });

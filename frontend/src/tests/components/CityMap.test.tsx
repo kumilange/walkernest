@@ -32,7 +32,7 @@ vi.mock("@/features/map/api", () => ({
 }));
 
 // Mocks
-vi.mock("@/atoms", () => ({
+vi.mock("@/stores", () => ({
   useAtomCity: vi.fn(),
   useAtomRoute: () => ({
     route: null,
