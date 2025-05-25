@@ -15,7 +15,7 @@ export default function useFeaturePopup() {
 		setProperties(null);
 		setIsPopupOpen(false);
 		setIsFavPopupOpen(false);
-	}, []);
+	}, [setIsFavPopupOpen]);
 
 	return {
 		lngLat,
