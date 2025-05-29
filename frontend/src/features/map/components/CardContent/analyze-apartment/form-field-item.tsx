@@ -1,16 +1,16 @@
-import { Control, Controller, FieldValues, Path, UseFormReturn } from "react-hook-form";
-import { Trees, ShoppingCart, Coffee } from "lucide-react";
-import {
-  FormControl,
-  FormField,
-  FormItem,
-  FormLabel,
-} from "@/components/ui/form";
-import { Input } from "@/components/ui/input";
-import { capitalize } from "@/utils/misc";
 import { Checkbox } from "@/components/ui/checkbox";
+import { FormControl, FormField, FormItem, FormLabel } from "@/components/ui/form";
+import { Input } from "@/components/ui/input";
 import { useAtomIsTmpAmenityOn } from "@/features/map/stores";
-
+import { capitalize } from "@/utils/misc";
+import { Coffee, ShoppingCart, Trees } from "lucide-react";
+import {
+  type Control,
+  Controller,
+  type FieldValues,
+  type Path,
+  UseFormReturn,
+} from "react-hook-form";
 
 type FormFieldItemProps<T extends FieldValues> = {
   control: Control<T>;

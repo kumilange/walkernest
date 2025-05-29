@@ -1,10 +1,10 @@
-import { useState } from "react";
-import { X } from "lucide-react";
 import { Button } from "@/components/ui/button";
 import { Popover, PopoverContent } from "@/components/ui/popover";
+import { X } from "lucide-react";
+import { useState } from "react";
+import CustomCard from "./custom-card";
 import MenuActionTrigger from "./menu-action-trigger";
 import PopoverCloseButton from "./popover-close-button";
-import CustomCard from "./custom-card";
 
 type MenuItemProps = {
   // for action trigger
@@ -28,9 +28,7 @@ export default function MenuItem(props: MenuItemProps) {
     setOpen(isOpen);
   };
 
-  const popoverProps = props.hasOpenState
-    ? { open, onOpenChange: handleOpenChange }
-    : {};
+  const popoverProps = props.hasOpenState ? { open, onOpenChange: handleOpenChange } : {};
 
   return (
     <Popover {...popoverProps}>

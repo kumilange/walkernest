@@ -1,13 +1,13 @@
-import { useQuery } from "@tanstack/react-query";
-import { FeatureCollection } from "geojson";
-import { LngLat } from "react-map-gl/maplibre";
 import { convertKeysToSnakeCase, transformQueryParams } from "@/utils/misc";
+import { useQuery } from "@tanstack/react-query";
+import type { FeatureCollection } from "geojson";
+import type { LngLat } from "react-map-gl/maplibre";
 
 const BASE_AMENITY_URL = `${import.meta.env.VITE_API_PROTOCOL}://${import.meta.env.VITE_API_DOMAIN}/amenities`;
 const BASE_ANALYSIS_URL = `${import.meta.env.VITE_API_PROTOCOL}://${import.meta.env.VITE_API_DOMAIN}/analyze`;
 const BASE_FAVORITES_URL = `${import.meta.env.VITE_API_PROTOCOL}://${import.meta.env.VITE_API_DOMAIN}/favorites`;
 const BASE_OSRM_ROUTE_URL = `${import.meta.env.VITE_API_PROTOCOL}://${import.meta.env.VITE_API_DOMAIN}/proxy/osrm`;
-const BASE_OSM_NOMINATIM_URL = `https://nominatim.openstreetmap.org/reverse`;
+const BASE_OSM_NOMINATIM_URL = "https://nominatim.openstreetmap.org/reverse";
 
 type CityData = {
   geojsons: FeatureCollection[];
@@ -31,7 +31,7 @@ async function fetchAmenities(cityId: number): Promise<CityData> {
           throw new Error("Network response was not ok");
         }
         return response.json();
-      }),
+      })
     );
 
     return { geojsons, types: transformQueryParams(queryParams) };
@@ -42,7 +42,7 @@ async function fetchAmenities(cityId: number): Promise<CityData> {
 }
 export function useAmenities(cityId: number) {
   return useQuery({
-    queryKey: [`amenities`, cityId],
+    queryKey: ["amenities", cityId],
     queryFn: () => fetchAmenities(cityId),
   });
 }
@@ -72,9 +72,9 @@ export function useAnalysis(params: FetchAnalysisParams) {
   const { cityId, ...kwargs } = params;
 
   return useQuery({
-    queryKey: [`analysis`, cityId, ...Object.values(kwargs)],
+    queryKey: ["analysis", cityId, ...Object.values(kwargs)],
     queryFn: () => fetchAnalysis(params),
-    staleTime: Infinity,
+    staleTime: Number.POSITIVE_INFINITY,
   });
 }
 

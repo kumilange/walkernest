@@ -1,8 +1,8 @@
-import { describe, it, expect, vi, beforeEach } from "vitest";
-import { render, screen, fireEvent } from "@testing-library/react";
 import CheckRoute from "@/features/map/components/CardContent/check-route";
 import { useCheckRoutes } from "@/features/map/hooks";
-import { LngLat } from "react-map-gl/maplibre";
+import { fireEvent, render, screen } from "@testing-library/react";
+import type { LngLat } from "react-map-gl/maplibre";
+import { beforeEach, describe, expect, it, vi } from "vitest";
 
 // Mock implementations
 const mockSetStartingPoint = vi.fn();
@@ -53,18 +53,20 @@ vi.mock("@/features/map/hooks", () => ({
 }));
 
 vi.mock("@/features/map/components/CardContent/check-route/select-point", () => ({
-  default: ({
-    isStarting,
-    point,
-    setPoint,
-    isPointSelecting,
-    setIsPointSelecting,
-  }: any) => (
-    <div
+  // biome-ignore lint/suspicious/noExplicitAny: test mock requires any type for flexibility
+  default: ({ isStarting, point, setPoint, isPointSelecting, setIsPointSelecting }: any) => (
+    <button
+      type="button"
       data-testid={`mock-select-point-${isStarting ? "starting" : "ending"}`}
       onClick={() => setIsPointSelecting(!isPointSelecting)}
+      onKeyDown={(e: React.KeyboardEvent) => {
+        if (e.key === "Enter" || e.key === " ") {
+          setIsPointSelecting(!isPointSelecting);
+        }
+      }}
     >
       <button
+        type="button"
         data-testid={`mock-select-button-${isStarting ? "starting" : "ending"}`}
         onClick={(e) => {
           e.stopPropagation();
@@ -83,7 +85,7 @@ vi.mock("@/features/map/components/CardContent/check-route/select-point", () => 
       >
         Select Point
       </button>
-    </div>
+    </button>
   ),
 }));
 
@@ -93,18 +95,22 @@ vi.mock("@/features/map/components/CardContent/check-route/route-result", () => 
 
 vi.mock("lucide-react", () => ({
   __esModule: true,
+  // biome-ignore lint/suspicious/noExplicitAny: lucide mock requires any type
   ArrowDownUp: ({ onClick }: any) => (
+    // biome-ignore lint/a11y/useKeyWithClickEvents: test mock doesn't need keyboard events
     <div data-testid="mock-arrow-down-up" onClick={onClick}>
       Swap
     </div>
   ),
-  Locate: ({ className }: any) => (
-    <div data-testid="mock-locate-icon" className={className} />
-  ),
+  // biome-ignore lint/suspicious/noExplicitAny: lucide mock requires any type
+  Locate: ({ className }: any) => <div data-testid="mock-locate-icon" className={className} />,
+  // biome-ignore lint/suspicious/noExplicitAny: lucide mock requires any type
   LocateFixed: ({ className }: any) => (
     <div data-testid="mock-locate-fixed-icon" className={className} />
   ),
+  // biome-ignore lint/suspicious/noExplicitAny: lucide mock requires any type
   CircleX: ({ className, onClick }: any) => (
+    // biome-ignore lint/a11y/useKeyWithClickEvents: test mock doesn't need keyboard events
     <div data-testid="mock-circlex-icon" className={className} onClick={onClick} />
   ),
 }));
@@ -119,9 +125,7 @@ describe("CheckRoute Component", () => {
     render(<CheckRoute />);
 
     // Assert
-    expect(
-      screen.getByTestId("mock-select-point-starting"),
-    ).toBeInTheDocument();
+    expect(screen.getByTestId("mock-select-point-starting")).toBeInTheDocument();
     expect(screen.getByTestId("mock-select-point-ending")).toBeInTheDocument();
     expect(screen.getByTestId("mock-route-result")).toBeInTheDocument();
     expect(screen.queryByTestId("mock-arrow-down-up")).not.toBeInTheDocument();

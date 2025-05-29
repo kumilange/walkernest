@@ -1,10 +1,10 @@
-import { describe, it, expect, vi } from "vitest";
-import { render, screen } from "@testing-library/react";
 import App from "@/app";
+import { render, screen } from "@testing-library/react";
+import { describe, expect, it, vi } from "vitest";
 
 // Mocks
 vi.mock("@/components/ui/toaster", () => ({
-  Toaster: () => <div data-testid="mock-toaster"></div>,
+  Toaster: () => <div data-testid="mock-toaster" />,
 }));
 
 vi.mock("@/components/error/error-boundary", () => ({
@@ -14,7 +14,7 @@ vi.mock("@/components/error/error-boundary", () => ({
 }));
 
 vi.mock("@/features/map/components/CityMap", () => ({
-  default: () => <div data-testid="mock-city-map"></div>,
+  default: () => <div data-testid="mock-city-map" />,
 }));
 
 describe("App Component", () => {

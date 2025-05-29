@@ -1,6 +1,6 @@
-import { describe, it, expect, vi, beforeEach, type Mock } from "vitest";
-import { renderHook, act, waitFor } from "@testing-library/react";
-import { MapLayerMouseEvent } from "react-map-gl/maplibre";
+import { act, renderHook, waitFor } from "@testing-library/react";
+import type { MapLayerMouseEvent } from "react-map-gl/maplibre";
+import { type Mock, beforeEach, describe, expect, it, vi } from "vitest";
 
 // Mock hook implementation
 const useCityMapEventHandlers = () => {
@@ -36,14 +36,13 @@ const useCityMapEventHandlers = () => {
 
 // Define types for our mocked modules
 interface MaplibreMap {
+  // biome-ignore lint/suspicious/noExplicitAny: test mock requires any type for getStyle return
   getStyle: () => any;
   getCanvas: () => HTMLCanvasElement;
-  on: Mock<any[], any>;
-  off: Mock<any[], any>;
-  queryRenderedFeatures: (
-    point: [number, number],
-    options?: { layers?: string[] },
-  ) => any[];
+  on: Mock;
+  off: Mock;
+  // biome-ignore lint/suspicious/noExplicitAny: test mock requires any type for query results flexibility
+  queryRenderedFeatures: (point: [number, number], options?: { layers?: string[] }) => any[];
   remove: () => void; // Added remove method
 }
 
@@ -73,7 +72,6 @@ const mockMapInstance: MaplibreMap = {
   remove: mockMapRemove,
 };
 const mockMap = { current: mockMapInstance };
-
 
 // Mock feature popup hook
 vi.mock("@/features/map/components/FeaturePopup/hooks", () => {
@@ -120,7 +118,6 @@ vi.mock("react-map-gl/maplibre", async () => {
     MapLayerMouseEvent: actual.MapLayerMouseEvent, // Preserve original if needed or mock
   };
 });
-
 
 // Define mock state for managing isSelectingPoint between tests
 let isSelecting = false;

@@ -18,11 +18,7 @@ export function addToLocalStorageList<T>(key: string, item: T): void {
   }
 
   const list = getLocalStorageList<T>(key);
-  if (
-    !list.some(
-      (existingItem) => JSON.stringify(existingItem) === JSON.stringify(item),
-    )
-  ) {
+  if (!list.some((existingItem) => JSON.stringify(existingItem) === JSON.stringify(item))) {
     list.push(item);
     localStorage.setItem(key, JSON.stringify(list));
   }
@@ -31,7 +27,7 @@ export function addToLocalStorageList<T>(key: string, item: T): void {
 // Remove object from a list in localStorage
 export function removeFromLocalStorageList<T extends { id: number }>(
   key: string,
-  id: number,
+  id: number
 ): void {
   if (!isLocalStorageAvailable()) {
     console.warn("localStorage is not available");

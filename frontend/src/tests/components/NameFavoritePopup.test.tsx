@@ -1,7 +1,7 @@
-import { describe, it, expect, vi, beforeEach } from "vitest";
-import { render, screen, fireEvent, waitFor } from "@testing-library/react";
 import NameFavoritePopup from "@/features/map/components/NameFavoritePopup";
-import { LngLat } from "react-map-gl/maplibre";
+import { fireEvent, render, screen, waitFor } from "@testing-library/react";
+import type { LngLat } from "react-map-gl/maplibre";
+import { beforeEach, describe, expect, it, vi } from "vitest";
 
 // Mock handlers and state
 const mockHandlePopupClose = vi.fn();
@@ -16,9 +16,9 @@ const mockProperties = {
 };
 const mockCity = "Denver";
 
+import { fetchFavorites as mockedFetchFavorites } from "@/features/map/api";
 // Import mocked functions for assertion
 import { addToLocalStorageList as mockedAddToLocalStorageList } from "@/utils/localstorage";
-import { fetchFavorites as mockedFetchFavorites } from "@/features/map/api";
 
 // Mock feature response
 const mockFeatureResponse = [
@@ -52,9 +52,7 @@ vi.mock("@/hooks", () => ({
 
 // Mock fetch functions
 vi.mock("@/features/map/api", () => ({
-  fetchFavorites: vi
-    .fn()
-    .mockImplementation(() => Promise.resolve(mockFeatureResponse)),
+  fetchFavorites: vi.fn().mockImplementation(() => Promise.resolve(mockFeatureResponse)),
 }));
 
 // Mock localStorage
@@ -64,10 +62,11 @@ vi.mock("@/utils/localstorage", () => ({
 
 // Mock UI components
 vi.mock("react-map-gl/maplibre", () => ({
+  // biome-ignore lint/suspicious/noExplicitAny: test mock requires any type for props flexibility
   Popup: ({ children, onClose }: any) => (
     <div data-testid="mock-popup">
       {children}
-      <button data-testid="popup-close" onClick={onClose}>
+      <button type="button" data-testid="popup-close" onClick={onClose}>
         Close Popup
       </button>
     </div>
@@ -75,6 +74,7 @@ vi.mock("react-map-gl/maplibre", () => ({
 }));
 
 vi.mock("@/components/ui/button", () => ({
+  // biome-ignore lint/suspicious/noExplicitAny: test mock requires any type for props flexibility
   Button: ({ children, onClick, disabled, type }: any) => (
     <button
       data-testid={`button-${children?.toString().toLowerCase()}`}
@@ -88,18 +88,23 @@ vi.mock("@/components/ui/button", () => ({
 }));
 
 vi.mock("@/components/ui/input", () => ({
+  // biome-ignore lint/suspicious/noExplicitAny: test mock requires any type for props flexibility
   Input: (props: any) => <input data-testid="mock-input" {...props} />,
 }));
 
 vi.mock("@/components/ui/toast", () => ({
+  // biome-ignore lint/suspicious/noExplicitAny: test mock requires any type for props flexibility
   ToastAction: ({ children }: any) => (
-    <button data-testid="toast-action">{children}</button>
+    <button type="button" data-testid="toast-action">
+      {children}
+    </button>
   ),
 }));
 
 vi.mock("@/components/button", () => ({
+  // biome-ignore lint/suspicious/noExplicitAny: test mock requires any type for props flexibility
   CloseButton: ({ handleClose }: any) => (
-    <button data-testid="close-button" onClick={handleClose}>
+    <button type="button" data-testid="close-button" onClick={handleClose}>
       X
     </button>
   ),
@@ -108,16 +113,18 @@ vi.mock("@/components/button", () => ({
 // Mock the form component
 vi.mock("@/components/ui/form", () => ({
   __esModule: true,
+  // biome-ignore lint/suspicious/noExplicitAny: test mock requires any type for props flexibility
   Form: ({ children, onSubmit }: any) => (
-    <div data-testid="mock-form" onClick={() => onSubmit && onSubmit()}>
+    // biome-ignore lint/a11y/useKeyWithClickEvents: test mock doesn't need keyboard events
+    <div data-testid="mock-form" onClick={() => onSubmit?.()}>
       {children}
     </div>
   ),
-  FormControl: ({ children }: any) => (
-    <div data-testid="form-control">{children}</div>
-  ),
+  // biome-ignore lint/suspicious/noExplicitAny: test mock requires any type for props flexibility
+  FormControl: ({ children }: any) => <div data-testid="form-control">{children}</div>,
+  // biome-ignore lint/suspicious/noExplicitAny: test mock requires any type for props flexibility
   FormField: ({ control, name, render }: any) => {
-    const initialValue = name === 'favorite' ? 'Default Favorite Name' : '';
+    const initialValue = name === "favorite" ? "Default Favorite Name" : "";
     const field = {
       name,
       value: initialValue,
@@ -127,17 +134,16 @@ vi.mock("@/components/ui/form", () => ({
     };
     return render({ field, fieldState: { invalid: false, error: null }, formState: {} });
   },
-  FormItem: ({ children }: any) => (
-    <div data-testid="form-item">{children}</div>
-  ),
-  FormLabel: ({ children }: any) => (
-    <div data-testid="form-label">{children}</div>
-  ),
-  FormMessage: () => <div data-testid="form-message"></div>,
+  // biome-ignore lint/suspicious/noExplicitAny: test mock requires any type for props flexibility
+  FormItem: ({ children }: any) => <div data-testid="form-item">{children}</div>,
+  // biome-ignore lint/suspicious/noExplicitAny: test mock requires any type for props flexibility
+  FormLabel: ({ children }: any) => <div data-testid="form-label">{children}</div>,
+  FormMessage: () => <div data-testid="form-message" />,
 }));
 
 // Mock NameFavoritePopup component
 vi.mock("@/features/map/components/NameFavoritePopup", () => ({
+  // biome-ignore lint/suspicious/noExplicitAny: test mock requires any type for props flexibility
   default: ({ city, lngLat, properties, handlePopupClose }: any) => {
     const handleSave = () => {
       mockedAddToLocalStorageList("favorites", {
@@ -170,19 +176,12 @@ vi.mock("@/features/map/components/NameFavoritePopup", () => ({
             <div data-testid="form-item">
               <div data-testid="form-label">Name your favorite item</div>
               <div data-testid="form-control">
-                <input
-                  data-testid="mock-input"
-                  name="favorite"
-                  value="Default Favorite Name"
-                />
+                <input data-testid="mock-input" name="favorite" value="Default Favorite Name" />
               </div>
-              <div data-testid="form-message"></div>
+              <div data-testid="form-message" />
             </div>
             <div className="w-full flex justify-between">
-              <button
-                data-testid="button-cancel"
-                onClick={handlePopupClose}
-              >
+              <button type="button" data-testid="button-cancel" onClick={handlePopupClose}>
                 Cancel
               </button>
               <button
@@ -199,16 +198,16 @@ vi.mock("@/features/map/components/NameFavoritePopup", () => ({
           </form>
         </div>
         <div className="absolute top-1 right-1">
-          <button data-testid="close-button" onClick={handlePopupClose}>
+          <button type="button" data-testid="close-button" onClick={handlePopupClose}>
             X
           </button>
         </div>
-        <button data-testid="popup-close" onClick={handlePopupClose}>
+        <button type="button" data-testid="popup-close" onClick={handlePopupClose}>
           Close Popup
         </button>
       </div>
     );
-  }
+  },
 }));
 
 // Mock react-hook-form - Not needed as we're mocking the entire component
@@ -217,6 +216,7 @@ vi.mock("react-hook-form", async () => {
   return {
     ...actual,
     useForm: () => ({
+      // biome-ignore lint/suspicious/noExplicitAny: test mock requires any type for callback flexibility
       handleSubmit: (callback: any) => (e?: any) => {
         e?.preventDefault?.();
         callback({ favorite: "Default Favorite Name" });
@@ -328,7 +328,7 @@ describe("NameFavoritePopup Component", () => {
       expect(mockToast).toHaveBeenCalledWith(
         expect.objectContaining({
           description: "Favorites saved successfully.",
-        }),
+        })
       );
     });
   });

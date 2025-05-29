@@ -1,7 +1,7 @@
-import { describe, it, expect, vi, beforeEach } from "vitest";
-import { render, screen, fireEvent } from "@testing-library/react";
 import FeaturePopup from "@/features/map/components/FeaturePopup";
-import { LngLat } from "react-map-gl/maplibre";
+import { fireEvent, render, screen } from "@testing-library/react";
+import type { LngLat } from "react-map-gl/maplibre";
+import { beforeEach, describe, expect, it, vi } from "vitest";
 
 // Mock handlers and state
 const mockHandlePopupClose = vi.fn();
@@ -72,10 +72,11 @@ vi.mock("@/features/map/components/FeaturePopup/layerConstants", () => ({
 
 // Mock UI components
 vi.mock("react-map-gl/maplibre", () => ({
+  // biome-ignore lint/suspicious/noExplicitAny: test mock requires any type for props flexibility
   Popup: ({ children, onClose, className }: any) => (
     <div data-testid="mock-popup" className={className}>
       {children}
-      <button data-testid="popup-close" onClick={onClose}>
+      <button type="button" data-testid="popup-close" onClick={onClose}>
         Close Popup
       </button>
     </div>
@@ -83,8 +84,9 @@ vi.mock("react-map-gl/maplibre", () => ({
 }));
 
 vi.mock("@/components/button", () => ({
+  // biome-ignore lint/suspicious/noExplicitAny: test mock requires any type for props flexibility
   CloseButton: ({ handleClose }: any) => (
-    <button data-testid="close-button" onClick={handleClose}>
+    <button type="button" data-testid="close-button" onClick={handleClose}>
       X
     </button>
   ),
@@ -92,6 +94,7 @@ vi.mock("@/components/button", () => ({
 
 // Mock the actual component to ensure we render what we need for the tests
 vi.mock("@/features/map/components/FeaturePopup", () => ({
+  // biome-ignore lint/suspicious/noExplicitAny: test mock requires any type for props flexibility
   default: ({ lngLat, properties, handlePopupClose }: any) => (
     <div data-testid="mock-popup" className="relative animate-fade-in delay-300 text-green-800">
       <div className="flex items-center">
@@ -113,11 +116,11 @@ vi.mock("@/features/map/components/FeaturePopup", () => ({
         <span className="flex-grow pl-1.5">123 Main St</span>
       </div>
       <div className="absolute top-1 right-1">
-        <button data-testid="close-button" onClick={handlePopupClose}>
+        <button type="button" data-testid="close-button" onClick={handlePopupClose}>
           X
         </button>
       </div>
-      <button data-testid="popup-close" onClick={handlePopupClose}>
+      <button type="button" data-testid="popup-close" onClick={handlePopupClose}>
         Close Popup
       </button>
     </div>

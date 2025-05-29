@@ -1,6 +1,6 @@
-import { describe, it, expect, vi, beforeEach, afterEach } from "vitest";
-import { render, screen, fireEvent } from "@testing-library/react";
 import AnalyzeApartment from "@/features/map/components/CardContent/analyze-apartment";
+import { fireEvent, render, screen } from "@testing-library/react";
+import { afterEach, beforeEach, describe, expect, it, vi } from "vitest";
 
 // Basic mocks
 vi.mock("@/features/map/components/CardContent/analyze-apartment/constants", () => ({
@@ -80,54 +80,60 @@ vi.mock("@/features/map/components/CardContent/analyze-apartment", () => ({
         <div data-testid="mock-form-field-park">Form Field park</div>
         <div data-testid="mock-form-field-supermarket">Form Field supermarket</div>
         <div data-testid="mock-form-field-cafe">Form Field cafe</div>
-        <button
-          data-testid="mock-button-outline"
-          type="reset"
-        >
+        <button data-testid="mock-button-outline" type="reset">
           Reset
         </button>
-        <button
-          data-testid="mock-button-default"
-          type="submit"
-          onClick={handleSubmit}
-        >
+        <button data-testid="mock-button-default" type="submit" onClick={handleSubmit}>
           Analyze
         </button>
       </form>
     );
-  }
+  },
 }));
 
 vi.mock("@/components/ui/form", () => ({
   __esModule: true,
-  Form: ({ children, onSubmit }: { children: React.ReactNode, onSubmit?: any }) => (
-    <form onSubmit={onSubmit || ((e) => e.preventDefault())} data-testid="mock-form">{children}</form>
+  Form: ({
+    children,
+    onSubmit,
+  }: {
+    children: React.ReactNode;
+    onSubmit?: (e: React.FormEvent) => void;
+  }) => (
+    <form onSubmit={onSubmit || ((e) => e.preventDefault())} data-testid="mock-form">
+      {children}
+    </form>
   ),
-  FormControl: ({ children }: any) => (
-    <div data-testid="form-control">{children}</div>
-  ),
+  // biome-ignore lint/suspicious/noExplicitAny: test mock requires any type
+  FormControl: ({ children }: any) => <div data-testid="form-control">{children}</div>,
+  // biome-ignore lint/suspicious/noExplicitAny: test mock requires any type
   FormField: ({ control, name, render }: any) => {
     const field = {
       name,
-      value: name === 'park' || name === 'supermarket' || name === 'cafe' ? 10 : true,
+      value: name === "park" || name === "supermarket" || name === "cafe" ? 10 : true,
       onChange: vi.fn(),
       onBlur: vi.fn(),
       ref: vi.fn(),
     };
     return render({ field, fieldState: { invalid: false, error: null }, formState: {} });
   },
-  FormItem: ({ children }: any) => (
-    <div data-testid="form-item">{children}</div>
-  ),
+  // biome-ignore lint/suspicious/noExplicitAny: test mock requires any type
+  FormItem: ({ children }: any) => <div data-testid="form-item">{children}</div>,
+  // biome-ignore lint/suspicious/noExplicitAny: test mock requires any type
   FormLabel: ({ children }: any) => (
-    <label data-testid={`form-label-${children?.toString().toLowerCase().replace(/\s+/g, '-')}`}>{children}</label>
+    <label
+      data-testid={`form-label-${children?.toString().toLowerCase().replace(/\s+/g, "-")}`}
+      htmlFor={children?.toString().toLowerCase().replace(/\s+/g, "-")}
+    >
+      {children}
+    </label>
   ),
-  FormMessage: ({ children }: any) => (
-    <div data-testid="form-message">{children}</div>
-  ),
+  // biome-ignore lint/suspicious/noExplicitAny: test mock requires any type
+  FormMessage: ({ children }: any) => <div data-testid="form-message">{children}</div>,
 }));
 
 vi.mock("@/components/ui/button", () => ({
+  // biome-ignore lint/suspicious/noExplicitAny: test mock requires any type
   Button: ({ children, disabled, onClick, type, variant }: any) => (
     <button
       data-testid={`mock-button-${variant || "default"}`}
@@ -158,6 +164,7 @@ vi.mock("react-hook-form", async () => {
   return {
     ...actual, // Preserve actual exports like Path
     useForm: () => ({
+      // biome-ignore lint/suspicious/noExplicitAny: test mock requires any type
       handleSubmit: (callback: any) => (e: any) => {
         e?.preventDefault?.();
         callback({
@@ -182,11 +189,12 @@ vi.mock("react-hook-form", async () => {
       control: {},
       // Add any other useForm returns your component might use
     }),
+    // biome-ignore lint/suspicious/noExplicitAny: test mock requires any type
     Controller: ({ name, control, render }: any) => {
       // Basic mock for Controller, providing a field object to its render prop
       const field = {
         name,
-        value: name.includes('Checkbox') ? true : 10, // Default based on name convention
+        value: name.includes("Checkbox") ? true : 10, // Default based on name convention
         onChange: vi.fn(),
         onBlur: vi.fn(),
         ref: vi.fn(),
@@ -215,9 +223,7 @@ describe("AnalyzeApartment Component", () => {
     // Assert
     expect(screen.getByTestId("mock-form")).toBeInTheDocument();
     expect(screen.getByTestId("mock-form-field-park")).toBeInTheDocument();
-    expect(
-      screen.getByTestId("mock-form-field-supermarket"),
-    ).toBeInTheDocument();
+    expect(screen.getByTestId("mock-form-field-supermarket")).toBeInTheDocument();
     expect(screen.getByTestId("mock-form-field-cafe")).toBeInTheDocument();
     expect(screen.getByTestId("mock-button-outline")).toBeInTheDocument();
     expect(screen.getByTestId("mock-button-default")).toBeInTheDocument();
@@ -238,14 +244,14 @@ describe("AnalyzeApartment Component", () => {
         park: expect.any(Number),
         supermarket: expect.any(Number),
         cafe: expect.any(Number),
-      }),
+      })
     );
     expect(mockSetIsAmenityOn).toHaveBeenCalledWith(
       expect.objectContaining({
         park: expect.any(Boolean),
         supermarket: expect.any(Boolean),
         cafe: expect.any(Boolean),
-      }),
+      })
     );
   });
 });

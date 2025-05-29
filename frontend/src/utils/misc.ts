@@ -1,11 +1,6 @@
+import type { CityArrayItem, CityDictItem, IsAmenityOn, MaxDistance } from "@/types";
 import { type ClassValue, clsx } from "clsx";
 import { twMerge } from "tailwind-merge";
-import type {
-  CityDictItem,
-  CityArrayItem,
-  MaxDistance,
-  IsAmenityOn,
-} from "@/types";
 
 /**
  * Combines multiple class names into a single string.
@@ -31,9 +26,7 @@ export function capitalize(str: string): string {
  * Sets the cursor style of the canvas element based on the selection state.
  */
 export const setCursorStyle = ({ isSelecting }: { isSelecting: boolean }) => {
-  const canvasElement = document.querySelector(
-    ".maplibregl-canvas",
-  ) as HTMLElement;
+  const canvasElement = document.querySelector(".maplibregl-canvas") as HTMLElement;
   if (!canvasElement) return;
 
   if (isSelecting) {
@@ -49,22 +42,18 @@ export const setCursorStyle = ({ isSelecting }: { isSelecting: boolean }) => {
  * @remarks
  * The function capitalizes each word in the city name and replaces underscores with spaces to create the label property.
  */
-export const transformToCityListArray = (
-  cityListDict: CityDictItem,
-): CityArrayItem[] => {
+export const transformToCityListArray = (cityListDict: CityDictItem): CityArrayItem[] => {
   function capitalize(str: string): string {
     return str.replace(/\b\w/g, (char: string) => char.toUpperCase());
   }
 
   // Transform the data to match the CityArrayItem type
-  const cityListArray: CityArrayItem[] = Object.entries(cityListDict).map(
-    ([key, value]) => ({
-      id: value.id,
-      value: key,
-      label: capitalize(key.replace(/_/g, " ")),
-      geometry: value.geometry,
-    }),
-  );
+  const cityListArray: CityArrayItem[] = Object.entries(cityListDict).map(([key, value]) => ({
+    id: value.id,
+    value: key,
+    label: capitalize(key.replace(/_/g, " ")),
+    geometry: value.geometry,
+  }));
 
   // Sort the array in alphabetical order based on the label property
   cityListArray.sort((a, b) => a.label.localeCompare(b.label));
@@ -120,9 +109,7 @@ export function generateCityDataParams({
 }) {
   return {
     ...(isAmenityOn.park ? { maxMeterPark: maxDistance.park } : {}),
-    ...(isAmenityOn.supermarket
-      ? { maxMeterSupermarket: maxDistance.supermarket }
-      : {}),
+    ...(isAmenityOn.supermarket ? { maxMeterSupermarket: maxDistance.supermarket } : {}),
     ...(isAmenityOn.cafe ? { maxMeterCafe: maxDistance.cafe } : {}),
   };
 }

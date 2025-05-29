@@ -1,22 +1,14 @@
-import React from "react";
 import { Button } from "@/components/ui/button";
-import {
-  Tooltip,
-  TooltipContent,
-  TooltipProvider,
-  TooltipTrigger,
-} from "@/components/ui/tooltip";
 import { PopoverTrigger } from "@/components/ui/popover";
+import { Tooltip, TooltipContent, TooltipProvider, TooltipTrigger } from "@/components/ui/tooltip";
+import type React from "react";
 
 type MenuActionTriggerProps = {
   icon: React.ReactNode;
   tooltip: string;
 };
 
-export default function MenuActionTrigger({
-  icon,
-  tooltip,
-}: MenuActionTriggerProps) {
+export default function MenuActionTrigger({ icon, tooltip }: MenuActionTriggerProps) {
   return (
     <TooltipProvider delayDuration={300}>
       <Tooltip>

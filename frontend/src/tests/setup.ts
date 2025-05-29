@@ -1,7 +1,7 @@
 import "@testing-library/jest-dom";
-import { expect, afterEach, vi } from "vitest";
-import { cleanup } from "@testing-library/react";
 import * as matchers from "@testing-library/jest-dom/matchers";
+import { cleanup } from "@testing-library/react";
+import { afterEach, expect, vi } from "vitest";
 
 // Mock URL.createObjectURL
 global.URL.createObjectURL = vi.fn(() => "mock-url");
@@ -113,14 +113,14 @@ const mockWebGLContext = {
 } as unknown as WebGLRenderingContext;
 
 // Mock getContext
-HTMLCanvasElement.prototype.getContext = function (contextType: string) {
+HTMLCanvasElement.prototype.getContext = ((contextType: string) => {
   if (contextType === "webgl" || contextType === "webgl2") {
     return mockWebGLContext;
   }
   return mockCanvasContext;
-} as unknown as typeof HTMLCanvasElement.prototype.getContext;
+}) as unknown as typeof HTMLCanvasElement.prototype.getContext;
 
-// Mock Worker
+// Mock Worker using factory function
 const mockWorker = {
   postMessage: vi.fn(),
   addEventListener: vi.fn(),
@@ -135,9 +135,6 @@ const mockWorker = {
 };
 
 class Worker {
-  constructor() {
-    return mockWorker;
-  }
   postMessage = mockWorker.postMessage;
   addEventListener = mockWorker.addEventListener;
   removeEventListener = mockWorker.removeEventListener;
@@ -148,11 +145,16 @@ class Worker {
   onunhandledrejection = null;
   onrejectionhandled = null;
   dispatchEvent = mockWorker.dispatchEvent;
+
+  constructor() {
+    Object.assign(this, mockWorker);
+  }
 }
 
 global.Worker = Worker as unknown as typeof globalThis.Worker;
 
 // extends Vitest's expect method with methods from react-testing-library
+// biome-ignore lint/suspicious/noExplicitAny: testing library types require any
 expect.extend(matchers as any);
 
 // runs a cleanup after each test case (e.g. clearing jsdom)

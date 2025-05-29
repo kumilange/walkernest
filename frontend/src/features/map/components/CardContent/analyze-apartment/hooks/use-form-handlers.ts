@@ -1,9 +1,9 @@
-import { z } from "zod";
-import { FormSchema } from "../types";
-import { METERS_TO_MINS_IN_WALK } from "../constants";
-import { useForm } from "react-hook-form";
 import { zodResolver } from "@hookform/resolvers/zod";
+import { useForm } from "react-hook-form";
+import type { z } from "zod";
 import { useAtomIsTmpAmenityOn, useAtomMaxDistance } from "../../../../stores/analysisAtoms";
+import { METERS_TO_MINS_IN_WALK } from "../constants";
+import { FormSchema } from "../types";
 
 export default function useFormHandlers({ city }: { city: string | null }) {
   const { maxDistance } = useAtomMaxDistance();

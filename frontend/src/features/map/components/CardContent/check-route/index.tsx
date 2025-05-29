@@ -1,9 +1,9 @@
-import { useState } from "react";
-import { ArrowDownUp } from "lucide-react";
-import { useCheckRoutes } from "@/features/map/hooks";
-import SelectPoint from "./select-point";
-import RouteResult from "./route-result";
 import { Button } from "@/components/ui/button";
+import { useCheckRoutes } from "@/features/map/hooks";
+import { ArrowDownUp } from "lucide-react";
+import { useState } from "react";
+import RouteResult from "./route-result";
+import SelectPoint from "./select-point";
 
 export default function CheckRoute() {
   const {
@@ -39,10 +39,7 @@ export default function CheckRoute() {
         </div>
         {(startingPoint || endingPoint) && (
           <div className="flex items-center">
-            <ArrowDownUp
-              className="w-[16px] cursor-pointer"
-              onClick={reversePoints}
-            />
+            <ArrowDownUp className="w-[16px] cursor-pointer" onClick={reversePoints} />
           </div>
         )}
       </div>

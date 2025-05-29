@@ -1,13 +1,13 @@
-import { ReactNode } from "react";
-import { LngLat } from "maplibre-gl";
-import {
+import type {
   Feature,
   GeoJsonProperties,
   Geometry,
-  Point,
   LineString,
   MultiLineString,
+  Point,
 } from "geojson";
+import type { LngLat } from "maplibre-gl";
+import type { ReactNode } from "react";
 
 // City-related types
 export type CityArrayItem = {
@@ -33,13 +33,7 @@ export type FavoriteItem = {
 };
 
 // Layer-related types
-type PreferenceKeys =
-  | "result"
-  | "cluster"
-  | "park"
-  | "supermarket"
-  | "cafe"
-  | "boundary";
+type PreferenceKeys = "result" | "cluster" | "park" | "supermarket" | "cafe" | "boundary";
 
 export type LayersVisibility = {
   [key in PreferenceKeys]: boolean;
