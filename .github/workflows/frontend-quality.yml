@@ -21,18 +21,21 @@ jobs:
         uses: actions/setup-node@v4
         with:
           node-version: '20'
-          cache: 'npm'
           
-      - name: Install dependencies
+      - name: Clean install frontend dependencies
+        working-directory: ./frontend
         run: |
-          npm ci
-          cd frontend && npm ci
+          rm -rf node_modules package-lock.json
+          npm install
           
       - name: Run Biome check
-        run: cd frontend && npm run check:biome-ci
+        working-directory: ./frontend
+        run: npm run check:biome-ci
         
       - name: Run TypeScript check
-        run: cd frontend && npm run typecheck
+        working-directory: ./frontend
+        run: npm run typecheck
         
-      - name: Run tests
-        run: cd frontend && npm run test 
+      - name: Run frontend tests only
+        working-directory: ./frontend
+        run: npm run test 
