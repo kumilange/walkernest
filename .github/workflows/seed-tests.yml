@@ -1,0 +1,37 @@
+name: Seed Tests
+
+on:
+  push:
+    branches: [main]
+    paths: ['seed/**', 'requirements-test.txt', 'requirements-all.txt']
+  pull_request:
+    branches: [main]
+    paths: ['seed/**', 'requirements-test.txt', 'requirements-all.txt']
+
+jobs:
+  seed-tests:
+    name: Seed Tests
+    runs-on: ubuntu-latest
+    
+    steps:
+      - name: Checkout code
+        uses: actions/checkout@v4
+        
+      - name: Setup Python
+        uses: actions/setup-python@v5
+        with:
+          python-version: '3.9'
+          cache: 'pip'
+          cache-dependency-path: 'requirements-test.txt'
+          
+      - name: Install Python dependencies
+        run: |
+          # Upgrade pip
+          python -m pip install --upgrade pip
+          # Install test dependencies
+          pip install -r requirements-test.txt
+          
+      - name: Run seed tests
+        run: |
+          # Run only seed tests
+          pytest seed/tests -v 
