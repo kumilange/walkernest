@@ -44,8 +44,8 @@ jobs:
           # Install with explicit platform-specific binaries
           npm install
           # Ensure the correct platform-specific native modules are available
-          npm install @rollup/rollup-linux-x64-gnu --save-dev --no-optional
-          npm install @biomejs/cli-linux-x64 --save-dev --no-optional
+          npm install @rollup/rollup-linux-x64-gnu --save-dev
+          npm install @biomejs/cli-linux-x64 --save-dev
           
       - name: Run Biome check
         run: npm run check:biome-ci
