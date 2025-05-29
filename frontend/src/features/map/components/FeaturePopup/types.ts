@@ -3,6 +3,6 @@ export interface FeaturePopupProps {
     lat: number;
     lng: number;
   };
-  properties: Record<string, string | number | boolean | null>;
+  properties: Record<string, string | number | boolean | null> & { id: number };
   handlePopupClose: () => void;
 }
