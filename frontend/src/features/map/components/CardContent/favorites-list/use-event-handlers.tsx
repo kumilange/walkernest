@@ -1,9 +1,9 @@
-import { useCallback, useState } from "react";
-import { useMap, LngLat } from "react-map-gl/maplibre";
-import { removeFromLocalStorageList } from "@/utils/localstorage";
 import { useAtomCity } from "@/stores";
-import { useAtomFavItems } from "../../../stores/favoritesAtoms";
 import type { FavoriteItem } from "@/types";
+import { removeFromLocalStorageList } from "@/utils/localstorage";
+import { useCallback, useState } from "react";
+import { type LngLat, useMap } from "react-map-gl/maplibre";
+import { useAtomFavItems } from "../../../stores/favoritesAtoms";
 
 export default function useEventHandlers() {
   const { map } = useMap();
@@ -17,7 +17,7 @@ export default function useEventHandlers() {
         map.flyTo({ center: [lngLat.lng, lngLat.lat], zoom: 18 });
       }
     },
-    [map],
+    [map]
   );
 
   const handleDelete = useCallback(
@@ -33,7 +33,7 @@ export default function useEventHandlers() {
       removeFromLocalStorageList<FavoriteItem>("favorites", id);
       setFavItems(favItems.filter((fav) => fav.id !== id));
     },
-    [favItems],
+    [favItems, setFavItems]
   );
 
   const handleSelect = useCallback(
@@ -55,7 +55,7 @@ export default function useEventHandlers() {
         setCity(favItem.city);
       }
     },
-    [favItems, flyTo, city],
+    [favItems, flyTo, city, setCity]
   );
 
   return {

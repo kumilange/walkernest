@@ -1,13 +1,13 @@
-import { describe, it, expect, vi, beforeEach, afterEach } from "vitest";
+import type { CityDictItem } from "@/types";
 import {
   capitalize,
-  setCursorStyle,
-  transformToCityListArray,
-  transformQueryParams,
   convertKeysToSnakeCase,
   generateCityDataParams,
+  setCursorStyle,
+  transformQueryParams,
+  transformToCityListArray,
 } from "@/utils/misc";
-import type { CityDictItem } from "@/types";
+import { afterEach, beforeEach, describe, expect, it, vi } from "vitest";
 
 describe("capitalize function", () => {
   it("capitalizes the first letter of a string", () => {
@@ -62,9 +62,7 @@ describe("setCursorStyle function", () => {
   it("sets cursor to crosshair when isSelecting is true", () => {
     // Arrange
     const mockElement = { style: { cursor: "initial" } };
-    (document.querySelector as ReturnType<typeof vi.fn>).mockReturnValue(
-      mockElement,
-    );
+    (document.querySelector as ReturnType<typeof vi.fn>).mockReturnValue(mockElement);
 
     // Act
     setCursorStyle({ isSelecting: true });
@@ -76,9 +74,7 @@ describe("setCursorStyle function", () => {
   it("sets cursor to default when isSelecting is false", () => {
     // Arrange
     const mockElement = { style: { cursor: "initial" } };
-    (document.querySelector as ReturnType<typeof vi.fn>).mockReturnValue(
-      mockElement,
-    );
+    (document.querySelector as ReturnType<typeof vi.fn>).mockReturnValue(mockElement);
 
     // Act
     setCursorStyle({ isSelecting: false });
@@ -121,7 +117,7 @@ describe("transformToCityListArray function", () => {
         value: expect.any(String),
         label: expect.any(String),
         geometry: expect.any(Object),
-      }),
+      })
     );
   });
 
@@ -190,10 +186,7 @@ describe("transformQueryParams function", () => {
 
   it("handles multiple query params", () => {
     // Arrange
-    const queryParams = [
-      "city_id=123&name=denver&is_centroid=true",
-      "city_id=456&name=boulder",
-    ];
+    const queryParams = ["city_id=123&name=denver&is_centroid=true", "city_id=456&name=boulder"];
 
     // Act
     const result = transformQueryParams(queryParams);

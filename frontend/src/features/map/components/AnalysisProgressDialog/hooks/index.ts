@@ -1,1 +1,1 @@
-export { default } from "./useEffectHandlers"; 
+export { default } from "./useEffectHandlers";

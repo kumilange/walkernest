@@ -1,6 +1,6 @@
-import { describe, it, expect, vi, beforeEach } from "vitest";
-import { render, screen, fireEvent } from "@testing-library/react";
 import CityCombobox from "@/features/map/components/CityCombobox";
+import { fireEvent, render, screen } from "@testing-library/react";
+import { beforeEach, describe, expect, it, vi } from "vitest";
 
 // Mock event handler
 const mockHandleSearch = vi.fn();
@@ -90,8 +90,9 @@ vi.mock("@/features/map/components/CityCombobox/use-event-handlers", () => {
 // Mock UI components
 vi.mock("@/components/ui/button", () => {
   return {
+    // biome-ignore lint/suspicious/noExplicitAny: test mock requires any type for props flexibility
     Button: ({ children, ...props }: any) => (
-      <button data-testid="mock-button" {...props}>
+      <button type="button" data-testid="mock-button" {...props}>
         {children}
       </button>
     ),
@@ -100,48 +101,40 @@ vi.mock("@/components/ui/button", () => {
 
 vi.mock("@/components/ui/popover", () => {
   return {
+    // biome-ignore lint/suspicious/noExplicitAny: test mock requires any type for props flexibility
     Popover: ({ children, open, onOpenChange }: any) => (
       <div data-testid="mock-popover">
         {children}
-        <button
-          data-testid="mock-toggle-popover"
-          onClick={() => onOpenChange(!open)}
-        >
+        <button type="button" data-testid="mock-toggle-popover" onClick={() => onOpenChange(!open)}>
           Toggle
         </button>
       </div>
     ),
-    PopoverTrigger: ({ children }: any) => (
-      <div data-testid="mock-popover-trigger">{children}</div>
-    ),
-    PopoverContent: ({ children }: any) => (
-      <div data-testid="mock-popover-content">{children}</div>
-    ),
+    // biome-ignore lint/suspicious/noExplicitAny: test mock requires any type for props flexibility
+    PopoverTrigger: ({ children }: any) => <div data-testid="mock-popover-trigger">{children}</div>,
+    // biome-ignore lint/suspicious/noExplicitAny: test mock requires any type for props flexibility
+    PopoverContent: ({ children }: any) => <div data-testid="mock-popover-content">{children}</div>,
   };
 });
 
 vi.mock("@/components/ui/command", () => {
   return {
-    Command: ({ children }: any) => (
-      <div data-testid="mock-command">{children}</div>
-    ),
+    // biome-ignore lint/suspicious/noExplicitAny: test mock requires any type for props flexibility
+    Command: ({ children }: any) => <div data-testid="mock-command">{children}</div>,
+    // biome-ignore lint/suspicious/noExplicitAny: test mock requires any type for props flexibility
     CommandInput: ({ placeholder }: any) => (
       <input data-testid="mock-command-input" placeholder={placeholder} />
     ),
-    CommandList: ({ children }: any) => (
-      <div data-testid="mock-command-list">{children}</div>
-    ),
-    CommandEmpty: ({ children }: any) => (
-      <div data-testid="mock-command-empty">{children}</div>
-    ),
-    CommandGroup: ({ children }: any) => (
-      <div data-testid="mock-command-group">{children}</div>
-    ),
+    // biome-ignore lint/suspicious/noExplicitAny: test mock requires any type for props flexibility
+    CommandList: ({ children }: any) => <div data-testid="mock-command-list">{children}</div>,
+    // biome-ignore lint/suspicious/noExplicitAny: test mock requires any type for props flexibility
+    CommandEmpty: ({ children }: any) => <div data-testid="mock-command-empty">{children}</div>,
+    // biome-ignore lint/suspicious/noExplicitAny: test mock requires any type for props flexibility
+    CommandGroup: ({ children }: any) => <div data-testid="mock-command-group">{children}</div>,
+    // biome-ignore lint/suspicious/noExplicitAny: test mock requires any type for props flexibility
     CommandItem: ({ children, value, onSelect }: any) => (
-      <div
-        data-testid={`mock-command-item-${value}`}
-        onClick={() => onSelect(value)}
-      >
+      // biome-ignore lint/a11y/useKeyWithClickEvents: test mock doesn't need keyboard events
+      <div data-testid={`mock-command-item-${value}`} onClick={() => onSelect(value)}>
         {children}
       </div>
     ),
@@ -150,17 +143,20 @@ vi.mock("@/components/ui/command", () => {
 
 vi.mock("@/lib/misc", () => {
   return {
+    // biome-ignore lint/suspicious/noExplicitAny: test mock requires any type for rest params
     cn: (...classes: any[]) => classes.filter(Boolean).join(" "),
   };
 });
 
 vi.mock("lucide-react", () => {
   return {
+    // biome-ignore lint/suspicious/noExplicitAny: test mock requires any type for props flexibility
     Check: ({ className }: any) => (
       <div data-testid="mock-check" className={className}>
         ✓
       </div>
     ),
+    // biome-ignore lint/suspicious/noExplicitAny: test mock requires any type for props flexibility
     ChevronsUpDown: ({ className }: any) => (
       <div data-testid="mock-chevrons" className={className}>
         ⇅
@@ -216,7 +212,7 @@ describe("CityCombobox Component", () => {
         label: "Denver",
         id: 1,
         geometry: expect.any(Object),
-      }),
+      })
     );
   });
 
@@ -249,9 +245,6 @@ describe("CityCombobox Component", () => {
 
     // Assert
     // The first item should be the selected city (Boulder)
-    expect(commandItems[0]).toHaveAttribute(
-      "data-testid",
-      "mock-command-item-boulder",
-    );
+    expect(commandItems[0]).toHaveAttribute("data-testid", "mock-command-item-boulder");
   });
 });

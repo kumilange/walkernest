@@ -1,6 +1,6 @@
-import { describe, it, expect, vi, beforeEach } from "vitest";
+import { useSyncFavorites } from "@/features/map/components/CityMap/hooks";
 import { renderHook, waitFor } from "@testing-library/react";
-import { useSyncFavorites } from '@/features/map/components/CityMap/hooks';
+import { beforeEach, describe, expect, it, vi } from "vitest";
 
 // Declare a type for our mock favorite
 interface MockFavorite {
@@ -79,7 +79,7 @@ describe("useSyncFavorites hook", () => {
             name: "Home",
             city: "Denver",
           }),
-        ]),
+        ])
       );
     });
   });

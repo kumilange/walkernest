@@ -1,7 +1,7 @@
-import { describe, it, expect, vi, beforeEach, afterEach } from "vitest";
-import { render, screen } from "@testing-library/react";
 import ErrorBoundary from "@/components/error/error-boundary";
+import { render, screen } from "@testing-library/react";
 import userEvent from "@testing-library/user-event";
+import { afterEach, beforeEach, describe, expect, it, vi } from "vitest";
 
 // Mocks
 const mockSetCity = vi.fn();
@@ -24,6 +24,7 @@ vi.mock("@/components/error/error-fallback", () => ({
     <div data-testid="mock-error-fallback">
       <div data-testid="error-message">{error.message}</div>
       <button
+        type="button"
         data-testid="reset-button"
         onClick={() => {
           resetErrorBoundary();
@@ -45,7 +46,7 @@ const ErrorComponent = ({ shouldThrow = false }: { shouldThrow?: boolean }) => {
 
 describe("ErrorBoundary Component", () => {
   beforeEach(() => {
-    vi.spyOn(console, "error").mockImplementation(() => { });
+    vi.spyOn(console, "error").mockImplementation(() => {});
     mockSetCity.mockClear();
   });
 
@@ -58,7 +59,7 @@ describe("ErrorBoundary Component", () => {
     const testChild = <div data-testid="test-child">Test Child</div>;
 
     // Act
-    render(<ErrorBoundary onReset={() => { }}>{testChild}</ErrorBoundary>);
+    render(<ErrorBoundary onReset={() => {}}>{testChild}</ErrorBoundary>);
 
     // Assert
     expect(screen.getByTestId("test-child")).toBeInTheDocument();
@@ -68,9 +69,9 @@ describe("ErrorBoundary Component", () => {
   it("renders error fallback when an error occurs", () => {
     // Act
     render(
-      <ErrorBoundary onReset={() => { }}>
+      <ErrorBoundary onReset={() => {}}>
         <ErrorComponent shouldThrow={true} />
-      </ErrorBoundary>,
+      </ErrorBoundary>
     );
 
     // Assert
@@ -86,7 +87,7 @@ describe("ErrorBoundary Component", () => {
     render(
       <ErrorBoundary onReset={mockOnReset}>
         <ErrorComponent shouldThrow={true} />
-      </ErrorBoundary>,
+      </ErrorBoundary>
     );
     await user.click(screen.getByTestId("reset-button"));
 

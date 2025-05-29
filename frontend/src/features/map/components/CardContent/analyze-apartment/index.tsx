@@ -1,10 +1,10 @@
-import { useRef } from "react";
-import { Form } from "@/components/ui/form";
 import { Button } from "@/components/ui/button";
+import { Form } from "@/components/ui/form";
 import { PopoverClose } from "@/components/ui/popover";
 import { useAtomCity } from "@/stores";
+import { useRef } from "react";
 import FormFieldItem from "./form-field-item";
-import { useFormHandlers, useEventHandlers } from "./hooks";
+import { useEventHandlers, useFormHandlers } from "./hooks";
 
 export default function AnalyzeApartment() {
   const { city } = useAtomCity();
@@ -14,10 +14,7 @@ export default function AnalyzeApartment() {
 
   return (
     <Form {...form}>
-      <form
-        onSubmit={form.handleSubmit(onSubmit)}
-        className="grid w-full items-center gap-6"
-      >
+      <form onSubmit={form.handleSubmit(onSubmit)} className="grid w-full items-center gap-6">
         <div className="flex flex-col space-y-2">
           <h3 className="font-bold">Walking Distance</h3>
           <FormFieldItem control={form.control} name="park" />
@@ -30,11 +27,7 @@ export default function AnalyzeApartment() {
               Close
             </Button>
           </PopoverClose>
-          <Button
-            type="submit"
-            className="flex gap-2"
-            disabled={isSubmitDisabled}
-          >
+          <Button type="submit" className="flex gap-2" disabled={isSubmitDisabled}>
             Analyze
           </Button>
         </div>

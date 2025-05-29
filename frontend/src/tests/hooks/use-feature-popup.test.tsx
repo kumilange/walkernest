@@ -1,7 +1,7 @@
-import { describe, it, expect, vi, beforeEach } from "vitest";
-import { renderHook, act, waitFor } from "@testing-library/react";
-import { useFeaturePopup } from '@/features/map/components/FeaturePopup/hooks';
-import { LngLat } from "react-map-gl/maplibre";
+import { useFeaturePopup } from "@/features/map/components/FeaturePopup/hooks";
+import { act, renderHook, waitFor } from "@testing-library/react";
+import type { LngLat } from "react-map-gl/maplibre";
+import { beforeEach, describe, expect, it, vi } from "vitest";
 
 // Create a type for the atoms module with the mocked functions
 interface MockedAtoms {

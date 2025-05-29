@@ -1,5 +1,5 @@
-import Heading from "./components/Heading";
 import MenuBar from "@/features/map/components/MenuBar";
+import Heading from "./components/Heading";
 
 export default function Header() {
   return (

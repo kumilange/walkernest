@@ -1,8 +1,8 @@
-import { LngLat } from "maplibre-gl";
-import { Trash2 } from "lucide-react";
-import { capitalize, cn } from "@/utils/misc";
-import { useAtomFavItems } from "../../../stores/favoritesAtoms";
 import type { FavoriteItem } from "@/types";
+import { capitalize, cn } from "@/utils/misc";
+import { Trash2 } from "lucide-react";
+import { LngLat } from "maplibre-gl";
+import { useAtomFavItems } from "../../../stores/favoritesAtoms";
 import useEventHandlers from "./use-event-handlers";
 
 export default function FavoritesList() {
@@ -15,19 +15,20 @@ export default function FavoritesList() {
         <p>No favorites are added yet.</p>
       ) : (
         <ul className="grid w-full items-center">
-          {favItems.map((fav: FavoriteItem, index: number) => {
+          {favItems.map((fav: FavoriteItem) => {
             const { id, name, city, feature } = fav;
             const [longitude, latitude] = feature.geometry.coordinates;
 
             return (
               <li
-                key={index}
+                key={id}
                 className={cn(
                   "p-2 border-t border-gray-200 transition-all duration-300 ease-in-out hover:bg-primary-lightGray",
-                  { "bg-primary-lightGray": selectedId === id },
+                  { "bg-primary-lightGray": selectedId === id }
                 )}
               >
                 <button
+                  type="button"
                   className="grid grid-cols-[6fr_4fr_1fr] items-center w-full"
                   onClick={(e) =>
                     handleSelect({

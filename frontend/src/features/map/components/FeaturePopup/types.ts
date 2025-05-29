@@ -1,8 +1,8 @@
-export type FeaturePopupProps = {
-	lngLat: {
-		lat: number;
-		lng: number;
-	};
-	properties: Record<string, any>;
-	handlePopupClose: () => void;
-}; 
+export interface FeaturePopupProps {
+  lngLat: {
+    lat: number;
+    lng: number;
+  };
+  properties: Record<string, string | number | boolean | null>;
+  handlePopupClose: () => void;
+}

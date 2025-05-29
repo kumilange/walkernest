@@ -1,8 +1,8 @@
-import { CircleX, Locate, LocateFixed } from "lucide-react";
-import { setCursorStyle } from "@/utils/misc";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
-import { RoutePoint } from "@/types";
+import type { RoutePoint } from "@/types";
+import { setCursorStyle } from "@/utils/misc";
+import { CircleX, Locate, LocateFixed } from "lucide-react";
 import { useCallback } from "react";
 
 export default function SelectPoint({
@@ -23,22 +23,18 @@ export default function SelectPoint({
   const handleSelectPoint = useCallback(() => {
     setIsPointSelecting(true);
     setCursorStyle({ isSelecting: true });
-  }, []);
+  }, [setIsPointSelecting]);
 
   const handleClearPoint = useCallback(() => {
     setIsPointSelecting(false);
     setPoint(null);
     setCursorStyle({ isSelecting: false });
-  }, []);
+  }, [setIsPointSelecting, setPoint]);
 
   return (
     <div className="flex items-center w-[250px]">
       <div className="w-[24px]">
-        {isStarting ? (
-          <Locate className={classes} />
-        ) : (
-          <LocateFixed className={classes} />
-        )}
+        {isStarting ? <Locate className={classes} /> : <LocateFixed className={classes} />}
       </div>
       {point ? (
         <Input
@@ -55,7 +51,7 @@ export default function SelectPoint({
           onClick={handleSelectPoint}
         >{`Click ${isStarting ? "start" : "end"}ing point...`}</Button>
       )}
-      <button className="w-[24px] flex justify-end">
+      <button type="button" className="w-[24px] flex justify-end">
         <CircleX className="w-[16px]" onClick={handleClearPoint} />
       </button>
     </div>

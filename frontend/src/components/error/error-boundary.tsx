@@ -1,4 +1,4 @@
-import React from "react";
+import type React from "react";
 import { ErrorBoundary as ReactErrorBoundary } from "react-error-boundary";
 import ErrorFallback from "./error-fallback";
 
@@ -10,10 +10,7 @@ export default function ErrorBoundary({
   onReset: () => void;
 }) {
   return (
-    <ReactErrorBoundary
-      FallbackComponent={ErrorFallback}
-      onReset={onReset}
-    >
+    <ReactErrorBoundary FallbackComponent={ErrorFallback} onReset={onReset}>
       {children}
     </ReactErrorBoundary>
   );

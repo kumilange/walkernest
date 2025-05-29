@@ -1,7 +1,7 @@
-import { describe, it, expect, vi, beforeEach } from "vitest";
-import { render, screen } from "@testing-library/react";
 import CityMap from "@/features/map/components/CityMap";
 import { useAtomCity } from "@/stores";
+import { render, screen } from "@testing-library/react";
+import { beforeEach, describe, expect, it, vi } from "vitest";
 
 // Mock react-query
 vi.mock("@tanstack/react-query", () => ({
@@ -67,21 +67,21 @@ vi.mock("react-map-gl/maplibre", () => ({
   Map: ({ children }: { children: React.ReactNode }) => (
     <div data-testid="mock-map">{children}</div>
   ),
-  ScaleControl: () => <div data-testid="mock-scale-control"></div>,
-  NavigationControl: () => <div data-testid="mock-navigation-control"></div>,
+  ScaleControl: () => <div data-testid="mock-scale-control" />,
+  NavigationControl: () => <div data-testid="mock-navigation-control" />,
   useMap: () => ({ map: { getBounds: () => ({}), fitBounds: vi.fn() } }),
 }));
 
 vi.mock("@/features/map/layers", () => ({
-  default: () => <div data-testid="mock-layer-manager"></div>,
+  default: () => <div data-testid="mock-layer-manager" />,
 }));
 
 vi.mock("@/features/map/components/FeaturePopup", () => ({
-  default: () => <div data-testid="mock-feature-popup"></div>,
+  default: () => <div data-testid="mock-feature-popup" />,
 }));
 
 vi.mock("@/features/map/components/NameFavoritePopup", () => ({
-  default: () => <div data-testid="mock-name-favorite-popup"></div>,
+  default: () => <div data-testid="mock-name-favorite-popup" />,
 }));
 
 vi.mock("@/features/map/components/CityMap/hooks", () => ({
@@ -115,6 +115,7 @@ vi.mock("@/features/map/hooks/useCheckRoutes", () => ({
 
 describe("CityMap Component", () => {
   beforeEach(() => {
+    // biome-ignore lint/suspicious/noExplicitAny: test mock requires any type for vi.mock casting
     (useAtomCity as any).mockReturnValue({ city: null });
   });
 
@@ -139,6 +140,7 @@ describe("CityMap Component", () => {
 
   it("renders with selected city", () => {
     // Arrange
+    // biome-ignore lint/suspicious/noExplicitAny: test mock requires any type for vi.mock casting
     (useAtomCity as any).mockReturnValue({ city: "Denver" });
 
     // Act

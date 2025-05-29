@@ -1,8 +1,8 @@
-import { describe, it, expect, vi, beforeEach } from "vitest";
-import { render, screen } from "@testing-library/react";
+import AnalysisProgressDialog from "@/features/map/components/AnalysisProgressDialog";
 import { QueryClient, QueryClientProvider } from "@tanstack/react-query";
-import AnalysisProgressDialog from "@/features/map/components/AnalysisProgressDialog"
+import { render, screen } from "@testing-library/react";
 import userEvent from "@testing-library/user-event";
+import { beforeEach, describe, expect, it, vi } from "vitest";
 
 // Setup mocks
 const mockSetIsOpen = vi.fn();
@@ -75,11 +75,7 @@ vi.mock("@/components/ui/dialog", () => ({
 // Mock the Progress component
 vi.mock("@/components/ui/progress", () => ({
   Progress: ({ value, className }: { value: number; className?: string }) => (
-    <div
-      data-testid="mock-progress"
-      data-value={value}
-      className={className}
-    ></div>
+    <div data-testid="mock-progress" data-value={value} className={className} />
   ),
 }));
 
@@ -93,10 +89,8 @@ vi.mock("@/features/map/components/AnalysisProgressDialog/ErrorDialogContent", (
     error: Error | null;
   }) => (
     <div data-testid="mock-error-dialog-content">
-      <p data-testid="mock-error-message">
-        Error: {error?.message || "Unknown error"}
-      </p>
-      <button data-testid="mock-close-button" onClick={() => setOpen(false)}>
+      <p data-testid="mock-error-message">Error: {error?.message || "Unknown error"}</p>
+      <button type="button" data-testid="mock-close-button" onClick={() => setOpen(false)}>
         Close
       </button>
     </div>
@@ -135,17 +129,14 @@ describe("AnalysisProgressDialog Component", () => {
     render(
       <QueryClientProvider client={queryClient}>
         <AnalysisProgressDialog cityId={1} />
-      </QueryClientProvider>,
+      </QueryClientProvider>
     );
 
     // Assert
     // Use a more specific selector to avoid ambiguity
     const progressText = screen.getByTestId("mock-dialog-description");
     expect(progressText).toHaveTextContent("Analyzing suitable apartments...");
-    expect(screen.getByTestId("mock-progress")).toHaveAttribute(
-      "data-value",
-      "50",
-    );
+    expect(screen.getByTestId("mock-progress")).toHaveAttribute("data-value", "50");
     expect(screen.getByText("Processing 50%")).toBeInTheDocument();
   });
 
@@ -159,14 +150,12 @@ describe("AnalysisProgressDialog Component", () => {
     render(
       <QueryClientProvider client={queryClient}>
         <AnalysisProgressDialog cityId={1} />
-      </QueryClientProvider>,
+      </QueryClientProvider>
     );
 
     // Assert
     expect(screen.getByTestId("mock-error-dialog-content")).toBeInTheDocument();
-    expect(screen.getByTestId("mock-error-message")).toHaveTextContent(
-      "Error: Test error message",
-    );
+    expect(screen.getByTestId("mock-error-message")).toHaveTextContent("Error: Test error message");
   });
 
   it("calls setIsOpen when close button is clicked in error state", async () => {
@@ -180,7 +169,7 @@ describe("AnalysisProgressDialog Component", () => {
     render(
       <QueryClientProvider client={queryClient}>
         <AnalysisProgressDialog cityId={1} />
-      </QueryClientProvider>,
+      </QueryClientProvider>
     );
     await user.click(screen.getByTestId("mock-close-button"));
 
@@ -196,19 +185,15 @@ describe("AnalysisProgressDialog Component", () => {
     render(
       <QueryClientProvider client={queryClient}>
         <AnalysisProgressDialog cityId={1} />
-      </QueryClientProvider>,
+      </QueryClientProvider>
     );
 
     // Assert
     expect(screen.getByTestId("mock-dialog-title")).toHaveClass("sr-only");
-    expect(screen.getByTestId("mock-dialog-title")).toHaveTextContent(
-      "Analysis Progress",
-    );
-    expect(screen.getByTestId("mock-dialog-description")).toHaveClass(
-      "sr-only",
-    );
+    expect(screen.getByTestId("mock-dialog-title")).toHaveTextContent("Analysis Progress");
+    expect(screen.getByTestId("mock-dialog-description")).toHaveClass("sr-only");
     expect(screen.getByTestId("mock-dialog-description")).toHaveTextContent(
-      "Analyzing suitable apartments...",
+      "Analyzing suitable apartments..."
     );
   });
 
@@ -222,12 +207,10 @@ describe("AnalysisProgressDialog Component", () => {
     render(
       <QueryClientProvider client={queryClient}>
         <AnalysisProgressDialog cityId={1} />
-      </QueryClientProvider>,
+      </QueryClientProvider>
     );
 
     // Assert
-    expect(screen.getByTestId("mock-dialog-description")).toHaveTextContent(
-      "Test error message",
-    );
+    expect(screen.getByTestId("mock-dialog-description")).toHaveTextContent("Test error message");
   });
 });

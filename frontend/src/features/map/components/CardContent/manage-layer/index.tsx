@@ -1,15 +1,8 @@
-import {
-  Trees,
-  House,
-  ShoppingCart,
-  Coffee,
-  BoxSelect,
-  ChartNetwork,
-} from "lucide-react";
-import { useAtomLayersVisibility } from "../../../stores/layerAtoms";
 import { Label } from "@/components/ui/label";
 import { Switch } from "@/components/ui/switch";
 import type { LayerItem } from "@/types";
+import { BoxSelect, ChartNetwork, Coffee, House, ShoppingCart, Trees } from "lucide-react";
+import { useAtomLayersVisibility } from "../../../stores/layerAtoms";
 
 const layerList: LayerItem[] = [
   { id: "result", label: "Matched Apartment", icon: <House /> },

@@ -1,5 +1,5 @@
-import { describe, it, expect, vi, beforeEach } from "vitest";
-import { render, screen, fireEvent } from "@testing-library/react";
+import { fireEvent, render, screen } from "@testing-library/react";
+import { beforeEach, describe, expect, it, vi } from "vitest";
 
 // Setup mocks
 const mockHandleSelect = vi.fn();
@@ -44,32 +44,28 @@ vi.mock("@/features/map/components/CardContent/favorites-list", () => ({
 
     return (
       <ul className="grid w-full items-center">
-        {favItems.map((fav: any, index: number) => {
+        {/* biome-ignore lint/suspicious/noExplicitAny: test mock requires any type for favItems */}
+        {favItems.map((fav: any) => {
           const { id, name, city, feature } = fav;
           const [longitude, latitude] = feature.geometry.coordinates;
 
           return (
-            <li
-              key={index}
-              role="listitem"
-              className={id === "1" ? "bg-primary-lightGray" : ""}
-            >
+            <li key={id} className={id === "1" ? "bg-primary-lightGray" : ""}>
               <button
+                type="button"
                 className="grid grid-cols-[6fr_4fr_1fr] items-center w-full"
                 onClick={(e) =>
                   mockHandleSelect({
                     e,
                     id,
-                    lngLat: { lng: longitude, lat: latitude }
+                    lngLat: { lng: longitude, lat: latitude },
                   })
                 }
               >
                 <span>{name}</span>
                 <span>{city.charAt(0).toUpperCase() + city.slice(1)}</span>
-                <div
-                  data-testid="mock-trash-icon"
-                  onClick={(e) => mockHandleDelete({ e, id })}
-                >
+                {/* biome-ignore lint/a11y/useKeyWithClickEvents: test mock doesn't need keyboard events */}
+                <div data-testid="mock-trash-icon" onClick={(e) => mockHandleDelete({ e, id })}>
                   Delete
                 </div>
               </button>
@@ -78,7 +74,7 @@ vi.mock("@/features/map/components/CardContent/favorites-list", () => ({
         })}
       </ul>
     );
-  }
+  },
 }));
 
 // Establish mock functions
@@ -97,10 +93,11 @@ vi.mock("@/features/map/components/CardContent/favorites-list/use-event-handlers
 
 vi.mock("@/lib/misc", () => ({
   capitalize: (str: string) => str.charAt(0).toUpperCase() + str.slice(1),
+  // biome-ignore lint/suspicious/noExplicitAny: test mock requires any type for rest params
   cn: (...classes: any[]) => {
     return classes
       .filter(Boolean)
-      .map((c) => {
+      .flatMap((c) => {
         if (typeof c === "object") {
           return Object.entries(c)
             .filter(([_, value]) => Boolean(value))
@@ -108,27 +105,22 @@ vi.mock("@/lib/misc", () => ({
         }
         return c;
       })
-      .flat()
       .join(" ");
   },
 }));
 
 vi.mock("lucide-react", () => ({
+  // biome-ignore lint/suspicious/noExplicitAny: test mock requires any type for props flexibility
   Trash2: (props: any) => (
-    <div
-      data-testid="mock-trash-icon"
-      className={props.className}
-      onClick={props.onClick}
-    >
+    // biome-ignore lint/a11y/useKeyWithClickEvents: test mock doesn't need keyboard events
+    <div data-testid="mock-trash-icon" className={props.className} onClick={props.onClick}>
       Delete
     </div>
   ),
 }));
 
 vi.mock("maplibre-gl", () => ({
-  LngLat: function (lng: number, lat: number) {
-    return { lng, lat };
-  },
+  LngLat: (lng: number, lat: number) => ({ lng, lat }),
 }));
 
 // Import the component after all mocks are set up

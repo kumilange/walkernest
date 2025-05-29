@@ -1,34 +1,34 @@
 import { useAtomLastLayerId } from "../stores/layerAtoms";
 import {
-	BoundaryLayer,
-	RouteLayer,
-	AmenitiesLayers,
-	AnalysisLayers,
-	FavoritesLayer,
-	RoutePointsLayer,
+  AmenitiesLayers,
+  AnalysisLayers,
+  BoundaryLayer,
+  FavoritesLayer,
+  RouteLayer,
+  RoutePointsLayer,
 } from "./custom-layer"; // Assuming index.ts exists in custom-layer or direct exports
 
 export default function LayerManager({
-	city,
-	cityId,
+  city,
+  cityId,
 }: {
-	city: string | null;
-	cityId: number | null;
+  city: string | null;
+  cityId: number | null;
 }) {
-	const { lastLayerId } = useAtomLastLayerId();
+  const { lastLayerId } = useAtomLastLayerId();
 
-	return (
-		<>
-			{city && <BoundaryLayer city={city} />}
-			{cityId && (
-				<>
-					<AmenitiesLayers cityId={cityId} />
-					<AnalysisLayers cityId={cityId} />
-				</>
-			)}
-			<RouteLayer />
-			<FavoritesLayer lastLayerId={lastLayerId} />
-			<RoutePointsLayer lastLayerId={lastLayerId} />
-		</>
-	);
-} 
+  return (
+    <>
+      {city && <BoundaryLayer city={city} />}
+      {cityId && (
+        <>
+          <AmenitiesLayers cityId={cityId} />
+          <AnalysisLayers cityId={cityId} />
+        </>
+      )}
+      <RouteLayer />
+      <FavoritesLayer lastLayerId={lastLayerId} />
+      <RoutePointsLayer lastLayerId={lastLayerId} />
+    </>
+  );
+}

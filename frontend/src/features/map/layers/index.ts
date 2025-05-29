@@ -1,1 +1,1 @@
-export { default } from "./LayerManager"; 
+export { default } from "./LayerManager";

@@ -1,6 +1,6 @@
-import { describe, it, expect, vi, afterEach, beforeEach } from "vitest";
-import { render, screen, fireEvent } from "@testing-library/react";
 import ManageLayer from "@/features/map/components/CardContent/manage-layer";
+import { fireEvent, render, screen } from "@testing-library/react";
+import { afterEach, beforeEach, describe, expect, it, vi } from "vitest";
 
 // Mock implementation
 const mockSetLayersVisibility = vi.fn();
@@ -20,18 +20,16 @@ vi.mock("@/features/map/stores/layerAtoms", () => ({
 }));
 
 vi.mock("@/components/ui/label", () => ({
+  // biome-ignore lint/suspicious/noExplicitAny: test mock requires any type for props flexibility
   Label: ({ htmlFor, children, className }: any) => (
-    <label
-      data-testid={`mock-label-${htmlFor}`}
-      htmlFor={htmlFor}
-      className={className}
-    >
+    <label data-testid={`mock-label-${htmlFor}`} htmlFor={htmlFor} className={className}>
       {children}
     </label>
   ),
 }));
 
 vi.mock("@/components/ui/switch", () => ({
+  // biome-ignore lint/suspicious/noExplicitAny: test mock requires any type for props flexibility
   Switch: ({ id, defaultChecked, onCheckedChange }: any) => (
     <input
       type="checkbox"
@@ -46,16 +44,10 @@ vi.mock("@/components/ui/switch", () => ({
 vi.mock("lucide-react", () => ({
   Trees: () => <div data-testid="mock-icon-trees">Trees Icon</div>,
   House: () => <div data-testid="mock-icon-house">House Icon</div>,
-  ShoppingCart: () => (
-    <div data-testid="mock-icon-shopping-cart">Shopping Cart Icon</div>
-  ),
+  ShoppingCart: () => <div data-testid="mock-icon-shopping-cart">Shopping Cart Icon</div>,
   Coffee: () => <div data-testid="mock-icon-coffee">Coffee Icon</div>,
-  BoxSelect: () => (
-    <div data-testid="mock-icon-box-select">Box Select Icon</div>
-  ),
-  ChartNetwork: () => (
-    <div data-testid="mock-icon-chart-network">Chart Network Icon</div>
-  ),
+  BoxSelect: () => <div data-testid="mock-icon-box-select">Box Select Icon</div>,
+  ChartNetwork: () => <div data-testid="mock-icon-chart-network">Chart Network Icon</div>,
 }));
 
 describe("ManageLayer Component", () => {
@@ -88,30 +80,12 @@ describe("ManageLayer Component", () => {
     render(<ManageLayer />);
 
     // Assert
-    expect(screen.getByTestId("mock-switch-result")).toHaveProperty(
-      "defaultChecked",
-      true,
-    );
-    expect(screen.getByTestId("mock-switch-cluster")).toHaveProperty(
-      "defaultChecked",
-      true,
-    );
-    expect(screen.getByTestId("mock-switch-park")).toHaveProperty(
-      "defaultChecked",
-      true,
-    );
-    expect(screen.getByTestId("mock-switch-supermarket")).toHaveProperty(
-      "defaultChecked",
-      false,
-    );
-    expect(screen.getByTestId("mock-switch-cafe")).toHaveProperty(
-      "defaultChecked",
-      true,
-    );
-    expect(screen.getByTestId("mock-switch-boundary")).toHaveProperty(
-      "defaultChecked",
-      false,
-    );
+    expect(screen.getByTestId("mock-switch-result")).toHaveProperty("defaultChecked", true);
+    expect(screen.getByTestId("mock-switch-cluster")).toHaveProperty("defaultChecked", true);
+    expect(screen.getByTestId("mock-switch-park")).toHaveProperty("defaultChecked", true);
+    expect(screen.getByTestId("mock-switch-supermarket")).toHaveProperty("defaultChecked", false);
+    expect(screen.getByTestId("mock-switch-cafe")).toHaveProperty("defaultChecked", true);
+    expect(screen.getByTestId("mock-switch-boundary")).toHaveProperty("defaultChecked", false);
   });
 
   it("calls setLayersVisibility when switches are toggled", () => {

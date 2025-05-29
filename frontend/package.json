@@ -8,10 +8,15 @@
     "build": "tsc && vite build",
     "preview": "vite preview --port 4173",
     "format": "prettier --write .",
+    "format:biome": "biome format --write .",
     "lint": "eslint . --ext ts,tsx --report-unused-disable-directives --max-warnings 0",
+    "lint:biome": "biome lint --write .",
+    "check:biome": "biome check --write .",
+    "check:biome-ci": "biome ci .",
     "typecheck": "tsc",
     "prepare": "husky",
     "validate": "concurrently \"npm run lint\" \"npm run typecheck\" \"npm run format\"",
+    "validate:biome": "concurrently \"npm run check:biome\" \"npm run typecheck\"",
     "test": "vitest run --watch=false",
     "test:ui": "vitest --ui",
     "test:coverage": "vitest run --coverage"
@@ -74,6 +79,7 @@
     "zod": "^3.24.2"
   },
   "devDependencies": {
+    "@biomejs/biome": "1.9.4",
     "eslint": "^8.56.0",
     "eslint-config-airbnb-typescript": "^18.0.0",
     "eslint-config-prettier": "^9.1.0",
