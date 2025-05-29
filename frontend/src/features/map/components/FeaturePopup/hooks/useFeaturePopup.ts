@@ -6,9 +6,10 @@ export default function useFeaturePopup() {
   const { isFavPopupOpen, setIsFavPopupOpen } = useAtomIsFavPopupOpen();
   const [isPopupOpen, setIsPopupOpen] = useState(false);
   const [lngLat, setLngLat] = useState<LngLat | null>(null);
-  const [properties, setProperties] = useState<{
-    [key: string]: string;
-  } | null>(null);
+  const [properties, setProperties] = useState<Record<
+    string,
+    string | number | boolean | null
+  > | null>(null);
 
   const handlePopupClose = useCallback(() => {
     setLngLat(null);

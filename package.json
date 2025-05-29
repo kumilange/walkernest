@@ -22,11 +22,14 @@
     "docker:up": "nx run develop:up",
     "docker:down": "nx run develop:down",
     "deploy": "nx run deploy:deploy",
-    "graph": "nx graph"
+    "graph": "nx graph",
+    "prepare": "husky",
+    "precommit": "cd frontend && npm run validate:biome"
   },
   "devDependencies": {
     "@nx/devkit": "^17.0.0",
     "@nx/workspace": "^17.0.0",
+    "lint-staged": "16.1.0",
     "nx": "^17.0.0"
   },
   "workspaces": [
@@ -36,5 +39,10 @@
     "develop",
     "deploy"
   ],
+  "lint-staged": {
+    "frontend/src/**/*.{js,jsx,ts,tsx,json,css,md}": [
+      "cd frontend && npx biome check --write --files-ignore-unknown=true --no-errors-on-unmatched"
+    ]
+  },
   "resolutions": {}
 }

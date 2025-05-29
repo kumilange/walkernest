@@ -33,7 +33,7 @@ describe("useFeaturePopup hook", () => {
 
     // Assert
     expect(result.current.lngLat).toBeNull();
-    expect(result.current.properties).toBeUndefined();
+    expect(result.current.properties).toBeNull();
     expect(result.current.isPopupOpen).toBe(false);
     expect(result.current.isFavPopupOpen).toBe(false);
   });

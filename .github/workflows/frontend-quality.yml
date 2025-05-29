@@ -1,0 +1,60 @@
+name: Frontend Quality
+
+on:
+  push:
+    branches: [main]
+    paths: ['frontend/**']
+  pull_request:
+    branches: [main]
+    paths: ['frontend/**']
+
+jobs:
+  frontend-tests:
+    name: Frontend Tests & Quality
+    runs-on: ubuntu-latest
+    
+    # Set default working directory for all steps
+    defaults:
+      run:
+        working-directory: ./frontend
+    
+    steps:
+      - name: Checkout code
+        uses: actions/checkout@v4
+        
+      - name: Setup Node.js
+        uses: actions/setup-node@v4
+        with:
+          node-version: '20'
+          
+      - name: Prevent root npm installation
+        run: |
+          # Remove any existing root node_modules that might interfere
+          rm -rf ../node_modules ../package-lock.json
+          # Ensure husky doesn't run from root during frontend install
+          export HUSKY=0
+          
+      - name: Install frontend dependencies
+        env:
+          HUSKY: 0
+        run: |
+          # Clear npm cache and remove node_modules
+          npm cache clean --force
+          rm -rf node_modules package-lock.json
+          # Install with explicit platform-specific binaries
+          npm install
+          # Ensure the correct platform-specific native modules are available
+          npm install @rollup/rollup-linux-x64-gnu --save-dev
+          npm install @biomejs/cli-linux-x64 --save-dev
+          
+      - name: Run Biome check
+        run: npm run check:biome-ci
+        
+      - name: Run TypeScript check
+        run: npm run typecheck
+        
+      - name: Run frontend tests
+        run: npm run test
+        
+      - name: Build frontend
+        run: npm run build 
