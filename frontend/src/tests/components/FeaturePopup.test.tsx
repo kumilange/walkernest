@@ -27,7 +27,7 @@ const mockFavItems = [
 // Mock data
 const mockLngLat = { lng: -105.0, lat: 39.0 } as LngLat;
 const mockProperties = {
-  id: "test-id-123",
+  id: 123,
   name: "Test Location",
   type: "restaurant",
   address: "123 Main St",
