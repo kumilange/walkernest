@@ -1,6 +1,6 @@
 import { describe, it, expect, vi, beforeEach } from "vitest";
 import { renderHook, waitFor } from "@testing-library/react";
-import useSyncFavorites from "@/components/city-map/hooks/use-sync-favorites";
+import { useSyncFavorites } from '@/features/map/components/CityMap/hooks';
 
 // Declare a type for our mock favorite
 interface MockFavorite {
@@ -44,7 +44,7 @@ const mockSetFavItems = vi.fn().mockImplementation((items) => {
 const getMockFavorites = () => [...FAVORITES_MOCK_DATA];
 
 // Mock dependencies with proper hoisting
-vi.mock("@/atoms", () => {
+vi.mock("@/features/map/stores/favoritesAtoms", () => {
   return {
     useAtomFavItems: () => ({
       favItems: currentFavItems,
@@ -53,7 +53,7 @@ vi.mock("@/atoms", () => {
   };
 });
 
-vi.mock("@/lib/localstorage", () => {
+vi.mock("@/utils/localstorage", () => {
   return {
     getLocalStorageList: vi.fn().mockImplementation(() => getMockFavorites()),
   };

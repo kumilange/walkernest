@@ -1,6 +1,6 @@
 import { describe, it, expect, vi, beforeEach } from "vitest";
 import { render, screen, fireEvent } from "@testing-library/react";
-import CityCombobox from "@/components/city-combobox";
+import CityCombobox from "@/features/map/components/CityCombobox";
 
 // Mock event handler
 const mockHandleSearch = vi.fn();
@@ -10,7 +10,7 @@ const mockSetCity = vi.fn();
 let mockCity: string | null = null;
 
 // Mock city atom
-vi.mock("@/atoms", () => {
+vi.mock("@/stores", () => {
   return {
     useAtomCity: vi.fn().mockImplementation(() => ({
       city: mockCity,
@@ -79,7 +79,7 @@ vi.mock("@/constants", () => {
 });
 
 // Mock event handlers
-vi.mock("@/components/city-combobox/use-event-handlers", () => {
+vi.mock("@/features/map/components/CityCombobox/use-event-handlers", () => {
   return {
     default: () => ({
       handleSearch: mockHandleSearch,

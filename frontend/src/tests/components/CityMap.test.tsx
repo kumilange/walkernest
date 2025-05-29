@@ -1,7 +1,7 @@
 import { describe, it, expect, vi, beforeEach } from "vitest";
 import { render, screen } from "@testing-library/react";
-import CityMap from "@/components/city-map";
-import { useAtomCity } from "@/atoms";
+import CityMap from "@/features/map/components/CityMap";
+import { useAtomCity } from "@/stores";
 
 // Mock react-query
 vi.mock("@tanstack/react-query", () => ({
@@ -19,7 +19,7 @@ vi.mock("@tanstack/react-query", () => ({
 }));
 
 // Mock fetcher.ts to avoid using actual useQuery
-vi.mock("@/lib/fetcher", () => ({
+vi.mock("@/features/map/api", () => ({
   useAnalysis: () => ({
     data: null,
     isError: false,
@@ -32,7 +32,7 @@ vi.mock("@/lib/fetcher", () => ({
 }));
 
 // Mocks
-vi.mock("@/atoms", () => ({
+vi.mock("@/stores", () => ({
   useAtomCity: vi.fn(),
   useAtomRoute: () => ({
     route: null,
@@ -72,16 +72,19 @@ vi.mock("react-map-gl/maplibre", () => ({
   useMap: () => ({ map: { getBounds: () => ({}), fitBounds: vi.fn() } }),
 }));
 
-vi.mock("@/components/layer", () => ({
+vi.mock("@/features/map/layers", () => ({
   default: () => <div data-testid="mock-layer-manager"></div>,
 }));
 
-vi.mock("@/components/popup", () => ({
-  FeaturePopup: () => <div data-testid="mock-feature-popup"></div>,
-  NameFavoritePopup: () => <div data-testid="mock-name-favorite-popup"></div>,
+vi.mock("@/features/map/components/FeaturePopup", () => ({
+  default: () => <div data-testid="mock-feature-popup"></div>,
 }));
 
-vi.mock("@/components/city-map/hooks", () => ({
+vi.mock("@/features/map/components/NameFavoritePopup", () => ({
+  default: () => <div data-testid="mock-name-favorite-popup"></div>,
+}));
+
+vi.mock("@/features/map/components/CityMap/hooks", () => ({
   useEventHandlers: () => ({
     lngLat: { lng: 0, lat: 0 },
     properties: { id: 1, name: "Test" },
@@ -96,14 +99,14 @@ vi.mock("@/components/city-map/hooks", () => ({
   useSyncFavorites: vi.fn(),
 }));
 
-vi.mock("@/hooks/use-city-map", () => ({
+vi.mock("@/features/map/hooks/useCityMap", () => ({
   default: () => ({
     fitToBounds: vi.fn(),
     flyToCoordinates: vi.fn(),
   }),
 }));
 
-vi.mock("@/hooks/use-check-routes", () => ({
+vi.mock("@/features/map/hooks/useCheckRoutes", () => ({
   default: () => ({
     interactiveLayerIds: [],
     routeLayerId: "route-layer",

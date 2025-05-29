@@ -13,7 +13,7 @@ vi.mock("@/components/error/error-boundary", () => ({
   ),
 }));
 
-vi.mock("@/components/city-map", () => ({
+vi.mock("@/features/map/components/CityMap", () => ({
   default: () => <div data-testid="mock-city-map"></div>,
 }));
 

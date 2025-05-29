@@ -1,7 +1,7 @@
 import { describe, it, expect, vi, beforeEach } from "vitest";
 import { render, screen, fireEvent } from "@testing-library/react";
-import CheckRoute from "@/components/card-content/check-route";
-import { useCheckRoutes } from "@/hooks";
+import CheckRoute from "@/features/map/components/CardContent/check-route";
+import { useCheckRoutes } from "@/features/map/hooks";
 import { LngLat } from "react-map-gl/maplibre";
 
 // Mock implementations
@@ -28,7 +28,7 @@ const mockEndingPoint = {
 };
 
 // Mock hooks
-vi.mock("@/hooks", () => ({
+vi.mock("@/features/map/hooks", () => ({
   useCheckRoutes: vi.fn().mockImplementation(() => ({
     route: null,
     animatedRoute: null,
@@ -52,7 +52,7 @@ vi.mock("@/hooks", () => ({
   })),
 }));
 
-vi.mock("@/components/card-content/check-route/select-point", () => ({
+vi.mock("@/features/map/components/CardContent/check-route/select-point", () => ({
   default: ({
     isStarting,
     point,
@@ -87,15 +87,25 @@ vi.mock("@/components/card-content/check-route/select-point", () => ({
   ),
 }));
 
-vi.mock("@/components/card-content/check-route/route-result", () => ({
+vi.mock("@/features/map/components/CardContent/check-route/route-result", () => ({
   default: () => <div data-testid="mock-route-result">Route Result</div>,
 }));
 
 vi.mock("lucide-react", () => ({
+  __esModule: true,
   ArrowDownUp: ({ onClick }: any) => (
     <div data-testid="mock-arrow-down-up" onClick={onClick}>
       Swap
     </div>
+  ),
+  Locate: ({ className }: any) => (
+    <div data-testid="mock-locate-icon" className={className} />
+  ),
+  LocateFixed: ({ className }: any) => (
+    <div data-testid="mock-locate-fixed-icon" className={className} />
+  ),
+  CircleX: ({ className, onClick }: any) => (
+    <div data-testid="mock-circlex-icon" className={className} onClick={onClick} />
   ),
 }));
 

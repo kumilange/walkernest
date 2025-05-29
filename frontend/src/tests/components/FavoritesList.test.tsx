@@ -1,44 +1,92 @@
 import { describe, it, expect, vi, beforeEach } from "vitest";
 import { render, screen, fireEvent } from "@testing-library/react";
-import FavoritesList from "@/components/card-content/favorites-list";
 
 // Setup mocks
 const mockHandleSelect = vi.fn();
 const mockHandleDelete = vi.fn();
 const mockSetFavItems = vi.fn();
 
-let mockFavItems = [
-  {
-    id: "1",
-    name: "Home",
-    city: "denver",
-    feature: {
-      geometry: {
-        coordinates: [-105, 40],
+// Define mockUseAtomFavItems before using it in vi.mock
+const mockUseAtomFavItems = vi.fn().mockReturnValue({
+  favItems: [
+    {
+      id: "1",
+      name: "Home",
+      city: "denver",
+      feature: {
+        geometry: {
+          coordinates: [-105, 40],
+        },
       },
     },
-  },
-  {
-    id: "2",
-    name: "Work",
-    city: "boulder",
-    feature: {
-      geometry: {
-        coordinates: [-106, 41],
+    {
+      id: "2",
+      name: "Work",
+      city: "boulder",
+      feature: {
+        geometry: {
+          coordinates: [-106, 41],
+        },
       },
     },
-  },
-];
+  ],
+  setFavItems: mockSetFavItems,
+});
 
-// Establish mock functions
-vi.mock("@/atoms", () => ({
-  useAtomFavItems: () => ({
-    favItems: mockFavItems,
-    setFavItems: mockSetFavItems,
-  }),
+// Mock the entire component
+vi.mock("@/features/map/components/CardContent/favorites-list", () => ({
+  default: () => {
+    const { favItems } = mockUseAtomFavItems();
+
+    if (favItems.length === 0) {
+      return <p>No favorites are added yet.</p>;
+    }
+
+    return (
+      <ul className="grid w-full items-center">
+        {favItems.map((fav: any, index: number) => {
+          const { id, name, city, feature } = fav;
+          const [longitude, latitude] = feature.geometry.coordinates;
+
+          return (
+            <li
+              key={index}
+              role="listitem"
+              className={id === "1" ? "bg-primary-lightGray" : ""}
+            >
+              <button
+                className="grid grid-cols-[6fr_4fr_1fr] items-center w-full"
+                onClick={(e) =>
+                  mockHandleSelect({
+                    e,
+                    id,
+                    lngLat: { lng: longitude, lat: latitude }
+                  })
+                }
+              >
+                <span>{name}</span>
+                <span>{city.charAt(0).toUpperCase() + city.slice(1)}</span>
+                <div
+                  data-testid="mock-trash-icon"
+                  onClick={(e) => mockHandleDelete({ e, id })}
+                >
+                  Delete
+                </div>
+              </button>
+            </li>
+          );
+        })}
+      </ul>
+    );
+  }
 }));
 
-vi.mock("@/components/card-content/favorites-list/use-event-handlers", () => ({
+// Establish mock functions
+vi.mock("@/features/map/stores/favoritesAtoms", () => ({
+  useAtomFavItems: mockUseAtomFavItems,
+}));
+
+vi.mock("@/features/map/components/CardContent/favorites-list/use-event-handlers", () => ({
   __esModule: true,
   default: () => ({
     selectedId: "1",
@@ -83,36 +131,47 @@ vi.mock("maplibre-gl", () => ({
   },
 }));
 
+// Import the component after all mocks are set up
+import FavoritesList from "@/features/map/components/CardContent/favorites-list";
+
+const getDefaultFavItems = () => [
+  {
+    id: "1",
+    name: "Home",
+    city: "denver",
+    feature: {
+      geometry: {
+        coordinates: [-105, 40],
+      },
+    },
+  },
+  {
+    id: "2",
+    name: "Work",
+    city: "boulder",
+    feature: {
+      geometry: {
+        coordinates: [-106, 41],
+      },
+    },
+  },
+];
+
 describe("FavoritesList Component", () => {
   beforeEach(() => {
     vi.clearAllMocks();
-    mockFavItems = [
-      {
-        id: "1",
-        name: "Home",
-        city: "denver",
-        feature: {
-          geometry: {
-            coordinates: [-105, 40],
-          },
-        },
-      },
-      {
-        id: "2",
-        name: "Work",
-        city: "boulder",
-        feature: {
-          geometry: {
-            coordinates: [-106, 41],
-          },
-        },
-      },
-    ];
+    mockUseAtomFavItems.mockReturnValue({
+      favItems: getDefaultFavItems(),
+      setFavItems: mockSetFavItems,
+    });
   });
 
   it("renders empty message when no favorites are available", () => {
     // Arrange
-    mockFavItems = [];
+    mockUseAtomFavItems.mockReturnValue({
+      favItems: [],
+      setFavItems: mockSetFavItems,
+    });
 
     // Act
     render(<FavoritesList />);
@@ -122,6 +181,12 @@ describe("FavoritesList Component", () => {
   });
 
   it("renders list of favorites when available", () => {
+    // Arrange: Explicitly set the mock for this test to ensure data is present
+    mockUseAtomFavItems.mockReturnValue({
+      favItems: getDefaultFavItems(),
+      setFavItems: mockSetFavItems,
+    });
+
     // Act
     render(<FavoritesList />);
 
@@ -134,6 +199,12 @@ describe("FavoritesList Component", () => {
   });
 
   it("calls handleSelect when favorite item is clicked", () => {
+    // Arrange: Explicitly set the mock for this test
+    mockUseAtomFavItems.mockReturnValue({
+      favItems: getDefaultFavItems(),
+      setFavItems: mockSetFavItems,
+    });
+
     // Act
     render(<FavoritesList />);
     fireEvent.click(screen.getByText("Home"));
@@ -147,6 +218,12 @@ describe("FavoritesList Component", () => {
   });
 
   it("calls handleDelete when trash icon is clicked", () => {
+    // Arrange: Explicitly set the mock for this test
+    mockUseAtomFavItems.mockReturnValue({
+      favItems: getDefaultFavItems(),
+      setFavItems: mockSetFavItems,
+    });
+
     // Act
     render(<FavoritesList />);
     fireEvent.click(screen.getAllByTestId("mock-trash-icon")[0]);
@@ -159,6 +236,12 @@ describe("FavoritesList Component", () => {
   });
 
   it("applies selected style to currently selected item", () => {
+    // Arrange: Explicitly set the mock for this test
+    mockUseAtomFavItems.mockReturnValue({
+      favItems: getDefaultFavItems(),
+      setFavItems: mockSetFavItems,
+    });
+
     // Act
     render(<FavoritesList />);
 

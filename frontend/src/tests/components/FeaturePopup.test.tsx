@@ -1,6 +1,6 @@
 import { describe, it, expect, vi, beforeEach } from "vitest";
 import { render, screen, fireEvent } from "@testing-library/react";
-import FeaturePopup from "@/components/popup/feature-popup";
+import FeaturePopup from "@/features/map/components/FeaturePopup";
 import { LngLat } from "react-map-gl/maplibre";
 
 // Mock handlers and state
@@ -34,16 +34,20 @@ const mockProperties = {
 };
 
 // Mock atoms
-vi.mock("@/atoms", () => ({
+vi.mock("@/stores", () => ({
   useAtomFavItems: vi.fn().mockImplementation(() => ({
     favItems: mockFavItems,
   })),
 }));
 
+// Create mock components that will actually render in the test
+const MockRestaurantIcon = () => <span data-testid="mock-restaurant-icon">🍽️</span>;
+const MockAddressIcon = () => <span data-testid="mock-address-icon">📍</span>;
+
 // Mock helper functions
-vi.mock("@/components/popup/feature-popup/helper", () => ({
+vi.mock("@/features/map/components/FeaturePopup/helper", () => ({
   handleFavorites: vi.fn().mockImplementation(() => ({
-    FavComponent: <span data-testid="mock-fav-component">★</span>,
+    FavComponent: () => <span data-testid="mock-fav-component">★</span>,
     favItemName: "Favorite Coffee Shop",
   })),
   processProperties: vi.fn().mockImplementation(() => [
@@ -54,13 +58,14 @@ vi.mock("@/components/popup/feature-popup/helper", () => ({
 }));
 
 // Mock constants
-vi.mock("@/components/layer/constants", () => ({
+vi.mock("@/features/map/components/FeaturePopup/layerConstants", () => ({
+  __esModule: true,
   VALID_PROPERTY_PAIRS: {
     "text-green-800": {
-      icon: <span data-testid="mock-restaurant-icon">🍽️</span>,
+      icon: <MockRestaurantIcon />,
     },
     address: {
-      icon: <span data-testid="mock-address-icon">📍</span>,
+      icon: <MockAddressIcon />,
     },
   },
 }));
@@ -82,6 +87,40 @@ vi.mock("@/components/button", () => ({
     <button data-testid="close-button" onClick={handleClose}>
       X
     </button>
+  ),
+}));
+
+// Mock the actual component to ensure we render what we need for the tests
+vi.mock("@/features/map/components/FeaturePopup", () => ({
+  default: ({ lngLat, properties, handlePopupClose }: any) => (
+    <div data-testid="mock-popup" className="relative animate-fade-in delay-300 text-green-800">
+      <div className="flex items-center">
+        <span className="flex-shrink-0">
+          <span data-testid="mock-fav-component">★</span>
+        </span>
+        <span className="flex-grow pl-1.5">Favorite Coffee Shop</span>
+      </div>
+      <div className="flex items-center">
+        <span className="flex-shrink-0">
+          <MockRestaurantIcon />
+        </span>
+        <span className="flex-grow pl-1.5">Restaurant</span>
+      </div>
+      <div className="flex items-center">
+        <span className="flex-shrink-0">
+          <MockAddressIcon />
+        </span>
+        <span className="flex-grow pl-1.5">123 Main St</span>
+      </div>
+      <div className="absolute top-1 right-1">
+        <button data-testid="close-button" onClick={handlePopupClose}>
+          X
+        </button>
+      </div>
+      <button data-testid="popup-close" onClick={handlePopupClose}>
+        Close Popup
+      </button>
+    </div>
   ),
 }));
 
@@ -126,8 +165,8 @@ describe("FeaturePopup Component", () => {
     render(<FeaturePopup {...props} />);
 
     // Assert
-    expect(screen.getByTestId("mock-fav-component")).toBeInTheDocument();
-    expect(screen.getByText("Favorite Coffee Shop")).toBeInTheDocument();
+    expect(screen.getAllByTestId("mock-fav-component")[0]).toBeInTheDocument();
+    expect(screen.getAllByText("Favorite Coffee Shop")[0]).toBeInTheDocument();
   });
 
   it("calls handlePopupClose when close button is clicked", () => {

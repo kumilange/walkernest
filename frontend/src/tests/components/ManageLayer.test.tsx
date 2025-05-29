@@ -1,11 +1,11 @@
-import { describe, it, expect, vi, afterEach } from "vitest";
+import { describe, it, expect, vi, afterEach, beforeEach } from "vitest";
 import { render, screen, fireEvent } from "@testing-library/react";
-import ManageLayer from "@/components/card-content/manage-layer";
+import ManageLayer from "@/features/map/components/CardContent/manage-layer";
 
 // Mock implementation
 const mockSetLayersVisibility = vi.fn();
 
-vi.mock("@/atoms", () => ({
+vi.mock("@/features/map/stores/layerAtoms", () => ({
   useAtomLayersVisibility: () => ({
     layersVisibility: {
       result: true,
