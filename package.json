@@ -41,7 +41,7 @@
   ],
   "lint-staged": {
     "frontend/src/**/*.{js,jsx,ts,tsx,json,css,md}": [
-      "cd frontend && npm run check:biome"
+      "cd frontend && npx biome check --write --files-ignore-unknown=true --no-errors-on-unmatched"
     ]
   },
   "resolutions": {}

@@ -41,10 +41,11 @@ jobs:
           # Clear npm cache and remove node_modules
           npm cache clean --force
           rm -rf node_modules package-lock.json
-          # Install with explicit platform-specific Rollup
+          # Install with explicit platform-specific binaries
           npm install
-          # Ensure the correct Rollup native module is available
+          # Ensure the correct platform-specific native modules are available
           npm install @rollup/rollup-linux-x64-gnu --save-dev --no-optional
+          npm install @biomejs/cli-linux-x64 --save-dev --no-optional
           
       - name: Run Biome check
         run: npm run check:biome-ci
