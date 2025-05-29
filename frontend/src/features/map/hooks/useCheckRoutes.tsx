@@ -92,9 +92,12 @@ export default function useCheckRoutes() {
 
 	// Function to reverse the starting and ending points
 	const reversePoints = useCallback(() => {
-		setStartingPoint(endingPoint);
-		setEndingPoint(startingPoint);
-	}, [startingPoint, endingPoint]);
+		if (startingPoint && endingPoint) {
+			setStartingPoint(endingPoint);
+			setEndingPoint(startingPoint);
+			setRoute(null);
+		}
+	}, [startingPoint, endingPoint, setStartingPoint, setEndingPoint, setRoute]);
 
 	// Function to animate the route
 	const animateRoute = (geometry: GeoJSON.LineString, duration: number) => {

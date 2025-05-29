@@ -34,6 +34,17 @@ const FormSchema = z.object({
 	}),
 });
 
+// Type guard for Feature<Point, GeoJsonProperties>
+function isFeaturePoint(obj: any): obj is Feature<Point, GeoJsonProperties> {
+	return (
+		obj &&
+		obj.type === "Feature" &&
+		obj.geometry &&
+		obj.geometry.type === "Point" &&
+		Array.isArray(obj.geometry.coordinates)
+	);
+}
+			
 export default function NameFavoritePopup({
 	city,
 	lngLat,
@@ -60,7 +71,12 @@ export default function NameFavoritePopup({
 	const onSubmit = async (data: z.infer<typeof FormSchema>) => {
 		try {
 			const response = await fetchFavorites([properties.id]);
-			const feature = response[0] as Feature<Point, GeoJsonProperties>;
+
+			if (!response[0] || !isFeaturePoint(response[0])) {
+				throw new Error("Invalid favorite feature returned from API.");
+			}
+
+			const feature = response[0];
 			const item: FavoriteItem = {
 				id: feature?.properties?.id,
 				name: data.favorite,

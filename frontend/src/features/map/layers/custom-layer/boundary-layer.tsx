@@ -34,7 +34,13 @@ export default function BoundaryLayer({ city }: { city: string }) {
 		return null;
 	}
 
-	const geometry = CITY_LIST_DICT[city].geometry;
+	const cityData = CITY_LIST_DICT[city];
+	if (!cityData || !cityData.geometry) {
+		console.warn(`BoundaryLayer: Missing city or geometry for city '${city}'.`);
+		return null;
+	}
+
+	const geometry = cityData.geometry;
 	const featureCollection = generateFeatureCollection(geometry);
 
 	return (

@@ -4,6 +4,7 @@
 # Python-related files
 __pycache__/
 venv/
+.venv/
 .pytest_cache/
 
 # Node.js-related files

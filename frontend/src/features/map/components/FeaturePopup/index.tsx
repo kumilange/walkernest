@@ -15,7 +15,7 @@ export default function FeaturePopup({
 	const validProperties = processProperties(properties);
 	const { favItems } = useAtomFavItems();
 	const { FavComponent, favItemName } = handleFavorites(properties, favItems);
-	const colorClass = validProperties[0][0];
+	const colorClass = validProperties.length > 0 ? validProperties[0][0] : "";
 
 	return (
 		<Popup

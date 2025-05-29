@@ -34,6 +34,9 @@ export default function AmenitiesLayers({ cityId }: { cityId: number }) {
 				if (isCentroid) {
 					const baseName = extractBaseName(type);
 					const imagePath = iconPaths[baseName];
+					if (!imagePath) {
+						return null;
+					  }
 
 					return (
 						<IconLayer

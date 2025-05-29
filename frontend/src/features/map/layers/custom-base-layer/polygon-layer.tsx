@@ -19,7 +19,7 @@ export default function PolygonLayer({
 		return null;
 	}
 
-	const layerStyle = getPolygonLayerStyle({ cityId, type });
+	const layerStyle = getPolygonLayerStyle({ type });
 	const polygonFeatures = filterFeaturesByType(data, "Polygon");
 
 	return (

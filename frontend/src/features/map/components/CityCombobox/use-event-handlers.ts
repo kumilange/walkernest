@@ -20,7 +20,7 @@ export default function useEventHandlers() {
 			];
 			fitBounds(lngLatBounds, 20);
 		},
-		[map, fitBounds],
+		[map, fitBounds, setCity],
 	);
 
 	return {

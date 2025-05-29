@@ -24,6 +24,15 @@ const layerStyle: LayerProps = {
 
 const ANIMATION_DURATION = 1000;
 
+function isRoutePoint(point: unknown): point is RoutePoint {
+	return (
+		point !== null &&
+		typeof point === "object" &&
+		"lngLat" in point &&
+		(point as any).lngLat !== undefined
+	);
+}
+
 export default function RouteLayer() {
 	const {
 		animatedRoute,
@@ -41,8 +50,12 @@ export default function RouteLayer() {
 
 		const handleRoute = async () => {
 			try {
-				const startingLngLat = (startingPoint as RoutePoint).lngLat;
-				const endingLngLat = (endingPoint as RoutePoint).lngLat;
+				if (!isRoutePoint(startingPoint) || !isRoutePoint(endingPoint)) {
+					throw new Error("Invalid route points");
+				}
+
+				const startingLngLat = startingPoint.lngLat;
+				const endingLngLat = endingPoint.lngLat;
 				const coords = `${startingLngLat.lng},${startingLngLat.lat};${endingLngLat.lng},${endingLngLat.lat}`;
 				// Fetch the route from the OSRM API
 				const data = await fetchRoute(coords);

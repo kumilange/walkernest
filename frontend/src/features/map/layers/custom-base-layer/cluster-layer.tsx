@@ -48,7 +48,7 @@ export default function ClusterLayer({
 
 	return (
 		<Source
-			id={`cluster-source`}
+			id={`cluster-source-${cityId}-${type}`}
 			type="geojson"
 			data={pointFeatures}
 			cluster={true}

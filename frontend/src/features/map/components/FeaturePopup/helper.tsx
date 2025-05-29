@@ -17,18 +17,21 @@ import { twColors } from "@/constants";
 export function processProperties(
 	properties: Record<string, string>,
 ): [string, string][] {
+	// Collect all property entries
 	const entries = Object.entries(properties);
-	// Ensure 'name' key exists
-	if (!entries.some(([key]) => key === "name")) {
-		entries.push(["name", "N/A"]);
-	}
 
-	const nameEntry = entries.find(([key]) => key === "name")!;
-	const otherEntries = entries.filter(([key]) => key !== "name");
-	const validEntries = otherEntries.filter(
-		([key, value]) => !!VALID_PROPERTY_PAIRS[key]?.text?.includes(value),
+	// Always ensure 'name' is present
+	const nameValue = properties.name && properties.name !== "" ? properties.name : "N/A";
+
+	// Filter valid property pairs (excluding 'name')
+	const validEntries = entries.filter(
+		([key, value]) =>
+			key !== "name" &&
+			VALID_PROPERTY_PAIRS[key]?.text?.includes(value)
 	);
-	validEntries.push(nameEntry);
+
+	// Add 'name' entry last
+	validEntries.push(["name", nameValue]);
 
 	return validEntries;
 }
@@ -42,9 +45,7 @@ export function handleFavorites(
 ) {
 	const id = properties["id"];
 	const favItem = favItems.find((item) => item.id === id);
-	const isApartment = VALID_PROPERTY_PAIRS["building"]["text"].includes(
-		properties["building"],
-	);
+	const isApartment = (VALID_PROPERTY_PAIRS["building"]?.["text"] ?? []).includes(properties["building"] ?? "");
 
 	const FavComponent = favItem ? (
 		<Heart size="20" fill={twColors.apartment} stroke={twColors.apartment} />

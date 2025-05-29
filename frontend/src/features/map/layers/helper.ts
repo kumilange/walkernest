@@ -6,10 +6,8 @@ import { polygonColorMapping } from "./constants"; // Path will be correct after
  * Get the style configuration for a polygon layer.
  */
 export const getPolygonLayerStyle = ({
-	cityId,
 	type,
 }: {
-	cityId: number;
 	type: string;
 }) => {
 	const baseName =
@@ -18,7 +16,6 @@ export const getPolygonLayerStyle = ({
 	const color = polygonColorMapping[baseName];
 
 	const layerStyle: LayerProps = {
-		id: `${cityId}_${type}-polygon-layer`,
 		type: "fill",
 		source: `${type}-polygon-source`,
 		paint: {
@@ -40,7 +37,7 @@ export function filterFeaturesByType(
 	return {
 		type: "FeatureCollection",
 		features: data.features.filter(
-			(feature) => feature.geometry.type === geomType,
+			(feature) => feature.geometry && feature.geometry.type === geomType,
 		),
 	};
 }

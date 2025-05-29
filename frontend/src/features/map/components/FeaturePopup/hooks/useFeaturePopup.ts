@@ -8,7 +8,7 @@ export default function useFeaturePopup() {
 	const [lngLat, setLngLat] = useState<LngLat | null>(null);
 	const [properties, setProperties] = useState<{
 		[key: string]: string;
-	} | null>();
+	} | null>(null);
 
 	const handlePopupClose = useCallback(() => {
 		setLngLat(null);

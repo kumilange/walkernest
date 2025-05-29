@@ -37,7 +37,7 @@ export default function useCityMapEventHandlers() {
 			// For CheckRoute
 			await handleAddressName(lngLat);
 		},
-		[isStartingPointSelecting, isEndingPointSelecting],
+		[isStartingPointSelecting, isEndingPointSelecting, setLngLat, setIsPopupOpen, setProperties, handleAddressName],
 	);
 
 	const handleMouseEnter = useCallback((e: MapLayerMouseEvent) => {

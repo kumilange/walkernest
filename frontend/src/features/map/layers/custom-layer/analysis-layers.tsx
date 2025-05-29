@@ -21,7 +21,7 @@ export default function AnalysisLayers({ cityId }: { cityId: number }) {
 	const { favItems } = useAtomFavItems();
 	const favIds = favItems.map((item) => item.id);
 
-	const { data, error } = useAnalysis({
+	const { data, error, refetch } = useAnalysis({
 		cityId,
 		...params,
 	});
@@ -41,11 +41,15 @@ export default function AnalysisLayers({ cityId }: { cityId: number }) {
 				variant: "destructive",
 				title: "Analyzing apartment failed.",
 				description: "There was a problem with your request.",
-				action: <ToastAction altText="Try again">Try again</ToastAction>,
+				action: (
+					<ToastAction altText="Try again" onClick={() => refetch()}>
+						Try again
+					</ToastAction>
+				),
 				duration: 10000,
 			});
 		}
-	}, [data, error, toast]);
+	}, [data, error, toast, refetch]);
 
 	return (
 		<>
