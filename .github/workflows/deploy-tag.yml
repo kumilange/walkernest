@@ -45,6 +45,9 @@ jobs:
           npm install -g nx
           npm install --no-save nx
 
+          # Install platform-specific binaries for frontend build
+          npm install @rollup/rollup-linux-x64-gnu --save-dev
+
           # Verify Nx installation
           which nx
           nx --version
