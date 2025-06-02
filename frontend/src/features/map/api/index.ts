@@ -8,10 +8,25 @@ const BASE_ANALYSIS_URL = `${import.meta.env.VITE_API_PROTOCOL}://${import.meta.
 const BASE_FAVORITES_URL = `${import.meta.env.VITE_API_PROTOCOL}://${import.meta.env.VITE_API_DOMAIN}/favorites`;
 const BASE_OSRM_ROUTE_URL = `${import.meta.env.VITE_API_PROTOCOL}://${import.meta.env.VITE_API_DOMAIN}/proxy/osrm`;
 const BASE_OSM_NOMINATIM_URL = "https://nominatim.openstreetmap.org/reverse";
+const BASE_OSM_NOMINATIM_SEARCH_URL = "https://nominatim.openstreetmap.org/search";
 
 type CityData = {
   geojsons: FeatureCollection[];
   types: string[];
+};
+
+type GeocodeResult = {
+  lat: number;
+  lng: number;
+  displayName: string;
+  importance: number;
+};
+
+type NominatimSearchResult = {
+  lat: string;
+  lon: string;
+  display_name: string;
+  importance: number;
 };
 
 async function fetchAmenities(cityId: number): Promise<CityData> {
@@ -106,6 +121,29 @@ export async function fetchAddressName(lngLat: LngLat) {
     return data?.display_name;
   } catch (error) {
     console.error("Error fetching address name", error);
+    throw error;
+  }
+}
+
+export async function fetchAddressCoordinates(address: string): Promise<GeocodeResult[]> {
+  const url = `${BASE_OSM_NOMINATIM_SEARCH_URL}?q=${encodeURIComponent(address)}&format=json&limit=5&addressdetails=1`;
+
+  try {
+    const response = await fetch(url);
+    if (!response.ok) {
+      throw new Error("Network response was not ok");
+    }
+    const data = await response.json();
+    return data.map(
+      (item: NominatimSearchResult): GeocodeResult => ({
+        lat: Number(item.lat),
+        lng: Number(item.lon),
+        displayName: item.display_name,
+        importance: item.importance,
+      })
+    );
+  } catch (error) {
+    console.error("Error fetching address coordinates", error);
     throw error;
   }
 }

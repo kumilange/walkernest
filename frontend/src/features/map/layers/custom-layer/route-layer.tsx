@@ -1,8 +1,5 @@
 import { twColors } from "@/constants";
-import { fetchRoute } from "@/features/map/api";
-import { useCheckRoutes, useCityMap } from "@/features/map/hooks";
-import { toast } from "@/hooks";
-import type { RoutePoint } from "@/types";
+import { useCheckRoutes } from "@/features/map/hooks";
 import { GeoJSONSource } from "maplibre-gl";
 import { useEffect } from "react";
 import { Layer, type LayerProps, Source } from "react-map-gl/maplibre";
@@ -22,73 +19,13 @@ const layerStyle: LayerProps = {
   },
 };
 
-const ANIMATION_DURATION = 1000;
-
-function isRoutePoint(point: unknown): point is RoutePoint {
-  return (
-    point !== null &&
-    typeof point === "object" &&
-    "lngLat" in point &&
-    (point as { lngLat?: unknown }).lngLat !== undefined
-  );
-}
-
 export default function RouteLayer() {
-  const {
-    animatedRoute,
-    startingPoint,
-    endingPoint,
-    isBothSelected,
-    setRoute,
-    setAnimatedRoute,
-    animateRoute,
-    handleFitBoundsForRoute,
-  } = useCheckRoutes();
-
-  useEffect(() => {
-    if (!isBothSelected) return;
-
-    const handleRoute = async () => {
-      try {
-        if (!isRoutePoint(startingPoint) || !isRoutePoint(endingPoint)) {
-          throw new Error("Invalid route points");
-        }
-
-        const startingLngLat = startingPoint.lngLat;
-        const endingLngLat = endingPoint.lngLat;
-        const coords = `${startingLngLat.lng},${startingLngLat.lat};${endingLngLat.lng},${endingLngLat.lat}`;
-        // Fetch the route from the OSRM API
-        const data = await fetchRoute(coords);
-        setRoute(data);
-        handleFitBoundsForRoute(data);
-        // Start animation
-        animateRoute(data.geometry, ANIMATION_DURATION);
-      } catch (error) {
-        toast({
-          variant: "destructive",
-          title: "Get routes failed.",
-          description: "There was a problem with your request.",
-          duration: 10000,
-        });
-      }
-    };
-
-    setAnimatedRoute(null);
-    handleRoute();
-  }, [
-    startingPoint,
-    endingPoint,
-    isBothSelected,
-    setRoute,
-    setAnimatedRoute,
-    animateRoute,
-    handleFitBoundsForRoute,
-  ]);
+  const { route, isBothSelected } = useCheckRoutes();
 
   return (
     <>
-      {isBothSelected && animatedRoute && (
-        <Source id={"route-source"} type="geojson" data={animatedRoute}>
+      {isBothSelected && route && (
+        <Source id={"route-source"} type="geojson" data={route.geometry}>
           <Layer id={"route-layer"} {...layerStyle} />
         </Source>
       )}
