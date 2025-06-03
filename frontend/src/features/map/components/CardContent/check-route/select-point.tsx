@@ -1,6 +1,6 @@
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
-import type { RoutePoint } from "@/types";
+import type { Route, RoutePoint } from "@/types";
 import { setCursorStyle } from "@/utils/misc";
 import { CircleX, Locate, LocateFixed, MapPin } from "lucide-react";
 import { useCallback, useEffect, useRef, useState } from "react";
@@ -12,6 +12,7 @@ export default function SelectPoint({
   isPointSelecting,
   setIsPointSelecting,
   onGeocodeAddress,
+  setRoute,
   isRouteFetching = false,
 }: {
   isStarting: boolean;
@@ -20,6 +21,7 @@ export default function SelectPoint({
   setPoint: (point: RoutePoint | null) => void;
   setIsPointSelecting: (isPointSelecting: boolean) => void;
   onGeocodeAddress: (address: string, isStarting: boolean) => Promise<void>;
+  setRoute: (route: Route | null) => void;
   isRouteFetching?: boolean;
 }) {
   const [addressInput, setAddressInput] = useState("");
@@ -27,7 +29,7 @@ export default function SelectPoint({
   const [isFocused, setIsFocused] = useState(false);
   const inputRef = useRef<HTMLInputElement>(null);
 
-  const classes = `w-[16px] ${point ? "text-green-600" : ""}`;
+  const classes = `w-[16px] w-4 h-4 ${point ? "text-green-600" : ""}`;
 
   // Update input value when point changes
   useEffect(() => {
@@ -40,11 +42,14 @@ export default function SelectPoint({
 
   const handleMapClick = useCallback(() => {
     if (!isPointSelecting) {
+      setRoute(null);
+      setPoint(null);
+      setAddressInput("");
       setIsPointSelecting(true);
       setCursorStyle({ isSelecting: true });
       inputRef.current?.blur(); // Remove focus to prevent interference
     }
-  }, [isPointSelecting, setIsPointSelecting]);
+  }, [isPointSelecting, setIsPointSelecting, setRoute, setPoint]);
 
   const handleClearPoint = useCallback(() => {
     setIsPointSelecting(false);
@@ -99,8 +104,8 @@ export default function SelectPoint({
   }, []);
 
   return (
-    <div className="flex items-center w-full gap-2">
-      <div className="w-[20px] flex-shrink-0">
+    <div className="flex items-center w-full gap-1">
+      <div className="w-4 flex-shrink-0">
         {isStarting ? <Locate className={classes} /> : <LocateFixed className={classes} />}
       </div>
 

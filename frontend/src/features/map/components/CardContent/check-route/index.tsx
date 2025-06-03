@@ -15,6 +15,7 @@ export default function CheckRoute() {
     setEndingPoint,
     setIsStartingPointSelecting,
     setIsEndingPointSelecting,
+    setRoute,
     reversePoints,
     handleGeocodeAddress,
   } = useCheckRoutes();
@@ -30,6 +31,7 @@ export default function CheckRoute() {
             isPointSelecting={isStartingPointSelecting}
             setIsPointSelecting={setIsStartingPointSelecting}
             onGeocodeAddress={handleGeocodeAddress}
+            setRoute={setRoute}
             isRouteFetching={isRouteFetching}
           />
           <SelectPoint
@@ -39,6 +41,7 @@ export default function CheckRoute() {
             isPointSelecting={isEndingPointSelecting}
             setIsPointSelecting={setIsEndingPointSelecting}
             onGeocodeAddress={handleGeocodeAddress}
+            setRoute={setRoute}
             isRouteFetching={isRouteFetching}
           />
         </div>
