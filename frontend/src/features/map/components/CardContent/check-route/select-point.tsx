@@ -26,7 +26,6 @@ export default function SelectPoint({
 }) {
   const [addressInput, setAddressInput] = useState("");
   const [isGeocoding, setIsGeocoding] = useState(false);
-  const [isFocused, setIsFocused] = useState(false);
   const inputRef = useRef<HTMLInputElement>(null);
 
   const classes = `w-[16px] w-4 h-4 ${point ? "text-green-600" : ""}`;
@@ -91,17 +90,12 @@ export default function SelectPoint({
   );
 
   const handleFocus = useCallback(() => {
-    setIsFocused(true);
     // Stop map clicking when focused on input
     if (isPointSelecting) {
       setIsPointSelecting(false);
       setCursorStyle({ isSelecting: false });
     }
   }, [isPointSelecting, setIsPointSelecting]);
-
-  const handleBlur = useCallback(() => {
-    setIsFocused(false);
-  }, []);
 
   return (
     <div className="flex items-center w-full gap-1">
@@ -117,10 +111,9 @@ export default function SelectPoint({
           onChange={handleInputChange}
           onKeyDown={handleKeyDown}
           onFocus={handleFocus}
-          onBlur={handleBlur}
           disabled={isGeocoding || isRouteFetching}
-          className={`w-full ${isPointSelecting ? "border-blue-500 bg-blue-50" : ""} ${
-            isFocused ? "border-green-500" : ""
+          className={`w-full focus:border-green-500 ${
+            isPointSelecting ? "border-green-500 bg-green-50" : ""
           }`}
         />
       </div>
