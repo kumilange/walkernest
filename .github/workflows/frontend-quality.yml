@@ -13,11 +13,6 @@ jobs:
     name: Frontend Tests & Quality
     runs-on: ubuntu-latest
     
-    # Set default working directory for all steps
-    defaults:
-      run:
-        working-directory: ./frontend
-    
     steps:
       - name: Checkout code
         uses: actions/checkout@v4
@@ -26,18 +21,16 @@ jobs:
         uses: actions/setup-node@v4
         with:
           node-version: '20'
-          
-      - name: Prevent root npm installation
-        run: |
-          # Remove any existing root node_modules that might interfere
-          rm -rf ../node_modules ../package-lock.json
-          # Ensure husky doesn't run from root during frontend install
-          export HUSKY=0
+          cache: 'npm'
+          cache-dependency-path: 'frontend/package-lock.json'
           
       - name: Install frontend dependencies
+        working-directory: ./frontend
         env:
           HUSKY: 0
         run: |
+          # Install frontend dependencies using the same pattern as full-test-suite.yml
+          echo "Installing frontend dependencies..."
           # Clear npm cache and remove node_modules
           npm cache clean --force
           rm -rf node_modules package-lock.json
@@ -46,15 +39,40 @@ jobs:
           # Ensure the correct platform-specific native modules are available
           npm install @rollup/rollup-linux-x64-gnu --save-dev
           npm install @biomejs/cli-linux-x64 --save-dev
+          echo "✅ Frontend dependencies installed successfully"
+          
+      - name: Verify installations
+        working-directory: ./frontend
+        run: |
+          echo "Verifying installations..."
+          echo "Node version: $(node --version)"
+          echo "NPM version: $(npm --version)"
+          echo "✅ Installation verification completed"
           
       - name: Run Biome check
-        run: npm run check:biome-ci
+        working-directory: ./frontend
+        run: |
+          echo "Running Biome check..."
+          npm run check:biome-ci
+          echo "✅ Biome check passed"
         
       - name: Run TypeScript check
-        run: npm run typecheck
+        working-directory: ./frontend
+        run: |
+          echo "Running TypeScript check..."
+          npm run typecheck
+          echo "✅ TypeScript check passed"
         
       - name: Run frontend tests
-        run: npm run test
+        working-directory: ./frontend
+        run: |
+          echo "Running frontend tests..."
+          npm run test
+          echo "✅ Frontend tests completed"
         
       - name: Build frontend
-        run: npm run build 
+        working-directory: ./frontend
+        run: |
+          echo "Building frontend..."
+          npm run build
+          echo "✅ Frontend build completed"
