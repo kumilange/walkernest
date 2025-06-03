@@ -21,7 +21,7 @@ export default function CheckRoute() {
 
   return (
     <div className="flex flex-col gap-4">
-      <div className="flex center gap-3">
+      <div className="flex center gap-1">
         <div className="flex-1 min-w-0 flex flex-col gap-3">
           <SelectPoint
             isStarting={true}
@@ -43,15 +43,15 @@ export default function CheckRoute() {
           />
         </div>
         {(startingPoint || endingPoint) && (
-          <div className="flex items-center pt-2 flex-shrink-0">
+          <div className="flex items-center flex-shrink-0">
             <Button
               type="button"
-              size="sm"
-              variant="outline"
+              size="icon"
+              variant="ghost"
               onClick={reversePoints}
               disabled={isRouteFetching}
               title="Reverse starting and ending points"
-              className="px-2 h-8"
+              className="w-4 h-4 hover:bg-transparent hover:text-current"
             >
               <ArrowDownUp className="w-4 h-4" />
             </Button>

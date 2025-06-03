@@ -123,25 +123,25 @@ export default function SelectPoint({
       <div className="flex items-center gap-1 flex-shrink-0">
         <Button
           type="button"
-          size="sm"
-          variant={isPointSelecting ? "default" : "outline"}
+          size="icon"
+          variant="ghost"
           onClick={handleMapClick}
           disabled={isGeocoding || isRouteFetching}
           title="Click on map to select point"
-          className="px-2 h-8"
+          className="w-4 h-4 hover:bg-transparent hover:text-current"
         >
-          <MapPin className="w-3 h-3" />
+          <MapPin className={`w-4 h-4 ${isPointSelecting ? "text-green-600" : ""}`} />
         </Button>
         <Button
           type="button"
-          size="sm"
-          variant="outline"
+          size="icon"
+          variant="ghost"
           onClick={handleClearPoint}
           disabled={isGeocoding || isRouteFetching}
           title="Clear point"
-          className="px-2 h-8"
+          className="w-4 h-4 hover:bg-transparent hover:text-current"
         >
-          <CircleX className="w-3 h-3" />
+          <CircleX className="w-4 h-4" />
         </Button>
       </div>
     </div>
