@@ -1,109 +1,124 @@
-# [RouteLayer Animation] Design Policy Document
+# [CheckRoute Map FlyTo] Design Policy Document
 
 ## 📋 Overview
 
-This document outlines the technical approach and design policy for implementing the route drawing animation on the `RouteLayer` component. The goal is to enhance user experience by providing a dynamic visual representation of route calculation, based on the finalized requirements in `requirements.md`.
+This document outlines the technical approach and design policy for implementing the map "flyTo" behavior in the CheckRoute feature. This behavior is triggered when a user selects a single point (start or end) and no other point is currently set. The aim is to provide immediate visual feedback by centering the map on this selection, as defined in `requirements.md`. This design prioritizes handling side effects in event handlers rather than `useEffect` where appropriate.
 
 ## 🔍 Requirements Analysis
 
-The key implementation points derived from the `requirements.md` for the RouteLayer Animation are:
+Key implementation points extracted from `requirements.md`:
 
--   **Visual Effect**: Animate a dashed line progressively "filling in" from the start to the end of the route. The line styling will use `line-width: 5` and `line-dasharray: [0, 1]`.
--   **Duration**: The animation must complete within a fixed duration of 1000ms for any route length.
--   **Performance**: The animation must be smooth, visually appealing, and not degrade map performance. It must be compatible with MapLibre GL.
--   **Route Updates**: If the route changes (e.g., reversed points, new geocoded address) while an animation is in progress, the current animation must stop immediately, and a new animation for the updated route should commence.
--   **Initial Display**: The initial route display upon availability should also be animated.
--   **Map Interaction**:
-    -   The map view should be pre-set to fit the entire route *before* the animation begins and remain static during the animation (user can still pan/zoom manually).
-    -   Basic map interactions (zoom, pan) must remain functional during animation.
--   **Error Handling**: Standard error messages for route calculation failures; animation system should not attempt to animate invalid routes. Routes with zero length or fewer than 2 points will be handled gracefully without error and without animation.
--   **Background Behavior**: If the browser tab becomes inactive, the animation should complete in the background.
--   **User Controls**: No specific user controls (e.g., skip animation button) are required.
--   **Perceived Speed**: The variation in perceived animation speed for routes of different lengths (due to fixed duration) is acceptable.
+-   **Core Behavior**: When a point (start or end) is selected, and the other respective point (end or start) is currently not set (null/invalid), the map must automatically fly to and center on this newly selected point.
+-   **Re-triggerable**: This behavior can occur multiple times. If both points are cleared, the next selection of a single point will again trigger `flyTo`.
+-   **Trigger Conditions**: Triggered by successful geocoding or direct map click.
+-   **Map Interaction**: Uses `flyTo` from `useCityMap` hook. Animation continues if a second point is selected. Centers even if visible. User interactions during flyTo do not interrupt it.
+-   **State and Lifecycle**: Trigger condition is based purely on the current state of `startingPoint` and `endingPoint`.
+-   **Error Handling**: Relies on existing mechanisms.
+-   **Visuals**: No additional visual feedback needed.
 
 ## 🛠 Implementation Policy
 
 ### Architecture Choice
 
--   The primary animation logic will be encapsulated within the `RouteLayer.tsx` component.
--   State related to animation (e.g., `animationStartTime`, `currentAnimationFrameId`, the GeoJSON data for the current frame of animation) will be managed locally within `RouteLayer`.
--   The `useCheckRoutes` hook will remain the source of the complete `route` data (including `route.geometry.coordinates`), which will serve as the trigger and input for the animation.
+-   The primary logic for the `flyTo` behavior will be invoked from within the event handlers or callbacks responsible for setting the `startingPoint` and `endingPoint` (e.g., geocoding success callbacks, map click handlers).
+-   A dedicated helper function, `executeConditionalFlyTo`, will be created within the `CheckRoute.tsx` component's scope (or a closely related module/hook if deemed cleaner) to encapsulate the logic for checking conditions and calling the map's `flyTo` method. This promotes DRY principles.
 
-### Component Design (`RouteLayer.tsx`)
+### Component Design (`CheckRoute.tsx` and related handlers)
 
--   A `useEffect` hook will be used to manage the animation lifecycle:
-    -   It will trigger when the `route` prop (from `useCheckRoutes`) changes, specifically when `route.geometry.coordinates` changes.
-    -   It will be responsible for starting, managing, and cleaning up the animation (e.g., cancelling `requestAnimationFrame` on component unmount or when the route changes again).
--   Local state variables within `RouteLayer` will track:
-    -   `animatedCoordinates`: An array of coordinates representing the portion of the route to be displayed at the current frame of the animation. This will be updated in each animation step.
-    -   `animationStartTime`: Timestamp when the current animation started, to calculate progress against the 1000ms duration.
-    -   `rafId`: The ID returned by `requestAnimationFrame` to allow for cancellation.
--   The `Source` component's `data` prop inside `RouteLayer` will be updated with a GeoJSON `LineString` object constructed from `animatedCoordinates` in each frame of the animation.
+-   **State Management**:
+    -   `startingPoint` and `endingPoint` states (likely derived from Jotai atoms like `startingPointAtom` and `endingPointAtom`) will provide the current selected points.
+-   **Helper Function (`executeConditionalFlyTo`)**:
+    ```typescript
+    // Conceptual placement within CheckRoute.tsx or an associated utility
+    // const { map } = useCityMap(); // Assuming map is accessible
+
+    const executeConditionalFlyTo = (
+      pointJustSet: Point | null,      // The point that was just successfully set
+      otherPoint: Point | null,        // The current state of the *other* point
+      mapInstance: MapGL // Or the specific map type from useCityMap
+    ) => {
+      if (mapInstance && pointJustSet?.coordinates && !otherPoint) {
+        mapInstance.flyTo({
+          center: pointJustSet.coordinates,
+          // zoom and other options are expected to be defaults within useCityMap's flyTo
+        });
+      }
+    };
+    ```
+-   **Event Handlers / Callbacks** (Conceptual examples):
+    -   **Handler for setting `startingPoint`** (e.g., after geocode success or map click):
+        1.  Receives `newStartingPoint`.
+        2.  Updates `startingPointAtom` with `newStartingPoint`.
+        3.  Retrieves the current value of `endingPointAtom` (e.g., `const currentEndingPoint = getEndingPointAtom();`).
+        4.  Calls `executeConditionalFlyTo(newStartingPoint, currentEndingPoint, map)`.
+    -   **Handler for setting `endingPoint`**:
+        1.  Receives `newEndingPoint`.
+        2.  Updates `endingPointAtom` with `newEndingPoint`.
+        3.  Retrieves the current value of `startingPointAtom` (e.g., `const currentStartingPoint = getStartingPointAtom();`).
+        4.  Calls `executeConditionalFlyTo(newEndingPoint, currentStartingPoint, map)`.
 
 ### Data Flow
 
-1.  The complete `route` object (containing `route.geometry.coordinates`) is received from `useCheckRoutes` via props.
-2.  If `route.geometry.coordinates` has fewer than 2 points, the animation is skipped, and no route (or just points if applicable) is displayed.
-3.  When a new valid `route` (with 2 or more coordinates) is available or changes, `RouteLayer`'s `useEffect` triggers the animation.
-4.  Inside the `requestAnimationFrame` loop:
-    a.  Calculate elapsed time since `animationStartTime`.
-    b.  Determine the progress of the animation (0.0 to 1.0 based on `elapsedTime / 1000ms`).
-    c.  Calculate the number of coordinate points to display: `Math.ceil(progress * originalCoordinates.length)`. Ensure at least 2 points are used if progress > 0 to form a line segment.
-    d.  Slice the original `route.geometry.coordinates` array from the beginning up to the calculated number of points. This becomes the `animatedCoordinates`.
-    e.  Update the local state for `animatedCoordinates`. The `Source` component will then be provided with a GeoJSON LineString: `{ type: "LineString", coordinates: animatedCoordinates }`.
-5.  The loop continues until 1000ms has passed or the animation is cancelled. Upon completion, `animatedCoordinates` will hold all original route coordinates.
+1.  A user action (address input leading to geocode success, or a map click) intending to set a point triggers a specific event handler/callback.
+2.  Consider the flow for setting `startingPoint`:
+    a.  The handler receives the `newStartingPoint` data.
+    b.  It updates the global state for `startingPoint` (e.g., `setStartingPointAtom(newStartingPoint)`).
+    c.  It then reads the current global state of `endingPoint` (e.g., `getEndingPointAtom()`).
+    d.  It calls the `executeConditionalFlyTo` helper with `newStartingPoint`, the current `endingPoint` state, and the map instance.
+3.  The `executeConditionalFlyTo` function checks if `newStartingPoint` is valid and `endingPoint` is not set. If true, it invokes `map.flyTo()` with `newStartingPoint.coordinates`.
+4.  A symmetrical flow occurs when setting the `endingPoint`.
+5.  This approach naturally handles re-triggering: if both points are cleared, the subsequent setting of a single point will find the "other point" as null, satisfying the condition.
 
 ## 🔄 Implementation Method Options and Decision
 
-### Option 1: `requestAnimationFrame` with Manual GeoJSON LineString Slicing (based on coordinate array length)
+### Option 1: Side effects in Event Handlers with Helper Function (Preferred)
 
 -   **Description**:
-    -   Use a `requestAnimationFrame` loop for smooth animation timing.
-    -   In each frame, calculate the current number of visible coordinate points based on the animation progress (`elapsedTime / 1000ms * totalNumberOfPoints`).
-    -   Generate a new GeoJSON `LineString` geometry using a subsection of the original route's coordinate array.
-    -   This growing array of coordinates is styled with `line-width: 5` and `line-dasharray: [0, 1]`. The `[0, 1]` dash array combined with a growing line effectively creates a "filling in" effect as if segments are being progressively revealed.
+    -   The `flyTo` side effect is initiated directly from the event handlers (or their subsequent callbacks like geocode success) that update `startingPoint` or `endingPoint`.
+    -   A helper function (`executeConditionalFlyTo`) centralizes the condition check (one point set, other is null) and the actual `map.flyTo()` call.
 -   **Evaluation**:
-    -   *Pros*: Offers precise control. Directly integrates with MapLibre's GeoJSON sources. The "dashed line filling in" effect is achieved by progressively revealing more segments of the line. Simplifies progress calculation (based on array index rather than geographic distance).
-    -   *Cons*: For routes with very sparse, long segments, the visual "jump" between revealed segments might be noticeable. However, typical route data is dense enough.
+    -   *Pros*:
+        -   Directly couples the user's action of setting a point with the `flyTo` side effect.
+        -   Avoids `useEffect` for this side effect, aligning with the preference for more imperative control in this case.
+        -   The helper function mitigates code duplication across different point-setting handlers.
+        -   Clearer "cause and effect" for developers reading the code.
+    -   *Cons*:
+        -   Event handlers become slightly more complex as they need to fetch the state of the "other" point and call the helper. However, this is a minor addition.
+        -   Requires disciplined use of the helper function in all relevant point-setting pathways.
 
-### Option 2: (Alternative methods for animating map lines - considered and less suitable for this specific effect)
+### Option 2: `useEffect` reacting to point states (Alternative)
 
--   **Description**: Methods involving animating `line-offset` or `line-gradient` with MapLibre GL JS style expressions.
--   **Evaluation**: Less suitable as they typically create "marching ants" effects or gradient shifts, not the required "growing dashed line" effect based on progressively revealing segments.
+-   **Description**:
+    -   A `useEffect` hook in `CheckRoute.tsx` listens to changes in `startingPoint` and `endingPoint`.
+    -   When changes are detected, the effect checks the condition (one point set, the other is null) and calls `map.flyTo()`.
+-   **Evaluation**:
+    -   *Pros*:
+        -   Declarative: clearly expresses "when these states change, this logic runs."
+        -   Centralizes the reaction logic in one place.
+    -   *Cons*:
+        -   Can sometimes obscure the exact trigger if dependencies or conditions are complex (though not significantly in this case).
+        -   The user expressed a preference to explore alternatives to `useEffect` for this specific behavior.
 
-### Decision: Option 1 - `requestAnimationFrame` with Manual GeoJSON LineString Slicing (based on coordinate array length)
+### Decision: Option 1 - Side effects in Event Handlers with Helper Function
 
 -   **Reason for Selection**:
-    -   This method directly achieves the specified "dashed line progressively filling in" visual by actually growing the number of rendered segments from the original coordinate array.
-    -   It allows for precise calculation of the visible portion of the route corresponding to the 1000ms fixed duration, using the number of coordinates as the basis for progress.
-    -   It aligns well with React's declarative approach.
+    -   Aligns with the user's preference to tie the side effect more directly to the initiating user actions rather than a generalized state-watching effect.
+    -   Provides a clear, imperative execution path for the `flyTo` behavior.
+    -   The use of a helper function maintains code clarity and avoids redundancy.
 -   **Expected Effects**:
-    -   The animation will visually match the requirement.
-    -   The `line-dasharray: [0, 1]` will mean that very short segments are drawn as dots, and longer segments as lines. As more segments are added to `animatedCoordinates`, the line appears to fill in.
-    -   Performance should be good as array slicing is efficient.
+    -   The map will reliably fly to a newly selected single point when the other point is clear.
+    -   The implementation logic will be clear within the event handling pathways.
+    -   The behavior correctly re-triggers after points are cleared and one is re-selected.
 
 ## 📊 Technical Constraints and Considerations
 
--   **Performance**: Array slicing (`slice()`) is generally performant in JavaScript. The number of points in typical routes should not pose a significant issue.
--   **Coordinate Slicing Logic**: The logic is now simpler:
-    -   At each animation frame, determine the target number of points: `targetPoints = Math.max(2, Math.ceil(progress * totalOriginalPoints))`. (Ensure at least 2 points if drawing a line).
-    -   `animatedCoordinates = originalCoordinates.slice(0, targetPoints)`.
--   **Smoothness**: Ensure `requestAnimationFrame` is correctly managed.
--   **MapLibre GL JS Integration**: The `line-layer`'s `paint` property will be set to:
-    ```json
-    {
-      "line-color": "your_route_color", // From twColors.route or similar
-      "line-width": 5,
-      "line-dasharray": [0, 1] // Effectively makes it look like segments are drawn
-    }
-    ```
-    The `line-cap: "round"` and `line-join: "round"` properties from the existing style should be maintained for a smoother look.
--   **State Management**: Animation-specific state remains local to `RouteLayer`.
+-   **`useCityMap` Hook**: Adherence to using the `flyTo` method provided by the `useCityMap` hook.
+-   **Jotai State**: Handlers must correctly update their target Jotai atom and then reliably read the current state of the *other* relevant atom. Jotai's synchronous nature for atom reads (`get`) after a `set` within the same execution block should make this straightforward.
+-   **Map Instance Availability**: Ensure the `map` instance from `useCityMap` is available to the `executeConditionalFlyTo` helper or passed to it.
+-   **Asynchronous Operations**: For actions like geocoding, the call to `executeConditionalFlyTo` must occur in the success callback *after* the point's state has been updated.
 
 ## ❓ Technical Issues to Be Resolved
 
--   **(Resolved)** Specific Dash Pattern: Use `line-width: 5` and `line-dasharray: [0, 1]`. Combined with `line-cap: "round"`, this can create a "dotted" or "segmented reveal" appearance.
--   **(Resolved)** Efficient Coordinate Interpolation/Slicing: Progress will be based on the percentage of coordinates in the `route.geometry.coordinates` array. No complex geographical interpolation is needed, just array slicing.
--   **(Resolved)** Edge Cases:
-    -   If `route.geometry.coordinates` has exactly 2 points, it will be animated over 1000ms (appearing as a line drawn between two points).
-    -   If `route.geometry.coordinates` has fewer than 2 points (e.g., 0 or 1), or if the route data is invalid, the component should handle this gracefully: do not attempt to animate, do not render a line, and do not show an error message for this specific scenario. (Error messages for general route *calculation failures* from `useCheckRoutes` are handled separately as per requirements).
+-   **Handler Consistency**: Ensure that all paths that set `startingPoint` or `endingPoint` (e.g., geocoding for start, map click for start, geocoding for end, map click for end) correctly call the `executeConditionalFlyTo` helper with the appropriate parameters.
+    -   *Mitigation*: Clear documentation and code structure for point-setting functions will be important. The helper function itself simplifies what each handler needs to do.
+-   **State Snapshotting for `otherPoint`**: Confirm that reading the "other" Jotai atom immediately after setting the first atom within the same synchronous block of an event handler reliably provides the correct "current" state of that other atom for the condition check. (This is generally true for Jotai's `get` functionality).

@@ -4,15 +4,37 @@ import { setCursorStyle } from "@/utils/misc";
 import { bbox } from "@turf/turf";
 import { useCallback, useRef, useState } from "react";
 import type { LngLat, LngLatBoundsLike } from "react-map-gl/maplibre";
+import type { MapRef } from "react-map-gl/maplibre";
 import { fetchAddressCoordinates, fetchAddressName, fetchRoute } from "../api";
 import { useAtomRoute } from "../stores/routeAtoms";
 import useCityMap from "./useCityMap";
+
+/**
+ * Helper function to conditionally execute flyTo when a single point is set
+ * @param pointJustSet - The point that was just successfully set
+ * @param otherPoint - The current state of the other point
+ * @param mapInstance - The map instance from useCityMap
+ * @param flyToFunction - The flyTo function from useCityMap
+ */
+const executeConditionalFlyTo = (
+  pointJustSet: RoutePoint | null,
+  otherPoint: RoutePoint | null,
+  mapInstance: MapRef | undefined,
+  flyToFunction: (center: [number, number], zoom: number) => void
+) => {
+  if (mapInstance && pointJustSet?.lngLat && !otherPoint?.lngLat) {
+    const { lng, lat } = pointJustSet.lngLat;
+    // Use a reasonable zoom level - can be adjusted based on requirements
+    const zoom = 15;
+    flyToFunction([lng, lat], zoom);
+  }
+};
 
 export default function useCheckRoutes() {
   const routeFetchRef = useRef<number>(0);
   const lastFetchedRouteRef = useRef<string>("");
   const [isRouteFetching, setIsRouteFetching] = useState(false);
-  const { map, fitBounds } = useCityMap();
+  const { map, fitBounds, flyTo } = useCityMap();
   const {
     route,
     setRoute,
@@ -45,17 +67,22 @@ export default function useCheckRoutes() {
       }
 
       const displayName = result || "N/A";
+      const newPoint = { lngLat, name: displayName };
 
       if (isStartingPointSelecting) {
-        setStartingPoint({ lngLat, name: displayName });
+        setStartingPoint(newPoint);
         setIsStartingPointSelecting(false);
+        // Execute conditional flyTo for starting point
+        executeConditionalFlyTo(newPoint, endingPoint, map, flyTo);
       } else if (isEndingPointSelecting) {
-        setEndingPoint({ lngLat, name: displayName });
+        setEndingPoint(newPoint);
         setIsEndingPointSelecting(false);
+        // Execute conditional flyTo for ending point
+        executeConditionalFlyTo(newPoint, startingPoint, map, flyTo);
       }
 
-      const newStarting = isStartingPointSelecting ? { lngLat, name: displayName } : startingPoint;
-      const newEnding = isEndingPointSelecting ? { lngLat, name: displayName } : endingPoint;
+      const newStarting = isStartingPointSelecting ? newPoint : startingPoint;
+      const newEnding = isEndingPointSelecting ? newPoint : endingPoint;
 
       if (newStarting?.lngLat && newEnding?.lngLat) {
         fetchRouteWithSafeguards(newStarting, newEnding);
@@ -89,23 +116,24 @@ export default function useCheckRoutes() {
 
       const result = results[0];
       const lngLat = { lng: result.lng, lat: result.lat };
+      const newPoint = { lngLat: lngLat as any, name: result.displayName };
 
       if (isStartingPoint) {
-        setStartingPoint({ lngLat: lngLat as any, name: result.displayName });
+        setStartingPoint(newPoint);
         setIsStartingPointSelecting(false);
+        // Execute conditional flyTo for starting point
+        executeConditionalFlyTo(newPoint, endingPoint, map, flyTo);
       } else {
-        setEndingPoint({ lngLat: lngLat as any, name: result.displayName });
+        setEndingPoint(newPoint);
         setIsEndingPointSelecting(false);
+        // Execute conditional flyTo for ending point
+        executeConditionalFlyTo(newPoint, startingPoint, map, flyTo);
       }
 
       setCursorStyle({ isSelecting: false });
 
-      const newStarting = isStartingPoint
-        ? { lngLat: lngLat as any, name: result.displayName }
-        : startingPoint;
-      const newEnding = !isStartingPoint
-        ? { lngLat: lngLat as any, name: result.displayName }
-        : endingPoint;
+      const newStarting = isStartingPoint ? newPoint : startingPoint;
+      const newEnding = !isStartingPoint ? newPoint : endingPoint;
 
       if (newStarting?.lngLat && newEnding?.lngLat) {
         fetchRouteWithSafeguards(newStarting, newEnding);

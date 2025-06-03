@@ -5,7 +5,7 @@ alwaysApply: false
 ---
 # Task Breakdown and Organization Guide
 
-This document explains the process and best practices for breaking down and organizing development tasks based on the Implementation Requirements Definition Document (`specification.md`) and the Design Policy Document (`design.md`).
+This document explains the process and best practices for breaking down and organizing development tasks based on the Implementation Requirements Definition Document (`requirements.md`) and the Design Policy Document (`design.md`).
 
 ## Roles and Responsibilities
 
@@ -20,7 +20,7 @@ The person in charge of task breakdown has the following roles and responsibilit
 ### Confirmation of Input Documents
 
 - Confirm the following documents in the directory corresponding to the working branch:
-    - `specification.md` (Implementation Requirements Definition Document)
+    - `requirements.md` (Implementation Requirements Definition Document)
     - `design.md` (Design Policy Document)
 
 ### Task Breakdown and Organization
@@ -39,7 +39,7 @@ The person in charge of task breakdown has the following roles and responsibilit
 ## Updating Related Documents
 
 - If changes/adjustments to implementation requirements or modifications to the design policy become necessary during the task breakdown process, also update the following documents:
-    - `specification.md`: A document detailing implementation requests into specific implementation requirements. It does not touch upon implementation details.
+    - `requirements.md`: A document detailing implementation requests into specific implementation requirements. It does not touch upon implementation details.
     - `design.md`: A document concerning implementation policy. It touches upon implementation policy but does not include detailed code.
 
 ## Deliverables and Output Format
@@ -51,11 +51,11 @@ The following will be created or updated as deliverables of the task breakdown p
   # Example: If the current branch is feature/add_plan-docs
   context/feature/add_plan-docs/task.md
   ```
-- **Implementation Requirements Definition Document (if updated)**: Update `specification.md` in the same directory.
+- **Implementation Requirements Definition Document (if updated)**: Update `requirements.md` in the same directory.
 - **Design Policy Document (if updated)**: Update `design.md` in the same directory.
 
 - The final output should be provided in Markdown format within a code block for easy copy-pasting.
-- If there are no changes to `specification.md` and `design.md`, only output `task.md`.
+- If there are no changes to `requirements.md` and `design.md`, only output `task.md`.
 
 ## Example Structure of Task Organization Document (`task.md`)
 
@@ -99,6 +99,6 @@ It is recommended to create the task organization document according to the foll
 
 ## 🔗 Related Documents
 
-- Implementation Requirements: [./specification.md](./specification.md)
+- Implementation Requirements: [./requirements.md](./requirements.md)
 - Design Policy: [./design.md](./design.md)
 ```
