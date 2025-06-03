@@ -63,7 +63,8 @@ describe("executeConditionalFlyTo", () => {
   });
 
   it("does NOT call flyTo when pointJustSet has no lngLat", () => {
-    const pointWithoutLngLat = { lngLat: null as any, name: "Invalid Point" };
+    // Test with null point (which is what the function is designed to handle)
+    const pointWithoutLngLat = null;
 
     // Act
     executeConditionalFlyTo(pointWithoutLngLat, null, mockMapInstance, mockFlyTo);

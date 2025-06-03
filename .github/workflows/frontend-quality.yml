@@ -7,11 +7,18 @@ on:
   pull_request:
     branches: [main]
     paths: ['frontend/**']
+  # Allow manual trigger
+  workflow_dispatch:
 
 jobs:
   frontend-tests:
     name: Frontend Tests & Quality
     runs-on: ubuntu-latest
+    
+    # Set default working directory for all steps
+    defaults:
+      run:
+        working-directory: ./frontend
     
     steps:
       - name: Checkout code
@@ -22,7 +29,31 @@ jobs:
         with:
           node-version: '20'
           cache: 'npm'
-          cache-dependency-path: 'frontend/package-lock.json'
+          cache-dependency-path: |
+            package-lock.json
+            frontend/package-lock.json
+          
+      - name: Prevent root npm installation
+        run: |
+          # Remove any existing root node_modules that might interfere
+          rm -rf ../node_modules ../package-lock.json
+          # Ensure husky doesn't run from root during frontend install
+          export HUSKY=0
+          
+      - name: Install root dependencies
+        env:
+          HUSKY: 0
+        run: |
+          # Install root dependencies for NX workspace
+          echo "Installing root dependencies..."
+          # Clear npm cache and remove node_modules but preserve package-lock.json
+          npm cache clean --force
+          rm -rf node_modules package-lock.json
+          # Install root dependencies
+          npm install
+          # Ensure NX platform-specific binary is available
+          npm install @nx/nx-linux-x64-gnu --save-dev
+          echo "✅ Root dependencies installed successfully"
           
       - name: Install frontend dependencies
         working-directory: ./frontend
@@ -40,15 +71,21 @@ jobs:
           npm install @rollup/rollup-linux-x64-gnu --save-dev
           npm install @biomejs/cli-linux-x64 --save-dev
           echo "✅ Frontend dependencies installed successfully"
-          
+
       - name: Verify installations
-        working-directory: ./frontend
         run: |
           echo "Verifying installations..."
           echo "Node version: $(node --version)"
           echo "NPM version: $(npm --version)"
-          echo "✅ Installation verification completed"
-          
+          echo "NX version: $(npx nx --version)"
+
+      - name: Run frontend tests
+        working-directory: ./frontend
+        run: |
+          echo "Running frontend tests..."
+          npm run test
+          echo "✅ Frontend tests passed"
+
       - name: Run Biome check
         working-directory: ./frontend
         run: |
@@ -62,14 +99,7 @@ jobs:
           echo "Running TypeScript check..."
           npm run typecheck
           echo "✅ TypeScript check passed"
-        
-      - name: Run frontend tests
-        working-directory: ./frontend
-        run: |
-          echo "Running frontend tests..."
-          npm run test
-          echo "✅ Frontend tests completed"
-        
+
       - name: Build frontend
         working-directory: ./frontend
         run: |

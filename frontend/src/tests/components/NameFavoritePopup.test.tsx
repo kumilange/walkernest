@@ -62,8 +62,7 @@ vi.mock("@/utils/localstorage", () => ({
 
 // Mock UI components
 vi.mock("react-map-gl/maplibre", () => ({
-  // biome-ignore lint/suspicious/noExplicitAny: test mock requires any type for props flexibility
-  Popup: ({ children, onClose }: any) => (
+  Popup: ({ children, onClose }: { children: React.ReactNode; onClose?: () => void }) => (
     <div data-testid="mock-popup">
       {children}
       <button type="button" data-testid="popup-close" onClick={onClose}>
@@ -74,8 +73,17 @@ vi.mock("react-map-gl/maplibre", () => ({
 }));
 
 vi.mock("@/components/ui/button", () => ({
-  // biome-ignore lint/suspicious/noExplicitAny: test mock requires any type for props flexibility
-  Button: ({ children, onClick, disabled, type }: any) => (
+  Button: ({
+    children,
+    onClick,
+    disabled,
+    type,
+  }: {
+    children: React.ReactNode;
+    onClick?: () => void;
+    disabled?: boolean;
+    type?: "button" | "submit" | "reset";
+  }) => (
     <button
       data-testid={`button-${children?.toString().toLowerCase()}`}
       onClick={onClick}
@@ -88,13 +96,11 @@ vi.mock("@/components/ui/button", () => ({
 }));
 
 vi.mock("@/components/ui/input", () => ({
-  // biome-ignore lint/suspicious/noExplicitAny: test mock requires any type for props flexibility
-  Input: (props: any) => <input data-testid="mock-input" {...props} />,
+  Input: (props: Record<string, unknown>) => <input data-testid="mock-input" {...props} />,
 }));
 
 vi.mock("@/components/ui/toast", () => ({
-  // biome-ignore lint/suspicious/noExplicitAny: test mock requires any type for props flexibility
-  ToastAction: ({ children }: any) => (
+  ToastAction: ({ children }: { children: React.ReactNode }) => (
     <button type="button" data-testid="toast-action">
       {children}
     </button>
@@ -102,8 +108,7 @@ vi.mock("@/components/ui/toast", () => ({
 }));
 
 vi.mock("@/components/button", () => ({
-  // biome-ignore lint/suspicious/noExplicitAny: test mock requires any type for props flexibility
-  CloseButton: ({ handleClose }: any) => (
+  CloseButton: ({ handleClose }: { handleClose?: () => void }) => (
     <button type="button" data-testid="close-button" onClick={handleClose}>
       X
     </button>
@@ -113,17 +118,22 @@ vi.mock("@/components/button", () => ({
 // Mock the form component
 vi.mock("@/components/ui/form", () => ({
   __esModule: true,
-  // biome-ignore lint/suspicious/noExplicitAny: test mock requires any type for props flexibility
-  Form: ({ children, onSubmit }: any) => (
+  Form: ({ children, onSubmit }: { children: React.ReactNode; onSubmit?: () => void }) => (
     // biome-ignore lint/a11y/useKeyWithClickEvents: test mock doesn't need keyboard events
     <div data-testid="mock-form" onClick={() => onSubmit?.()}>
       {children}
     </div>
   ),
-  // biome-ignore lint/suspicious/noExplicitAny: test mock requires any type for props flexibility
-  FormControl: ({ children }: any) => <div data-testid="form-control">{children}</div>,
-  // biome-ignore lint/suspicious/noExplicitAny: test mock requires any type for props flexibility
-  FormField: ({ name, render }: any) => {
+  FormControl: ({ children }: { children: React.ReactNode }) => (
+    <div data-testid="form-control">{children}</div>
+  ),
+  FormField: ({
+    name,
+    render,
+  }: {
+    name: string;
+    render: (props: { field: unknown; fieldState: unknown; formState: unknown }) => React.ReactNode;
+  }) => {
     const initialValue = name === "favorite" ? "Default Favorite Name" : "";
     const field = {
       name,
@@ -134,10 +144,12 @@ vi.mock("@/components/ui/form", () => ({
     };
     return render({ field, fieldState: { invalid: false, error: null }, formState: {} });
   },
-  // biome-ignore lint/suspicious/noExplicitAny: test mock requires any type for props flexibility
-  FormItem: ({ children }: any) => <div data-testid="form-item">{children}</div>,
-  // biome-ignore lint/suspicious/noExplicitAny: test mock requires any type for props flexibility
-  FormLabel: ({ children }: any) => <div data-testid="form-label">{children}</div>,
+  FormItem: ({ children }: { children: React.ReactNode }) => (
+    <div data-testid="form-item">{children}</div>
+  ),
+  FormLabel: ({ children }: { children: React.ReactNode }) => (
+    <div data-testid="form-label">{children}</div>
+  ),
   FormMessage: () => <div data-testid="form-message" />,
 }));
 
@@ -216,12 +228,12 @@ vi.mock("react-hook-form", async () => {
   return {
     ...actual,
     useForm: () => ({
-      // biome-ignore lint/suspicious/noExplicitAny: test mock requires any type for callback flexibility
-      handleSubmit: (callback: any) => (e?: any) => {
-        e?.preventDefault?.();
-        callback({ favorite: "Default Favorite Name" });
-        return false;
-      },
+      handleSubmit:
+        (callback: (data: Record<string, unknown>) => void) => (e?: React.FormEvent) => {
+          e?.preventDefault?.();
+          callback({ favorite: "Default Favorite Name" });
+          return false;
+        },
       getValues: () => ({ favorite: "Default Favorite Name" }),
       formState: { isValid: true, isSubmitting: false },
       control: {},

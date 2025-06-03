@@ -72,20 +72,26 @@ vi.mock("@/features/map/components/FeaturePopup/layerConstants", () => ({
 
 // Mock UI components
 vi.mock("react-map-gl/maplibre", () => ({
-  // biome-ignore lint/suspicious/noExplicitAny: test mock requires any type for props flexibility
-  Popup: ({ children, onClose, className }: any) => (
+  Popup: ({
+    children,
+    onClose,
+    className,
+  }: {
+    children: React.ReactNode;
+    onClose?: () => void;
+    className?: string;
+  }) => (
     <div data-testid="mock-popup" className={className}>
       {children}
       <button type="button" data-testid="popup-close" onClick={onClose}>
-        Close Popup
+        Close
       </button>
     </div>
   ),
 }));
 
 vi.mock("@/components/button", () => ({
-  // biome-ignore lint/suspicious/noExplicitAny: test mock requires any type for props flexibility
-  CloseButton: ({ handleClose }: any) => (
+  CloseButton: ({ handleClose }: { handleClose?: () => void }) => (
     <button type="button" data-testid="close-button" onClick={handleClose}>
       X
     </button>
@@ -94,8 +100,15 @@ vi.mock("@/components/button", () => ({
 
 // Mock the actual component to ensure we render what we need for the tests
 vi.mock("@/features/map/components/FeaturePopup", () => ({
-  // biome-ignore lint/suspicious/noExplicitAny: test mock requires any type for props flexibility
-  default: ({ lngLat, properties, handlePopupClose }: any) => (
+  default: ({
+    lngLat,
+    properties,
+    handlePopupClose,
+  }: {
+    lngLat?: { lat: number; lng: number };
+    properties?: Record<string, unknown>;
+    handlePopupClose?: () => void;
+  }) => (
     <div data-testid="mock-popup" className="relative animate-fade-in delay-300 text-green-800">
       <div className="flex items-center">
         <span className="flex-shrink-0">

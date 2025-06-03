@@ -104,10 +104,16 @@ vi.mock("@/components/ui/form", () => ({
       {children}
     </form>
   ),
-  // biome-ignore lint/suspicious/noExplicitAny: test mock requires any type
-  FormControl: ({ children }: any) => <div data-testid="form-control">{children}</div>,
-  // biome-ignore lint/suspicious/noExplicitAny: test mock requires any type
-  FormField: ({ name, render }: any) => {
+  FormControl: ({ children }: { children: React.ReactNode }) => (
+    <div data-testid="form-control">{children}</div>
+  ),
+  FormField: ({
+    name,
+    render,
+  }: {
+    name: string;
+    render: (props: { field: unknown; fieldState: unknown; formState: unknown }) => React.ReactNode;
+  }) => {
     const field = {
       name,
       value: name === "park" || name === "supermarket" || name === "cafe" ? 10 : true,
@@ -117,10 +123,10 @@ vi.mock("@/components/ui/form", () => ({
     };
     return render({ field, fieldState: { invalid: false, error: null }, formState: {} });
   },
-  // biome-ignore lint/suspicious/noExplicitAny: test mock requires any type
-  FormItem: ({ children }: any) => <div data-testid="form-item">{children}</div>,
-  // biome-ignore lint/suspicious/noExplicitAny: test mock requires any type
-  FormLabel: ({ children }: any) => (
+  FormItem: ({ children }: { children: React.ReactNode }) => (
+    <div data-testid="form-item">{children}</div>
+  ),
+  FormLabel: ({ children }: { children: React.ReactNode }) => (
     <label
       data-testid={`form-label-${children?.toString().toLowerCase().replace(/\s+/g, "-")}`}
       htmlFor={children?.toString().toLowerCase().replace(/\s+/g, "-")}
@@ -128,13 +134,25 @@ vi.mock("@/components/ui/form", () => ({
       {children}
     </label>
   ),
-  // biome-ignore lint/suspicious/noExplicitAny: test mock requires any type
-  FormMessage: ({ children }: any) => <div data-testid="form-message">{children}</div>,
+  FormMessage: ({ children }: { children?: React.ReactNode }) => (
+    <div data-testid="form-message">{children}</div>
+  ),
 }));
 
 vi.mock("@/components/ui/button", () => ({
-  // biome-ignore lint/suspicious/noExplicitAny: test mock requires any type
-  Button: ({ children, disabled, onClick, type, variant }: any) => (
+  Button: ({
+    children,
+    disabled,
+    onClick,
+    type,
+    variant,
+  }: {
+    children: React.ReactNode;
+    disabled?: boolean;
+    onClick?: () => void;
+    type?: "button" | "submit" | "reset";
+    variant?: string;
+  }) => (
     <button
       data-testid={`mock-button-${variant || "default"}`}
       disabled={disabled}
@@ -164,19 +182,19 @@ vi.mock("react-hook-form", async () => {
   return {
     ...actual, // Preserve actual exports like Path
     useForm: () => ({
-      // biome-ignore lint/suspicious/noExplicitAny: test mock requires any type
-      handleSubmit: (callback: any) => (e: any) => {
-        e?.preventDefault?.();
-        callback({
-          park: 5,
-          supermarket: 10,
-          cafe: 10,
-          parkCheckbox: true,
-          supermarketCheckbox: true,
-          cafeCheckbox: true,
-        });
-        return false;
-      },
+      handleSubmit:
+        (callback: (data: Record<string, unknown>) => void) => (e?: React.FormEvent) => {
+          e?.preventDefault?.();
+          callback({
+            park: 5,
+            supermarket: 10,
+            cafe: 10,
+            parkCheckbox: true,
+            supermarketCheckbox: true,
+            cafeCheckbox: true,
+          });
+          return false;
+        },
       getValues: () => ({
         park: 5,
         supermarket: 10,
@@ -189,8 +207,17 @@ vi.mock("react-hook-form", async () => {
       control: {},
       // Add any other useForm returns your component might use
     }),
-    // biome-ignore lint/suspicious/noExplicitAny: test mock requires any type
-    Controller: ({ name, render }: any) => {
+    Controller: ({
+      name,
+      render,
+    }: {
+      name: string;
+      render: (props: {
+        field: unknown;
+        fieldState: unknown;
+        formState: unknown;
+      }) => React.ReactNode;
+    }) => {
       // Basic mock for Controller, providing a field object to its render prop
       const field = {
         name,
