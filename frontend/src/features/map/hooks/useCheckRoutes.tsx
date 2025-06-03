@@ -1,9 +1,11 @@
 import { toast } from "@/hooks";
 import type { RoutePoint } from "@/types";
+import { logger } from "@/utils/logger";
 import { setCursorStyle } from "@/utils/misc";
 import { bbox } from "@turf/turf";
+import { LngLat } from "maplibre-gl";
 import { useCallback, useRef, useState } from "react";
-import type { LngLat, LngLatBoundsLike } from "react-map-gl/maplibre";
+import type { LngLatBoundsLike } from "react-map-gl/maplibre";
 import type { MapRef } from "react-map-gl/maplibre";
 import { fetchAddressCoordinates, fetchAddressName, fetchRoute } from "../api";
 import { useAtomRoute } from "../stores/routeAtoms";
@@ -16,7 +18,7 @@ import useCityMap from "./useCityMap";
  * @param mapInstance - The map instance from useCityMap
  * @param flyToFunction - The flyTo function from useCityMap
  */
-const executeConditionalFlyTo = (
+export const executeConditionalFlyTo = (
   pointJustSet: RoutePoint | null,
   otherPoint: RoutePoint | null,
   mapInstance: MapRef | undefined,
@@ -60,7 +62,7 @@ export default function useCheckRoutes() {
         toast({
           variant: "destructive",
           title: "Address not found.",
-          description: "Could not find coordinates for the entered address.",
+          description: "Could not find address for the provided coordinates.",
           duration: 10000,
         });
         return;
@@ -115,8 +117,8 @@ export default function useCheckRoutes() {
       }
 
       const result = results[0];
-      const lngLat = { lng: result.lng, lat: result.lat };
-      const newPoint = { lngLat: lngLat as any, name: result.displayName };
+      const lngLat = new LngLat(result.lng, result.lat);
+      const newPoint = { lngLat, name: result.displayName };
 
       if (isStartingPoint) {
         setStartingPoint(newPoint);
@@ -203,13 +205,13 @@ export default function useCheckRoutes() {
             }
           }
         } else {
-          console.log(
-            `🚫 Route fetch cancelled (ID: ${currentRequestId}, latest: ${routeFetchRef.current})`
+          logger.debug(
+            `Route fetch cancelled (ID: ${currentRequestId}, latest: ${routeFetchRef.current})`
           );
         }
       } catch (error) {
         if (currentRequestId === routeFetchRef.current) {
-          console.error(`❌ Route fetch failed (ID: ${currentRequestId}):`, error);
+          logger.error(`Route fetch failed (ID: ${currentRequestId}):`, error);
           toast({
             variant: "destructive",
             title: "Get routes failed.",

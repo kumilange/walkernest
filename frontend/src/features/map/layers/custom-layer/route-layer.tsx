@@ -2,6 +2,7 @@ import { twColors } from "@/constants";
 import type { Route } from "@/types";
 import { useCallback, useEffect, useRef, useState } from "react";
 import { Layer, type LayerProps, Source } from "react-map-gl/maplibre";
+import { getAnimatedSlice } from "../helper";
 
 interface RouteLayerProps {
   route: Route | null;
@@ -31,20 +32,9 @@ export default function RouteLayer({ route }: RouteLayerProps) {
   // Update route ref when route prop changes (this happens on re-mount due to key change)
   routeRef.current = route;
 
-  const getAnimatedSlice = useCallback(
+  const getAnimatedSliceCallback = useCallback(
     (progress: number, originalCoordinates: [number, number][]): [number, number][] => {
-      if (originalCoordinates.length < 2 || progress <= 0) {
-        return [];
-      }
-
-      if (progress >= 1) {
-        return originalCoordinates;
-      }
-
-      const targetPoints = Math.ceil(progress * originalCoordinates.length);
-      const clampedTargetPoints = Math.max(2, targetPoints);
-
-      return originalCoordinates.slice(0, clampedTargetPoints);
+      return getAnimatedSlice(progress, originalCoordinates);
     },
     []
   );
@@ -60,7 +50,7 @@ export default function RouteLayer({ route }: RouteLayerProps) {
     if (elapsedTime < 1000) {
       const progress = elapsedTime / 1000;
       const originalCoords = currentRoute.geometry.coordinates as [number, number][];
-      const newAnimatedCoordinates = getAnimatedSlice(progress, originalCoords);
+      const newAnimatedCoordinates = getAnimatedSliceCallback(progress, originalCoords);
 
       setAnimatedCoordinates(newAnimatedCoordinates);
       rafIdRef.current = requestAnimationFrame(animateStep);
@@ -70,7 +60,7 @@ export default function RouteLayer({ route }: RouteLayerProps) {
       setAnimatedCoordinates(originalCoords);
       rafIdRef.current = null;
     }
-  }, [getAnimatedSlice]);
+  }, [getAnimatedSliceCallback]);
 
   useEffect(() => {
     const currentRoute = routeRef.current;

@@ -1,23 +1,8 @@
+import { executeConditionalFlyTo } from "@/features/map/hooks/useCheckRoutes";
 import type { RoutePoint } from "@/types";
 import type { LngLat } from "react-map-gl/maplibre";
 import type { MapRef } from "react-map-gl/maplibre";
 import { beforeEach, describe, expect, it, vi } from "vitest";
-
-// Import the helper function - we'll need to export it from useCheckRoutes for testing
-// For now, let's create a local copy to test the logic
-const executeConditionalFlyTo = (
-  pointJustSet: RoutePoint | null,
-  otherPoint: RoutePoint | null,
-  mapInstance: MapRef | undefined,
-  flyToFunction: (center: [number, number], zoom: number) => void
-) => {
-  if (mapInstance && pointJustSet?.lngLat && !otherPoint?.lngLat) {
-    const { lng, lat } = pointJustSet.lngLat;
-    // Use a reasonable zoom level - can be adjusted based on requirements
-    const zoom = 15;
-    flyToFunction([lng, lat], zoom);
-  }
-};
 
 describe("executeConditionalFlyTo", () => {
   const mockFlyTo = vi.fn();

@@ -95,7 +95,7 @@ vi.mock("@/components/button", () => ({
 // Mock the actual component to ensure we render what we need for the tests
 vi.mock("@/features/map/components/FeaturePopup", () => ({
   // biome-ignore lint/suspicious/noExplicitAny: test mock requires any type for props flexibility
-  default: ({ handlePopupClose }: any) => (
+  default: ({ lngLat, properties, handlePopupClose }: any) => (
     <div data-testid="mock-popup" className="relative animate-fade-in delay-300 text-green-800">
       <div className="flex items-center">
         <span className="flex-shrink-0">
