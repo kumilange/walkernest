@@ -6,7 +6,7 @@ import { type LngLatBoundsLike, useMap } from "react-map-gl/maplibre";
 import { useCityMap } from "../../hooks";
 
 export default function useEventHandlers() {
-  const { map } = useMap();
+  useMap();
   const { fitBounds } = useCityMap();
   const { setCity } = useAtomCity();
 

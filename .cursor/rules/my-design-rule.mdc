@@ -32,7 +32,7 @@ The person in charge of the design policy document performs the following tasks 
 
 - If requirements need to be changed/adjusted as the design policy is refined, also update the requirements definition document (`requirements.md`).
 - The requirements definition document details implementation requests into specific implementation requirements and does not touch upon implementation details.
-- Implementation details are described in the design policy document (`design-doc.md`).
+- Implementation details are described in the design policy document (`design.md`).
 
 ## Deliverables and Output Format
 

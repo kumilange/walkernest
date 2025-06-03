@@ -157,6 +157,7 @@ Implement the solution step-by-step, ensuring that each part adheres to the spec
 - Run `npm run typecheck` to ensure no TypeScript errors
 - Run `npm run check:biome` to ensure no linting errors
 - Fix any issues found before considering the task complete
+- Check for unused imports and systematically remove them
 
 ### 5. Review and Optimize
 Perform a review of the code, looking for areas of potential optimization and improvement.

@@ -4,9 +4,7 @@ import RouteLayer from "../../features/map/layers/custom-layer/route-layer";
 import type { Route } from "../../types";
 
 // Mock requestAnimationFrame and related timing functions
-let rafCallback: FrameRequestCallback | null = null;
-const mockRAF = vi.fn((callback: FrameRequestCallback) => {
-  rafCallback = callback;
+const mockRAF = vi.fn(() => {
   return 1;
 });
 
@@ -60,7 +58,6 @@ describe("RouteLayer Component", () => {
 
   beforeEach(() => {
     vi.clearAllMocks();
-    rafCallback = null;
     mockDateNow.mockReturnValue(1000); // Start time
   });
 

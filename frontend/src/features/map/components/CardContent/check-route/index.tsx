@@ -1,7 +1,6 @@
 import { Button } from "@/components/ui/button";
 import { useCheckRoutes } from "@/features/map/hooks";
 import { ArrowDownUp } from "lucide-react";
-import { useState } from "react";
 import RouteResult from "./route-result";
 import SelectPoint from "./select-point";
 

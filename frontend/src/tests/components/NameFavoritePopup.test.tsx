@@ -123,7 +123,7 @@ vi.mock("@/components/ui/form", () => ({
   // biome-ignore lint/suspicious/noExplicitAny: test mock requires any type for props flexibility
   FormControl: ({ children }: any) => <div data-testid="form-control">{children}</div>,
   // biome-ignore lint/suspicious/noExplicitAny: test mock requires any type for props flexibility
-  FormField: ({ control, name, render }: any) => {
+  FormField: ({ name, render }: any) => {
     const initialValue = name === "favorite" ? "Default Favorite Name" : "";
     const field = {
       name,

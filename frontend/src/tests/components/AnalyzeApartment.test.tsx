@@ -107,7 +107,7 @@ vi.mock("@/components/ui/form", () => ({
   // biome-ignore lint/suspicious/noExplicitAny: test mock requires any type
   FormControl: ({ children }: any) => <div data-testid="form-control">{children}</div>,
   // biome-ignore lint/suspicious/noExplicitAny: test mock requires any type
-  FormField: ({ control, name, render }: any) => {
+  FormField: ({ name, render }: any) => {
     const field = {
       name,
       value: name === "park" || name === "supermarket" || name === "cafe" ? 10 : true,
@@ -190,7 +190,7 @@ vi.mock("react-hook-form", async () => {
       // Add any other useForm returns your component might use
     }),
     // biome-ignore lint/suspicious/noExplicitAny: test mock requires any type
-    Controller: ({ name, control, render }: any) => {
+    Controller: ({ name, render }: any) => {
       // Basic mock for Controller, providing a field object to its render prop
       const field = {
         name,

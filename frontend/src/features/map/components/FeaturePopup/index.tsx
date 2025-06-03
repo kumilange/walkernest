@@ -1,6 +1,5 @@
 import { CloseButton } from "@/components/button";
 import { capitalize } from "@/utils/misc";
-import React from "react";
 import { Popup } from "react-map-gl/maplibre";
 import { useAtomFavItems } from "../../stores/favoritesAtoms";
 import { VALID_PROPERTY_PAIRS } from "./constants";

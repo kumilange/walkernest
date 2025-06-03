@@ -53,21 +53,11 @@ vi.mock("@/features/map/hooks", () => ({
 vi.mock("@/features/map/components/CardContent/check-route/select-point", () => ({
   default: ({
     isStarting,
-    point,
     setPoint,
     isPointSelecting,
     setIsPointSelecting,
     onGeocodeAddress,
-  }: {
-    isStarting: boolean;
-    // biome-ignore lint/suspicious/noExplicitAny: test mock requires any type for flexibility
-    point: any;
-    // biome-ignore lint/suspicious/noExplicitAny: test mock requires any type for flexibility
-    setPoint: (point: any) => void;
-    isPointSelecting: boolean;
-    setIsPointSelecting: (selecting: boolean) => void;
-    onGeocodeAddress: (address: string, isStarting: boolean) => Promise<void>;
-  }) => (
+  }: any) => (
     <button
       type="button"
       data-testid={`mock-select-point-${isStarting ? "starting" : "ending"}`}

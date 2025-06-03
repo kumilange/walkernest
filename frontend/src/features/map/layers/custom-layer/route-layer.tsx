@@ -2,7 +2,6 @@ import { twColors } from "@/constants";
 import type { Route } from "@/types";
 import { useCallback, useEffect, useRef, useState } from "react";
 import { Layer, type LayerProps, Source } from "react-map-gl/maplibre";
-import type { LngLat } from "react-map-gl/maplibre";
 
 interface RouteLayerProps {
   route: Route | null;

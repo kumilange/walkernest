@@ -2,7 +2,7 @@ import { toast } from "@/hooks";
 import type { RoutePoint } from "@/types";
 import { setCursorStyle } from "@/utils/misc";
 import { bbox } from "@turf/turf";
-import { useCallback, useEffect, useRef, useState } from "react";
+import { useCallback, useRef, useState } from "react";
 import type { LngLat, LngLatBoundsLike } from "react-map-gl/maplibre";
 import { fetchAddressCoordinates, fetchAddressName, fetchRoute } from "../api";
 import { useAtomRoute } from "../stores/routeAtoms";

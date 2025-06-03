@@ -1,6 +1,6 @@
 import ManageLayer from "@/features/map/components/CardContent/manage-layer";
 import { fireEvent, render, screen } from "@testing-library/react";
-import { afterEach, beforeEach, describe, expect, it, vi } from "vitest";
+import { afterEach, describe, expect, it, vi } from "vitest";
 
 // Mock implementation
 const mockSetLayersVisibility = vi.fn();
