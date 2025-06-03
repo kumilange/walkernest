@@ -6,86 +6,18 @@ const mockHandleSelect = vi.fn();
 const mockHandleDelete = vi.fn();
 const mockSetFavItems = vi.fn();
 
-// Define mockUseAtomFavItems before using it in vi.mock
-const mockUseAtomFavItems = vi.fn().mockReturnValue({
-  favItems: [
-    {
-      id: "1",
-      name: "Home",
-      city: "denver",
-      feature: {
-        geometry: {
-          coordinates: [-105, 40],
-        },
-      },
-    },
-    {
-      id: "2",
-      name: "Work",
-      city: "boulder",
-      feature: {
-        geometry: {
-          coordinates: [-106, 41],
-        },
-      },
-    },
-  ],
-  setFavItems: mockSetFavItems,
+// Mock only the dependencies, not the component itself
+vi.mock("@/features/map/stores/favoritesAtoms", () => {
+  const mockUseAtomFavItems = vi.fn();
+  return {
+    useAtomFavItems: mockUseAtomFavItems,
+  };
 });
-
-// Mock the entire component
-vi.mock("@/features/map/components/CardContent/favorites-list", () => ({
-  default: () => {
-    const { favItems } = mockUseAtomFavItems();
-
-    if (favItems.length === 0) {
-      return <p>No favorites are added yet.</p>;
-    }
-
-    return (
-      <ul className="grid w-full items-center">
-        {/* biome-ignore lint/suspicious/noExplicitAny: test mock requires any type for favItems */}
-        {favItems.map((fav: any) => {
-          const { id, name, city, feature } = fav;
-          const [longitude, latitude] = feature.geometry.coordinates;
-
-          return (
-            <li key={id} className={id === "1" ? "bg-primary-lightGray" : ""}>
-              <button
-                type="button"
-                className="grid grid-cols-[6fr_4fr_1fr] items-center w-full"
-                onClick={(e) =>
-                  mockHandleSelect({
-                    e,
-                    id,
-                    lngLat: { lng: longitude, lat: latitude },
-                  })
-                }
-              >
-                <span>{name}</span>
-                <span>{city.charAt(0).toUpperCase() + city.slice(1)}</span>
-                {/* biome-ignore lint/a11y/useKeyWithClickEvents: test mock doesn't need keyboard events */}
-                <div data-testid="mock-trash-icon" onClick={(e) => mockHandleDelete({ e, id })}>
-                  Delete
-                </div>
-              </button>
-            </li>
-          );
-        })}
-      </ul>
-    );
-  },
-}));
-
-// Establish mock functions
-vi.mock("@/features/map/stores/favoritesAtoms", () => ({
-  useAtomFavItems: mockUseAtomFavItems,
-}));
 
 vi.mock("@/features/map/components/CardContent/favorites-list/use-event-handlers", () => ({
   __esModule: true,
   default: () => ({
-    selectedId: "1",
+    selectedId: 1,
     handleSelect: mockHandleSelect,
     handleDelete: mockHandleDelete,
   }),
@@ -120,31 +52,48 @@ vi.mock("lucide-react", () => ({
 }));
 
 vi.mock("maplibre-gl", () => ({
-  LngLat: (lng: number, lat: number) => ({ lng, lat }),
+  LngLat: class {
+    lng: number;
+    lat: number;
+    constructor(lng: number, lat: number) {
+      this.lng = lng;
+      this.lat = lat;
+    }
+  },
 }));
 
-// Import the component after all mocks are set up
 import FavoritesList from "@/features/map/components/CardContent/favorites-list";
+// Import the component after all mocks are set up
+import { useAtomFavItems } from "@/features/map/stores/favoritesAtoms";
+
+// Get the mocked function
+const mockUseAtomFavItems = vi.mocked(useAtomFavItems);
 
 const getDefaultFavItems = () => [
   {
-    id: "1",
+    id: 1,
     name: "Home",
     city: "denver",
     feature: {
+      type: "Feature" as const,
       geometry: {
+        type: "Point" as const,
         coordinates: [-105, 40],
       },
+      properties: {},
     },
   },
   {
-    id: "2",
+    id: 2,
     name: "Work",
     city: "boulder",
     feature: {
+      type: "Feature" as const,
       geometry: {
+        type: "Point" as const,
         coordinates: [-106, 41],
       },
+      properties: {},
     },
   },
 ];
@@ -204,7 +153,7 @@ describe("FavoritesList Component", () => {
     // Assert
     expect(mockHandleSelect).toHaveBeenCalledWith({
       e: expect.any(Object),
-      id: "1",
+      id: 1,
       lngLat: expect.any(Object),
     });
   });
@@ -223,7 +172,7 @@ describe("FavoritesList Component", () => {
     // Assert
     expect(mockHandleDelete).toHaveBeenCalledWith({
       e: expect.any(Object),
-      id: "1",
+      id: 1,
     });
   });
 
