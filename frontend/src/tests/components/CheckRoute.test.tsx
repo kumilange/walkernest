@@ -30,6 +30,7 @@ const mockEndingPoint = {
 vi.mock("@/features/map/hooks", () => ({
   useCheckRoutes: vi.fn().mockImplementation(() => ({
     route: null,
+    routeId: "no-route",
     startingPoint: null,
     endingPoint: null,
     isBothSelected: false,
@@ -156,6 +157,7 @@ describe("CheckRoute Component", () => {
     // Arrange
     vi.mocked(useCheckRoutes).mockReturnValueOnce({
       route: null,
+      routeId: "no-route",
       startingPoint: mockStartingPoint,
       endingPoint: mockEndingPoint,
       isBothSelected: true,
@@ -185,6 +187,7 @@ describe("CheckRoute Component", () => {
     // Arrange
     vi.mocked(useCheckRoutes).mockReturnValueOnce({
       route: null,
+      routeId: "no-route",
       startingPoint: mockStartingPoint,
       endingPoint: mockEndingPoint,
       isBothSelected: true,

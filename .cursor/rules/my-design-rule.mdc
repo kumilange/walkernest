@@ -1,0 +1,125 @@
+---
+description: 
+globs: 
+alwaysApply: false
+---
+# Design Policy Document Creation Guide
+
+This document explains the process and best practices for creating a Design Policy Document. By creating high-quality design policy documents, we aim to improve the efficiency of the development process and the quality of deliverables.
+
+## Roles and Responsibilities
+
+The person in charge of the design policy document has the following roles and responsibilities:
+
+- Act as a professional web front-end engineer.
+- Based on the existing implementation requirements document (`requirements.md`) and related code information, write an implementation policy document that junior engineers can use for development without confusion.
+- If there are uncertain parts, confirm them and create the document collaboratively.
+- Focus solely on designing the best implementation method for the implementation requirements, without writing detailed implementation code.
+
+## Design Policy Document Creation Process
+
+### Developing Design Policy from Implementation Requirements
+
+The person in charge of the design policy document performs the following tasks to create a design policy document from the existing requirements definition document (`requirements.md`):
+
+- Refer to the existing implementation requirements document and related code information.
+- If there are uncertain implementation requirements or omissions, confirm them as needed.
+- If there are multiple implementation methods that satisfy the implementation requirements, identify the candidates and propose the best method.
+- Collaboratively consider which method to choose and design the implementation policy.
+- If an implementation policy choice is made, always describe the options and the final reason for selection.
+
+### Coordination with the Requirements Definition Document
+
+- If requirements need to be changed/adjusted as the design policy is refined, also update the requirements definition document (`requirements.md`).
+- The requirements definition document details implementation requests into specific implementation requirements and does not touch upon implementation details.
+- Implementation details are described in the design policy document (`design-doc.md`).
+
+## Deliverables and Output Format
+
+The following will be created or updated as deliverables of the design policy document creation process:
+
+- **Design Policy Document**: Place `design.md` in the directory corresponding to the current working branch name.
+  ```bash
+  # Example: If the current branch is feature/add_plan-docs
+  context/feature/add_plan-docs/design-doc.md
+  ```
+
+- **Requirements Definition Document (if updated)**: Update `requirements.md` in the same directory.
+  ```bash
+  # Example: If the current branch is feature/add_plan-docs
+  context/feature/add_plan-docs/requirements.md
+  ```
+
+- The final output should be provided in Markdown format within a code block for easy copy-pasting.
+
+## Structure of the Design Policy Document
+
+The design policy document should follow the structure below:
+
+```markdown
+# [Feature/Page Name] Design Policy Document
+
+## 📋 Overview
+
+[Brief description of the purpose and background of the design policy]
+
+## 🔍 Requirements Analysis
+
+[Key implementation points extracted from the requirements definition document]
+
+## 🛠 Implementation Policy
+
+### Architecture Choice
+
+[Selected architecture and reasons for selection]
+
+### Component Design
+
+[Scope of responsibilities and interrelationships of major components]
+
+### Data Flow
+
+[Data flow and state management policy]
+
+## 🔄 Implementation Method Options and Decision
+
+[Considered implementation method candidates and final decision]
+
+### Option 1: [Method Name]
+
+[Description and evaluation]
+
+### Option 2: [Method Name]
+
+[Description and evaluation]
+
+### Decision: [Selected Method]
+
+[Reason for selection and expected effects]
+
+## 📊 Technical Constraints and Considerations
+
+[Technical constraints and points to note during implementation]
+
+## ❓ Technical Issues to Be Resolved
+
+[Technical questions to be resolved before implementation]
+```
+
+## Key Points for Creating a Design Policy Document
+
+1.  **Focus on Policy, Not Implementation Details**
+    *   Do not write specific code; indicate the direction and reasons for implementation.
+    *   Give implementers appropriate discretion.
+
+2.  **Clarify Options and Decision Rationale**
+    *   Clearly state the multiple implementation methods considered.
+    *   Specifically explain the reason for the final choice.
+
+3.  **Ensure Consistency with Requirements**
+    *   Confirm that the proposed implementation policy meets the requirements.
+    *   Explicitly indicate if changes to requirements are necessary.
+
+4.  **Consider Technical Constraints**
+    *   Propose a policy that considers the project's technical stack and constraints.
+    *   Anticipate potential issues during implementation and propose countermeasures.

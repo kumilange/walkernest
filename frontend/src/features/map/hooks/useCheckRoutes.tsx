@@ -91,7 +91,6 @@ export default function useCheckRoutes() {
       const lngLat = { lng: result.lng, lat: result.lat };
 
       if (isStartingPoint) {
-        
         setStartingPoint({ lngLat: lngLat as any, name: result.displayName });
         setIsStartingPointSelecting(false);
       } else {
@@ -102,12 +101,10 @@ export default function useCheckRoutes() {
       setCursorStyle({ isSelecting: false });
 
       const newStarting = isStartingPoint
-        ? 
-          { lngLat: lngLat as any, name: result.displayName }
+        ? { lngLat: lngLat as any, name: result.displayName }
         : startingPoint;
       const newEnding = !isStartingPoint
-        ? 
-          { lngLat: lngLat as any, name: result.displayName }
+        ? { lngLat: lngLat as any, name: result.displayName }
         : endingPoint;
 
       if (newStarting?.lngLat && newEnding?.lngLat) {
@@ -222,23 +219,9 @@ export default function useCheckRoutes() {
     fetchRouteWithSafeguards,
   ]);
 
-  // Helper function to fetch route when both points are available
-  const fetchRouteIfReady = useCallback(() => {
-    if (startingPoint?.lngLat && endingPoint?.lngLat && !isRouteFetching) {
-      const currentStartingId = `${startingPoint.lngLat.lng},${startingPoint.lngLat.lat}`;
-      const currentEndingId = `${endingPoint.lngLat.lng},${endingPoint.lngLat.lat}`;
-      const routeId = `${currentStartingId}-${currentEndingId}`;
-
-      // Prevent duplicate requests for the same route
-      if (routeId && lastFetchedRouteRef.current !== routeId) {
-        lastFetchedRouteRef.current = routeId;
-        fetchRouteWithSafeguards(startingPoint, endingPoint);
-      }
-    }
-  }, [startingPoint, endingPoint, isRouteFetching, fetchRouteWithSafeguards]);
-
   return {
     route,
+    routeId: route && isBothSelected ? `route-${routeFetchRef.current}` : "no-route",
     startingPoint,
     endingPoint,
     isBothSelected,

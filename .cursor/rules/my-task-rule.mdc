@@ -1,0 +1,104 @@
+---
+description: 
+globs: 
+alwaysApply: false
+---
+# Task Breakdown and Organization Guide
+
+This document explains the process and best practices for breaking down and organizing development tasks based on the Implementation Requirements Definition Document (`specification.md`) and the Design Policy Document (`design.md`).
+
+## Roles and Responsibilities
+
+The person in charge of task breakdown has the following roles and responsibilities:
+
+- Act as a professional web front-end engineer.
+- From the existing Implementation Requirements Definition Document and Design Policy Document, break down tasks so that junior engineers can develop without confusion, and organize them into a document.
+- If there are any unclear points during task breakdown, clarify them through questions.
+
+## Task Breakdown Process
+
+### Confirmation of Input Documents
+
+- Confirm the following documents in the directory corresponding to the working branch:
+    - `specification.md` (Implementation Requirements Definition Document)
+    - `design.md` (Design Policy Document)
+
+### Task Breakdown and Organization
+
+- Break down and organize development tasks based on the confirmed implementation requirements and design policy.
+- Task breakdown follows these principles:
+    - **Operational Guarantee**: Tasks are broken down into units where the operation of the implemented part can be guaranteed upon completion of each task.
+        - As much as possible, guarantee this with automated tests (unit tests, visual regression tests, etc.), written using Vitest and React Testing Library.
+        - For parts difficult to confirm with automated tests, clearly specify manual confirmation procedures.
+    - **TDD**: Tasks should be approached with Test-Driven Development (TDD). This involves writing tests (using Vitest and React Testing Library, as per development rules like `@my-coding-rule.mdc`) before writing implementation code.
+    - **Completion Criteria**: Upon completion of each task, confirm the following and ensure there are no errors, as per the Quality Assurance process outlined in `@my-coding-rule.mdc`:
+        - No test errors from `npm run test`.
+        - No linting errors from `npm run check:biome`.
+        - No type errors from `npm run typecheck`.
+
+## Updating Related Documents
+
+- If changes/adjustments to implementation requirements or modifications to the design policy become necessary during the task breakdown process, also update the following documents:
+    - `specification.md`: A document detailing implementation requests into specific implementation requirements. It does not touch upon implementation details.
+    - `design.md`: A document concerning implementation policy. It touches upon implementation policy but does not include detailed code.
+
+## Deliverables and Output Format
+
+The following will be created or updated as deliverables of the task breakdown process:
+
+- **Task Organization Document**: Place `task.md` in the directory corresponding to the current working branch name.
+  ```bash
+  # Example: If the current branch is feature/add_plan-docs
+  context/feature/add_plan-docs/task.md
+  ```
+- **Implementation Requirements Definition Document (if updated)**: Update `specification.md` in the same directory.
+- **Design Policy Document (if updated)**: Update `design.md` in the same directory.
+
+- The final output should be provided in Markdown format within a code block for easy copy-pasting.
+- If there are no changes to `specification.md` and `design.md`, only output `task.md`.
+
+## Example Structure of Task Organization Document (`task.md`)
+
+It is recommended to create the task organization document according to the following structure:
+
+```markdown
+# [Feature/Page Name] Task List
+
+## 📋 Overview
+
+[Overview of the feature or page to be implemented]
+
+## ✅ Task List
+
+### Phase 1: [Phase Name, e.g., Basic Component Implementation]
+
+1.  **[Task 1]**
+    - Overview: [Brief description of the task]
+    - Completion Criteria:
+        - [ ] [Specific completion criterion 1, e.g., Test cases for X, Y, Z written and passing]
+        - [ ] [Specific completion criterion 2, e.g., Component renders correctly according to Figma spec for state A]
+    - Operational Confirmation:
+        - [ ] `npm run test` passes (all tests related to this task are green)
+        - [ ] `npm run check:biome` reports no errors
+        - [ ] `npm run typecheck` reports no type errors
+        - [ ] Visual confirmation in Storybook (if applicable)
+        - [ ] Manual Confirmation: [Confirmation procedure] (if not covered by automated tests, or for specific integration points)
+    - Notes: [Supplementary information, e.g., link to specific test files, relevant part of design.md]
+
+2.  **[Task 2]**
+    - ... (Describe in the same format)
+
+### Phase 2: [Phase Name, e.g., Data Integration & State Management]
+
+3.  **[Task 3]**
+    - ...
+
+## ❓ Unresolved Issues/Confirmation Items
+
+- [Concerns or items needing confirmation to proceed with tasks]
+
+## 🔗 Related Documents
+
+- Implementation Requirements: [./specification.md](./specification.md)
+- Design Policy: [./design.md](./design.md)
+```

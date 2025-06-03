@@ -1,3 +1,4 @@
+import { useCheckRoutes } from "../hooks";
 import { useAtomLastLayerId } from "../stores/layerAtoms";
 import {
   AmenitiesLayers,
@@ -16,6 +17,7 @@ export default function LayerManager({
   cityId: number | null;
 }) {
   const { lastLayerId } = useAtomLastLayerId();
+  const { route, routeId, isBothSelected } = useCheckRoutes();
 
   return (
     <>
@@ -26,7 +28,7 @@ export default function LayerManager({
           <AnalysisLayers cityId={cityId} />
         </>
       )}
-      <RouteLayer />
+      {isBothSelected && <RouteLayer key={routeId} route={route} />}
       <FavoritesLayer lastLayerId={lastLayerId} />
       <RoutePointsLayer lastLayerId={lastLayerId} />
     </>
