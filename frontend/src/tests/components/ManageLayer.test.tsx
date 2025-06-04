@@ -1,6 +1,6 @@
 import ManageLayer from "@/features/map/components/CardContent/manage-layer";
 import { fireEvent, render, screen } from "@testing-library/react";
-import { afterEach, beforeEach, describe, expect, it, vi } from "vitest";
+import { afterEach, describe, expect, it, vi } from "vitest";
 
 // Mock implementation
 const mockSetLayersVisibility = vi.fn();
@@ -20,23 +20,37 @@ vi.mock("@/features/map/stores/layerAtoms", () => ({
 }));
 
 vi.mock("@/components/ui/label", () => ({
-  // biome-ignore lint/suspicious/noExplicitAny: test mock requires any type for props flexibility
-  Label: ({ htmlFor, children, className }: any) => (
-    <label data-testid={`mock-label-${htmlFor}`} htmlFor={htmlFor} className={className}>
+  Label: ({
+    htmlFor,
+    children,
+    className,
+  }: {
+    htmlFor?: string;
+    children: React.ReactNode;
+    className?: string;
+  }) => (
+    <label htmlFor={htmlFor} className={className} data-testid={`mock-label-${htmlFor}`}>
       {children}
     </label>
   ),
 }));
 
 vi.mock("@/components/ui/switch", () => ({
-  // biome-ignore lint/suspicious/noExplicitAny: test mock requires any type for props flexibility
-  Switch: ({ id, defaultChecked, onCheckedChange }: any) => (
+  Switch: ({
+    id,
+    defaultChecked,
+    onCheckedChange,
+  }: {
+    id?: string;
+    defaultChecked?: boolean;
+    onCheckedChange?: (checked: boolean) => void;
+  }) => (
     <input
       type="checkbox"
-      data-testid={`mock-switch-${id}`}
       id={id}
       defaultChecked={defaultChecked}
-      onChange={(e) => onCheckedChange(e.target.checked)}
+      onChange={(e) => onCheckedChange?.(e.target.checked)}
+      data-testid={`mock-switch-${id}`}
     />
   ),
 }));

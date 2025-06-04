@@ -2,7 +2,7 @@ import cafeIconPath from "@/assets/cafe-icon.png";
 import supermarketIconPath from "@/assets/supermarket-icon.png";
 import { useAmenities } from "@/features/map/api";
 import { useToast } from "@/hooks";
-import { memo, useEffect } from "react";
+import { useEffect } from "react";
 import { IconLayer, PolygonLayer } from "../custom-base-layer"; // Corrected path
 import { extractBaseName } from "../helper"; // Corrected path
 

@@ -87,3 +87,29 @@ export function generateFeatureCollection(geometry: Geometry): FeatureCollection
 export function extractBaseName(str: string): string {
   return str.split("_")[0];
 }
+
+/**
+ * Calculates an animated slice of coordinates based on animation progress.
+ * Used for route animation to progressively reveal the route path.
+ *
+ * @param {number} progress - Animation progress from 0 to 1
+ * @param {[number, number][]} originalCoordinates - Array of coordinate pairs [lng, lat]
+ * @returns {[number, number][]} Sliced coordinates array for current animation frame
+ */
+export function getAnimatedSlice(
+  progress: number,
+  originalCoordinates: [number, number][]
+): [number, number][] {
+  if (originalCoordinates.length < 2 || progress <= 0) {
+    return [];
+  }
+
+  if (progress >= 1) {
+    return originalCoordinates;
+  }
+
+  const targetPoints = Math.ceil(progress * originalCoordinates.length);
+  const clampedTargetPoints = Math.max(2, targetPoints);
+
+  return originalCoordinates.slice(0, clampedTargetPoints);
+}

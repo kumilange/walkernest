@@ -17,8 +17,7 @@ export default function useCityMapEventHandlers() {
     setProperties,
     handlePopupClose,
   } = useFeaturePopup();
-  const { isSelectingPoint, isStartingPointSelecting, isEndingPointSelecting, handleAddressName } =
-    useCheckRoutes();
+  const { isSelectingPoint, handleAddressName } = useCheckRoutes();
 
   const handleClick = useCallback(
     async (e: MapLayerMouseEvent) => {

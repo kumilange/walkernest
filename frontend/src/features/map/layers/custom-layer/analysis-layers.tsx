@@ -4,10 +4,8 @@ import { useAnalysis } from "@/features/map/api";
 import { useAtomFavItems, useAtomIsAmenityOn, useAtomMaxDistance } from "@/features/map/stores";
 import { useToast } from "@/hooks";
 import { generateCityDataParams } from "@/utils/misc";
-import { Point } from "geojson";
 import { useEffect } from "react";
 import { ClusterLayer, IconLayer, PolygonLayer } from "../custom-base-layer"; // Corrected path
-import AmenityLayer from "./amenities-layers";
 
 export default function AnalysisLayers({ cityId }: { cityId: number }) {
   const { toast } = useToast();

@@ -4,13 +4,7 @@ import { Input } from "@/components/ui/input";
 import { useAtomIsTmpAmenityOn } from "@/features/map/stores";
 import { capitalize } from "@/utils/misc";
 import { Coffee, ShoppingCart, Trees } from "lucide-react";
-import {
-  type Control,
-  Controller,
-  type FieldValues,
-  type Path,
-  UseFormReturn,
-} from "react-hook-form";
+import { type Control, Controller, type FieldValues, type Path } from "react-hook-form";
 
 type FormFieldItemProps<T extends FieldValues> = {
   control: Control<T>;

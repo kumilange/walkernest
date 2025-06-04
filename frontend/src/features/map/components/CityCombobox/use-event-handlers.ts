@@ -2,11 +2,10 @@ import { useAtomCity } from "@/stores";
 import type { CityArrayItem } from "@/types";
 import { bbox } from "@turf/turf";
 import { useCallback } from "react";
-import { type LngLatBoundsLike, useMap } from "react-map-gl/maplibre";
+import type { LngLatBoundsLike } from "react-map-gl/maplibre";
 import { useCityMap } from "../../hooks";
 
 export default function useEventHandlers() {
-  const { map } = useMap();
   const { fitBounds } = useCityMap();
   const { setCity } = useAtomCity();
 

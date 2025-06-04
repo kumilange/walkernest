@@ -1,0 +1,83 @@
+import { executeConditionalFlyTo } from "@/features/map/hooks/useCheckRoutes";
+import type { RoutePoint } from "@/types";
+import type { LngLat } from "react-map-gl/maplibre";
+import type { MapRef } from "react-map-gl/maplibre";
+import { beforeEach, describe, expect, it, vi } from "vitest";
+
+describe("executeConditionalFlyTo", () => {
+  const mockFlyTo = vi.fn();
+  const mockMapInstance = {} as MapRef;
+
+  const mockStartingPoint: RoutePoint = {
+    lngLat: { lng: -105, lat: 40 } as LngLat,
+    name: "Starting Location",
+  };
+
+  const mockEndingPoint: RoutePoint = {
+    lngLat: { lng: -106, lat: 41 } as LngLat,
+    name: "Ending Location",
+  };
+
+  beforeEach(() => {
+    vi.clearAllMocks();
+  });
+
+  it("calls flyTo when starting point is set and ending point is null", () => {
+    // Act
+    executeConditionalFlyTo(mockStartingPoint, null, mockMapInstance, mockFlyTo);
+
+    // Assert
+    expect(mockFlyTo).toHaveBeenCalledWith([-105, 40], 15);
+  });
+
+  it("calls flyTo when ending point is set and starting point is null", () => {
+    // Act
+    executeConditionalFlyTo(mockEndingPoint, null, mockMapInstance, mockFlyTo);
+
+    // Assert
+    expect(mockFlyTo).toHaveBeenCalledWith([-106, 41], 15);
+  });
+
+  it("does NOT call flyTo when pointJustSet is null", () => {
+    // Act
+    executeConditionalFlyTo(null, null, mockMapInstance, mockFlyTo);
+
+    // Assert
+    expect(mockFlyTo).not.toHaveBeenCalled();
+  });
+
+  it("does NOT call flyTo when otherPoint is set", () => {
+    // Act
+    executeConditionalFlyTo(mockStartingPoint, mockEndingPoint, mockMapInstance, mockFlyTo);
+
+    // Assert
+    expect(mockFlyTo).not.toHaveBeenCalled();
+  });
+
+  it("does NOT call flyTo when mapInstance is undefined", () => {
+    // Act
+    executeConditionalFlyTo(mockStartingPoint, null, undefined, mockFlyTo);
+
+    // Assert
+    expect(mockFlyTo).not.toHaveBeenCalled();
+  });
+
+  it("does NOT call flyTo when pointJustSet has no lngLat", () => {
+    // Test with null point (which is what the function is designed to handle)
+    const pointWithoutLngLat = null;
+
+    // Act
+    executeConditionalFlyTo(pointWithoutLngLat, null, mockMapInstance, mockFlyTo);
+
+    // Assert
+    expect(mockFlyTo).not.toHaveBeenCalled();
+  });
+
+  it("does NOT call flyTo when otherPoint has lngLat (both points are set)", () => {
+    // Act
+    executeConditionalFlyTo(mockStartingPoint, mockEndingPoint, mockMapInstance, mockFlyTo);
+
+    // Assert
+    expect(mockFlyTo).not.toHaveBeenCalled();
+  });
+});

@@ -1,7 +1,6 @@
 import { useAnalysis } from "@/features/map/api";
 import { generateCityDataParams } from "@/utils/misc";
 import { useEffect, useRef, useState } from "react";
-import { Map as MapGL } from "react-map-gl/maplibre";
 import { useAtomIsAmenityOn, useAtomMaxDistance } from "../../../stores/analysisAtoms";
 import {
   CLOSE_DIALOG_DELAY_MS,

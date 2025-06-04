@@ -67,7 +67,6 @@ export const transformToCityListArray = (cityListDict: CityDictItem): CityArrayI
 export function transformQueryParams(queryParams: string[]): string[] {
   return queryParams.map((param) => {
     const urlParams = new URLSearchParams(param);
-    const cityId = urlParams.get("city_id");
     const name = urlParams.get("name");
     const isCentroid = urlParams.get("is_centroid");
 

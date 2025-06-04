@@ -23,6 +23,27 @@ Create a Vite + React solution that is not only functional but also adheres to t
 - Use PascalCase for directories containing React components (e.g., `components/CityMap`).
 - Use camelCase for utility directories and files.
 
+## Modern JavaScript/TypeScript Syntax
+
+- **Always use the latest ES2023+ syntax and features**:
+  - Use `const` and `let` instead of `var`
+  - Prefer arrow functions over function declarations
+  - Use template literals instead of string concatenation
+  - Implement optional chaining (`?.`) and nullish coalescing (`??`)
+  - Use array methods like `map`, `filter`, `reduce` over traditional loops
+  - Leverage destructuring assignment for objects and arrays
+  - Use modern async/await instead of Promise chains
+- **Avoid deprecated React patterns**:
+  - Use `onKeyDown` instead of the deprecated `onKeyPress` event
+  - Prefer function components over class components
+  - Use hooks instead of lifecycle methods
+  - Implement `React.StrictMode` for development
+- **TypeScript best practices**:
+  - Use strict mode configuration
+  - Prefer `interface` over `type` for object shapes
+  - Use generic constraints and utility types
+  - Implement proper error boundaries with TypeScript
+
 ## Optimization and Best Practices
 
 - Minimize unnecessary `useEffect` and `setState`; favor declarative patterns and atomic state management.
@@ -108,6 +129,7 @@ npm run test:coverage        # Run tests with coverage
 - **Import/export errors**: Ensure all imports are valid and exports are properly typed
 - **React Hook errors**: Fix dependency arrays and hook usage patterns
 - **Accessibility errors**: Address accessibility issues for inclusive design
+- **Deprecated syntax errors**: Replace deprecated patterns with modern equivalents (e.g., `onKeyPress` → `onKeyDown`)
 
 ## Methodology
 
@@ -135,6 +157,7 @@ Implement the solution step-by-step, ensuring that each part adheres to the spec
 - Run `npm run typecheck` to ensure no TypeScript errors
 - Run `npm run check:biome` to ensure no linting errors
 - Fix any issues found before considering the task complete
+- Check for unused imports and systematically remove them
 
 ### 5. Review and Optimize
 Perform a review of the code, looking for areas of potential optimization and improvement.
@@ -144,4 +167,4 @@ Finalize the code by ensuring it meets all requirements, is secure, performant, 
 
 ---
 
-**Remember**: Code quality is non-negotiable. Always leave the codebase in a better state than you found it, with zero linting or type errors. 
+**Remember**: Code quality is non-negotiable. Always leave the codebase in a better state than you found it, with zero linting or type errors. Use modern JavaScript/TypeScript syntax and avoid deprecated patterns like `onKeyPress`.

@@ -11,10 +11,9 @@ const mockSetIsStartingPointSelecting = vi.fn();
 const mockSetIsEndingPointSelecting = vi.fn();
 const mockReversePoints = vi.fn();
 const mockSetRoute = vi.fn();
-const mockSetAnimatedRoute = vi.fn();
 const mockClearAllRouteStates = vi.fn();
 const mockHandleAddressName = vi.fn();
-const mockHandleFitBoundsForRoute = vi.fn();
+const mockHandleGeocodeAddress = vi.fn();
 
 // Create mock point objects
 const mockStartingPoint = {
@@ -31,16 +30,15 @@ const mockEndingPoint = {
 vi.mock("@/features/map/hooks", () => ({
   useCheckRoutes: vi.fn().mockImplementation(() => ({
     route: null,
-    animatedRoute: null,
+    routeId: "no-route",
     startingPoint: null,
     endingPoint: null,
     isBothSelected: false,
     isSelectingPoint: false,
     isStartingPointSelecting: false,
     isEndingPointSelecting: false,
+    isRouteFetching: false,
     setRoute: mockSetRoute,
-    animateRoute: vi.fn(),
-    setAnimatedRoute: mockSetAnimatedRoute,
     setStartingPoint: mockSetStartingPoint,
     setEndingPoint: mockSetEndingPoint,
     setIsStartingPointSelecting: mockSetIsStartingPointSelecting,
@@ -48,13 +46,24 @@ vi.mock("@/features/map/hooks", () => ({
     clearAllRouteStates: mockClearAllRouteStates,
     reversePoints: mockReversePoints,
     handleAddressName: mockHandleAddressName,
-    handleFitBoundsForRoute: mockHandleFitBoundsForRoute,
+    handleGeocodeAddress: mockHandleGeocodeAddress,
   })),
 }));
 
 vi.mock("@/features/map/components/CardContent/check-route/select-point", () => ({
-  // biome-ignore lint/suspicious/noExplicitAny: test mock requires any type for flexibility
-  default: ({ isStarting, point, setPoint, isPointSelecting, setIsPointSelecting }: any) => (
+  default: ({
+    isStarting,
+    setPoint,
+    isPointSelecting,
+    setIsPointSelecting,
+    onGeocodeAddress,
+  }: {
+    isStarting: boolean;
+    setPoint: (point: { lngLat: LngLat; name: string }) => void;
+    isPointSelecting: boolean;
+    setIsPointSelecting: (selecting: boolean) => void;
+    onGeocodeAddress: (address: string, isStarting: boolean) => Promise<void>;
+  }) => (
     <button
       type="button"
       data-testid={`mock-select-point-${isStarting ? "starting" : "ending"}`}
@@ -85,6 +94,15 @@ vi.mock("@/features/map/components/CardContent/check-route/select-point", () => 
       >
         Select Point
       </button>
+      <button
+        type="button"
+        data-testid={`mock-geocode-button-${isStarting ? "starting" : "ending"}`}
+        onClick={async () => {
+          await onGeocodeAddress("Test Address", isStarting);
+        }}
+      >
+        Geocode Address
+      </button>
     </button>
   ),
 }));
@@ -95,23 +113,23 @@ vi.mock("@/features/map/components/CardContent/check-route/route-result", () => 
 
 vi.mock("lucide-react", () => ({
   __esModule: true,
-  // biome-ignore lint/suspicious/noExplicitAny: lucide mock requires any type
-  ArrowDownUp: ({ onClick }: any) => (
+  ArrowDownUp: ({ onClick }: { onClick?: () => void }) => (
     // biome-ignore lint/a11y/useKeyWithClickEvents: test mock doesn't need keyboard events
     <div data-testid="mock-arrow-down-up" onClick={onClick}>
-      Swap
+      ↕
     </div>
   ),
-  // biome-ignore lint/suspicious/noExplicitAny: lucide mock requires any type
-  Locate: ({ className }: any) => <div data-testid="mock-locate-icon" className={className} />,
-  // biome-ignore lint/suspicious/noExplicitAny: lucide mock requires any type
-  LocateFixed: ({ className }: any) => (
+  Locate: ({ className }: { className?: string }) => (
+    <div data-testid="mock-locate-icon" className={className} />
+  ),
+  LocateFixed: ({ className }: { className?: string }) => (
     <div data-testid="mock-locate-fixed-icon" className={className} />
   ),
-  // biome-ignore lint/suspicious/noExplicitAny: lucide mock requires any type
-  CircleX: ({ className, onClick }: any) => (
+  CircleX: ({ className, onClick }: { className?: string; onClick?: () => void }) => (
     // biome-ignore lint/a11y/useKeyWithClickEvents: test mock doesn't need keyboard events
-    <div data-testid="mock-circlex-icon" className={className} onClick={onClick} />
+    <div data-testid="mock-circle-x" className={className} onClick={onClick}>
+      ✕
+    </div>
   ),
 }));
 
@@ -135,16 +153,15 @@ describe("CheckRoute Component", () => {
     // Arrange
     vi.mocked(useCheckRoutes).mockReturnValueOnce({
       route: null,
-      animatedRoute: null,
+      routeId: "no-route",
       startingPoint: mockStartingPoint,
       endingPoint: mockEndingPoint,
       isBothSelected: true,
       isSelectingPoint: false,
       isStartingPointSelecting: false,
       isEndingPointSelecting: false,
+      isRouteFetching: false,
       setRoute: mockSetRoute,
-      animateRoute: vi.fn(),
-      setAnimatedRoute: mockSetAnimatedRoute,
       setStartingPoint: mockSetStartingPoint,
       setEndingPoint: mockSetEndingPoint,
       setIsStartingPointSelecting: mockSetIsStartingPointSelecting,
@@ -152,7 +169,7 @@ describe("CheckRoute Component", () => {
       clearAllRouteStates: mockClearAllRouteStates,
       reversePoints: mockReversePoints,
       handleAddressName: mockHandleAddressName,
-      handleFitBoundsForRoute: mockHandleFitBoundsForRoute,
+      handleGeocodeAddress: mockHandleGeocodeAddress,
     });
 
     // Act
@@ -166,16 +183,15 @@ describe("CheckRoute Component", () => {
     // Arrange
     vi.mocked(useCheckRoutes).mockReturnValueOnce({
       route: null,
-      animatedRoute: null,
+      routeId: "no-route",
       startingPoint: mockStartingPoint,
       endingPoint: mockEndingPoint,
       isBothSelected: true,
       isSelectingPoint: false,
       isStartingPointSelecting: false,
       isEndingPointSelecting: false,
+      isRouteFetching: false,
       setRoute: mockSetRoute,
-      animateRoute: vi.fn(),
-      setAnimatedRoute: mockSetAnimatedRoute,
       setStartingPoint: mockSetStartingPoint,
       setEndingPoint: mockSetEndingPoint,
       setIsStartingPointSelecting: mockSetIsStartingPointSelecting,
@@ -183,7 +199,7 @@ describe("CheckRoute Component", () => {
       clearAllRouteStates: mockClearAllRouteStates,
       reversePoints: mockReversePoints,
       handleAddressName: mockHandleAddressName,
-      handleFitBoundsForRoute: mockHandleFitBoundsForRoute,
+      handleGeocodeAddress: mockHandleGeocodeAddress,
     });
 
     // Act
@@ -232,5 +248,22 @@ describe("CheckRoute Component", () => {
       lngLat: { lng: -106, lat: 41 },
       name: "Selected Location",
     });
+  });
+
+  it("handles geocoding address input correctly", async () => {
+    // Act
+    render(<CheckRoute />);
+
+    // Trigger geocoding for starting point
+    fireEvent.click(screen.getByTestId("mock-geocode-button-starting"));
+
+    // Assert
+    expect(mockHandleGeocodeAddress).toHaveBeenCalledWith("Test Address", true);
+
+    // Trigger geocoding for ending point
+    fireEvent.click(screen.getByTestId("mock-geocode-button-ending"));
+
+    // Assert
+    expect(mockHandleGeocodeAddress).toHaveBeenCalledWith("Test Address", false);
   });
 });

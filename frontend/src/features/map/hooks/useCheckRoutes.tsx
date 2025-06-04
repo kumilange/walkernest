@@ -1,17 +1,42 @@
 import { toast } from "@/hooks";
-import type { Route } from "@/types";
+import type { RoutePoint } from "@/types";
+import { logger } from "@/utils/logger";
 import { setCursorStyle } from "@/utils/misc";
 import { bbox } from "@turf/turf";
-import { useCallback, useEffect, useRef, useState } from "react";
-import type { LngLat, LngLatBoundsLike } from "react-map-gl/maplibre";
-import { fetchAddressName } from "../api";
+import { LngLat } from "maplibre-gl";
+import { useCallback, useRef, useState } from "react";
+import type { LngLatBoundsLike } from "react-map-gl/maplibre";
+import type { MapRef } from "react-map-gl/maplibre";
+import { fetchAddressCoordinates, fetchAddressName, fetchRoute } from "../api";
 import { useAtomRoute } from "../stores/routeAtoms";
 import useCityMap from "./useCityMap";
 
+/**
+ * Helper function to conditionally execute flyTo when a single point is set
+ * @param pointJustSet - The point that was just successfully set
+ * @param otherPoint - The current state of the other point
+ * @param mapInstance - The map instance from useCityMap
+ * @param flyToFunction - The flyTo function from useCityMap
+ */
+export const executeConditionalFlyTo = (
+  pointJustSet: RoutePoint | null,
+  otherPoint: RoutePoint | null,
+  mapInstance: MapRef | undefined,
+  flyToFunction: (center: [number, number], zoom: number) => void
+) => {
+  if (mapInstance && pointJustSet?.lngLat && !otherPoint?.lngLat) {
+    const { lng, lat } = pointJustSet.lngLat;
+    // Use a reasonable zoom level - can be adjusted based on requirements
+    const zoom = 15;
+    flyToFunction([lng, lat], zoom);
+  }
+};
+
 export default function useCheckRoutes() {
-  const animationIdRef = useRef<number | null>(null);
-  const [animatedRoute, setAnimatedRoute] = useState<GeoJSON.LineString | null>(null);
-  const { map, fitBounds } = useCityMap();
+  const routeFetchRef = useRef<number>(0);
+  const lastFetchedRouteRef = useRef<string>("");
+  const [isRouteFetching, setIsRouteFetching] = useState(false);
+  const { map, fitBounds, flyTo } = useCityMap();
   const {
     route,
     setRoute,
@@ -31,15 +56,38 @@ export default function useCheckRoutes() {
   // Function to handle fetching the address name based on coordinates
   const handleAddressName = async (lngLat: LngLat) => {
     try {
-      const response = await fetchAddressName(lngLat);
-      const displayName = response || "N/A";
+      const result = await fetchAddressName(lngLat);
+
+      if (!result) {
+        toast({
+          variant: "destructive",
+          title: "Address not found.",
+          description: "Could not find address for the provided coordinates.",
+          duration: 10000,
+        });
+        return;
+      }
+
+      const displayName = result || "N/A";
+      const newPoint = { lngLat, name: displayName };
 
       if (isStartingPointSelecting) {
-        setStartingPoint({ lngLat, name: displayName });
+        setStartingPoint(newPoint);
         setIsStartingPointSelecting(false);
+        // Execute conditional flyTo for starting point
+        executeConditionalFlyTo(newPoint, endingPoint, map, flyTo);
       } else if (isEndingPointSelecting) {
-        setEndingPoint({ lngLat, name: displayName });
+        setEndingPoint(newPoint);
         setIsEndingPointSelecting(false);
+        // Execute conditional flyTo for ending point
+        executeConditionalFlyTo(newPoint, startingPoint, map, flyTo);
+      }
+
+      const newStarting = isStartingPointSelecting ? newPoint : startingPoint;
+      const newEnding = isEndingPointSelecting ? newPoint : endingPoint;
+
+      if (newStarting?.lngLat && newEnding?.lngLat) {
+        fetchRouteWithSafeguards(newStarting, newEnding);
       }
     } catch (error) {
       toast({
@@ -53,39 +101,64 @@ export default function useCheckRoutes() {
     }
   };
 
-  // Function to fit the map bounds to the route
-  const handleFitBoundsForRoute = useCallback(
-    (data: Route) => {
-      if (!map) return;
+  // Function to handle geocoding address input and setting point
+  const handleGeocodeAddress = async (address: string, isStartingPoint: boolean) => {
+    try {
+      const results = await fetchAddressCoordinates(address);
 
-      const boundingBox = bbox(data.geometry);
-      const lngLatBounds: LngLatBoundsLike = [
-        [boundingBox[0], boundingBox[1]],
-        [boundingBox[2], boundingBox[3]],
-      ];
-
-      const padding = window.innerWidth < 420 ? 40 : 100;
-
-      // Fit bounds if route geometry is outside of the screen
-      if (
-        !map.getBounds().contains(lngLatBounds[0]) ||
-        !map.getBounds().contains(lngLatBounds[1])
-      ) {
-        fitBounds(lngLatBounds, padding);
+      if (results.length === 0) {
+        toast({
+          variant: "destructive",
+          title: "Address not found.",
+          description: "Could not find coordinates for the entered address.",
+          duration: 10000,
+        });
+        return;
       }
-    },
-    [map, fitBounds]
-  );
+
+      const result = results[0];
+      const lngLat = new LngLat(result.lng, result.lat);
+      const newPoint = { lngLat, name: result.displayName };
+
+      if (isStartingPoint) {
+        setStartingPoint(newPoint);
+        setIsStartingPointSelecting(false);
+        // Execute conditional flyTo for starting point
+        executeConditionalFlyTo(newPoint, endingPoint, map, flyTo);
+      } else {
+        setEndingPoint(newPoint);
+        setIsEndingPointSelecting(false);
+        // Execute conditional flyTo for ending point
+        executeConditionalFlyTo(newPoint, startingPoint, map, flyTo);
+      }
+
+      setCursorStyle({ isSelecting: false });
+
+      const newStarting = isStartingPoint ? newPoint : startingPoint;
+      const newEnding = !isStartingPoint ? newPoint : endingPoint;
+
+      if (newStarting?.lngLat && newEnding?.lngLat) {
+        fetchRouteWithSafeguards(newStarting, newEnding);
+      }
+    } catch (error) {
+      toast({
+        variant: "destructive",
+        title: "Geocoding failed.",
+        description: "There was a problem with geocoding the address.",
+        duration: 10000,
+      });
+    }
+  };
 
   // Function to clear all route-related states
   const clearAllRouteStates = useCallback(() => {
     setRoute(null);
-    setAnimatedRoute(null);
     setStartingPoint(null);
     setEndingPoint(null);
     setIsStartingPointSelecting(false);
     setIsEndingPointSelecting(false);
     setCursorStyle({ isSelecting: false });
+    lastFetchedRouteRef.current = "";
   }, [
     setRoute,
     setStartingPoint,
@@ -94,65 +167,99 @@ export default function useCheckRoutes() {
     setIsEndingPointSelecting,
   ]);
 
-  // Function to reverse the starting and ending points
+  // Function to safely fetch route with request tracking (stable version)
+  const fetchRouteWithSafeguards = useCallback(
+    async (startPoint: RoutePoint, endPoint: RoutePoint) => {
+      if (!startPoint?.lngLat || !endPoint?.lngLat || isRouteFetching) {
+        return;
+      }
+
+      // Prevent race conditions with concurrent requests
+      const currentRequestId = ++routeFetchRef.current;
+      setIsRouteFetching(true);
+
+      try {
+        const startingLngLat = startPoint.lngLat;
+        const endingLngLat = endPoint.lngLat;
+        const coords = `${startingLngLat.lng},${startingLngLat.lat};${endingLngLat.lng},${endingLngLat.lat}`;
+
+        const data = await fetchRoute(coords);
+
+        // Only update state if this is still the latest request
+        if (currentRequestId === routeFetchRef.current) {
+          setRoute(data);
+
+          // Fit map bounds if route extends beyond current view
+          if (map) {
+            const boundingBox = bbox(data.geometry);
+            const lngLatBounds: LngLatBoundsLike = [
+              [boundingBox[0], boundingBox[1]],
+              [boundingBox[2], boundingBox[3]],
+            ];
+            const padding = window.innerWidth < 420 ? 40 : 100;
+            if (
+              !map.getBounds().contains(lngLatBounds[0]) ||
+              !map.getBounds().contains(lngLatBounds[1])
+            ) {
+              fitBounds(lngLatBounds, padding);
+            }
+          }
+        } else {
+          logger.debug(
+            `Route fetch cancelled (ID: ${currentRequestId}, latest: ${routeFetchRef.current})`
+          );
+        }
+      } catch (error) {
+        if (currentRequestId === routeFetchRef.current) {
+          logger.error(`Route fetch failed (ID: ${currentRequestId}):`, error);
+          toast({
+            variant: "destructive",
+            title: "Get routes failed.",
+            description: "There was a problem with your request.",
+            duration: 10000,
+          });
+        }
+      } finally {
+        if (currentRequestId === routeFetchRef.current) {
+          setIsRouteFetching(false);
+        }
+      }
+    },
+    [isRouteFetching, setRoute, map, fitBounds]
+  );
+
+  // Function to reverse the starting and ending points (optimized for speed)
   const reversePoints = useCallback(() => {
-    if (startingPoint && endingPoint) {
-      setStartingPoint(endingPoint);
-      setEndingPoint(startingPoint);
-      setRoute(null);
-    }
-  }, [startingPoint, endingPoint, setStartingPoint, setEndingPoint, setRoute]);
+    if (!startingPoint || !endingPoint) return;
 
-  // Function to animate the route
-  const animateRoute = (geometry: GeoJSON.LineString, duration: number) => {
-    const coordinates = geometry.coordinates;
-    const totalCoordinates = coordinates.length;
-    let startTime: number | null = null;
+    const tempStarting = startingPoint;
+    const tempEnding = endingPoint;
 
-    const animate = (timestamp: number) => {
-      if (!startTime) startTime = timestamp;
-      const elapsed = timestamp - startTime;
+    setRoute(null);
+    setStartingPoint(tempEnding);
+    setEndingPoint(tempStarting);
 
-      // Calculate progress based on elapsed time
-      const progress = Math.min(elapsed / duration, 1);
-      const segmentCount = Math.floor(progress * totalCoordinates);
-
-      setAnimatedRoute({
-        type: "LineString",
-        coordinates: coordinates.slice(0, segmentCount),
-      });
-
-      // Continue animation if not yet complete
-      if (progress < 1) {
-        animationIdRef.current = requestAnimationFrame(animate);
-      }
-    };
-
-    // Start the animation
-    animationIdRef.current = requestAnimationFrame(animate);
-  };
-
-  // Cleanup the animation
-  useEffect(() => {
-    return () => {
-      if (animationIdRef.current) {
-        cancelAnimationFrame(animationIdRef.current);
-      }
-    };
-  }, []);
+    fetchRouteWithSafeguards(tempEnding, tempStarting);
+  }, [
+    startingPoint,
+    endingPoint,
+    setStartingPoint,
+    setEndingPoint,
+    setRoute,
+    fetchRouteWithSafeguards,
+  ]);
 
   return {
     route,
-    animatedRoute,
+    routeId: route && isBothSelected ? `route-${routeFetchRef.current}` : "no-route",
     startingPoint,
     endingPoint,
     isBothSelected,
     isSelectingPoint,
     isStartingPointSelecting,
     isEndingPointSelecting,
+    isRouteFetching,
     setRoute,
-    animateRoute,
-    setAnimatedRoute,
     setStartingPoint,
     setEndingPoint,
     setIsStartingPointSelecting,
@@ -160,6 +267,6 @@ export default function useCheckRoutes() {
     clearAllRouteStates,
     reversePoints,
     handleAddressName,
-    handleFitBoundsForRoute,
+    handleGeocodeAddress,
   };
 }

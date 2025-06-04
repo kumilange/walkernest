@@ -1,9 +1,9 @@
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
-import type { RoutePoint } from "@/types";
+import type { Route, RoutePoint } from "@/types";
 import { setCursorStyle } from "@/utils/misc";
-import { CircleX, Locate, LocateFixed } from "lucide-react";
-import { useCallback } from "react";
+import { CircleX, Locate, LocateFixed, MapPin } from "lucide-react";
+import { useCallback, useEffect, useRef, useState } from "react";
 
 export default function SelectPoint({
   isStarting,
@@ -11,49 +11,137 @@ export default function SelectPoint({
   setPoint,
   isPointSelecting,
   setIsPointSelecting,
+  onGeocodeAddress,
+  setRoute,
+  isRouteFetching = false,
 }: {
   isStarting: boolean;
   point: RoutePoint | null;
   isPointSelecting: boolean;
   setPoint: (point: RoutePoint | null) => void;
   setIsPointSelecting: (isPointSelecting: boolean) => void;
+  onGeocodeAddress: (address: string, isStarting: boolean) => Promise<void>;
+  setRoute: (route: Route | null) => void;
+  isRouteFetching?: boolean;
 }) {
-  const classes = `w-[16px] ${point ? "text-green-600" : ""}`;
+  const [addressInput, setAddressInput] = useState("");
+  const [isGeocoding, setIsGeocoding] = useState(false);
+  const inputRef = useRef<HTMLInputElement>(null);
 
-  const handleSelectPoint = useCallback(() => {
-    setIsPointSelecting(true);
-    setCursorStyle({ isSelecting: true });
-  }, [setIsPointSelecting]);
+  const classes = `w-[16px] w-4 h-4 ${point ? "text-green-600" : ""}`;
+
+  // Update input value when point changes
+  useEffect(() => {
+    if (point) {
+      setAddressInput(point.name);
+    } else {
+      setAddressInput("");
+    }
+  }, [point]);
+
+  const handleMapClick = useCallback(() => {
+    if (!isPointSelecting) {
+      setRoute(null);
+      setPoint(null);
+      setAddressInput("");
+      setIsPointSelecting(true);
+      setCursorStyle({ isSelecting: true });
+      inputRef.current?.blur(); // Remove focus to prevent interference
+    }
+  }, [isPointSelecting, setIsPointSelecting, setRoute, setPoint]);
 
   const handleClearPoint = useCallback(() => {
     setIsPointSelecting(false);
     setPoint(null);
+    setAddressInput("");
     setCursorStyle({ isSelecting: false });
+    inputRef.current?.focus();
   }, [setIsPointSelecting, setPoint]);
 
+  const handleAddressSearch = useCallback(async () => {
+    if (!addressInput.trim() || addressInput === point?.name) return;
+
+    setIsGeocoding(true);
+    try {
+      await onGeocodeAddress(addressInput.trim(), isStarting);
+    } finally {
+      setIsGeocoding(false);
+    }
+  }, [addressInput, onGeocodeAddress, isStarting, point?.name]);
+
+  const handleKeyDown = useCallback(
+    (e: React.KeyboardEvent<HTMLInputElement>) => {
+      if (e.key === "Enter") {
+        handleAddressSearch();
+      }
+    },
+    [handleAddressSearch]
+  );
+
+  const handleInputChange = useCallback(
+    (e: React.ChangeEvent<HTMLInputElement>) => {
+      setAddressInput(e.target.value);
+      // Clear point if user starts typing a different address
+      if (point && e.target.value !== point.name) {
+        setPoint(null);
+      }
+    },
+    [point, setPoint]
+  );
+
+  const handleFocus = useCallback(() => {
+    // Stop map clicking when focused on input
+    if (isPointSelecting) {
+      setIsPointSelecting(false);
+      setCursorStyle({ isSelecting: false });
+    }
+  }, [isPointSelecting, setIsPointSelecting]);
+
   return (
-    <div className="flex items-center w-[250px]">
-      <div className="w-[24px]">
+    <div className="flex items-center w-full gap-1">
+      <div className="w-4 flex-shrink-0">
         {isStarting ? <Locate className={classes} /> : <LocateFixed className={classes} />}
       </div>
-      {point ? (
+
+      <div className="flex-1 min-w-0">
         <Input
-          className="mx-1 overflow-hidden text-ellipsis whitespace-nowrap"
-          value={point.name}
-          onChange={() => {
-            setPoint(null);
-          }}
+          ref={inputRef}
+          placeholder={`Enter ${isStarting ? "starting" : "ending"} address`}
+          value={addressInput}
+          onChange={handleInputChange}
+          onKeyDown={handleKeyDown}
+          onFocus={handleFocus}
+          disabled={isGeocoding || isRouteFetching}
+          className={`w-full focus:border-green-500 ${
+            isPointSelecting ? "border-green-500 bg-green-50" : ""
+          }`}
         />
-      ) : (
+      </div>
+
+      <div className="flex items-center gap-1 flex-shrink-0">
         <Button
-          variant="outline"
-          className={`w-full mx-1 ${isPointSelecting ? "animate-blink" : ""}`}
-          onClick={handleSelectPoint}
-        >{`Click ${isStarting ? "start" : "end"}ing point...`}</Button>
-      )}
-      <button type="button" className="w-[24px] flex justify-end">
-        <CircleX className="w-[16px]" onClick={handleClearPoint} />
-      </button>
+          type="button"
+          size="icon"
+          variant="ghost"
+          onClick={handleMapClick}
+          disabled={isGeocoding || isRouteFetching}
+          title="Click on map to select point"
+          className="w-4 h-4 hover:bg-transparent hover:text-current"
+        >
+          <MapPin className={`w-4 h-4 ${isPointSelecting ? "text-green-600" : ""}`} />
+        </Button>
+        <Button
+          type="button"
+          size="icon"
+          variant="ghost"
+          onClick={handleClearPoint}
+          disabled={isGeocoding || isRouteFetching}
+          title="Clear point"
+          className="w-4 h-4 hover:bg-transparent hover:text-current"
+        >
+          <CircleX className="w-4 h-4" />
+        </Button>
+      </div>
     </div>
   );
 }

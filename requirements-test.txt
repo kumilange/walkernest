@@ -5,6 +5,9 @@ pytest-asyncio==0.23.5
 pytest-mock==3.12.0
 httpx==0.26.0
 
+# HTTP requests (pinned to avoid LibreSSL compatibility warnings)
+urllib3<2.0
+
 # Backend dependencies
 fastapi==0.109.2
 uvicorn[standard]==0.27.1

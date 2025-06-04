@@ -1,11 +1,12 @@
 import { twColors } from "@/constants";
-import { fetchRoute } from "@/features/map/api";
-import { useCheckRoutes, useCityMap } from "@/features/map/hooks";
-import { toast } from "@/hooks";
-import type { RoutePoint } from "@/types";
-import { GeoJSONSource } from "maplibre-gl";
-import { useEffect } from "react";
+import type { Route } from "@/types";
+import { useCallback, useEffect, useRef, useState } from "react";
 import { Layer, type LayerProps, Source } from "react-map-gl/maplibre";
+import { getAnimatedSlice } from "../helper";
+
+interface RouteLayerProps {
+  route: Route | null;
+}
 
 const layerStyle: LayerProps = {
   id: "route",
@@ -22,74 +23,85 @@ const layerStyle: LayerProps = {
   },
 };
 
-const ANIMATION_DURATION = 1000;
+export default function RouteLayer({ route }: RouteLayerProps) {
+  const [animatedCoordinates, setAnimatedCoordinates] = useState<[number, number][]>([]);
+  const animationStartTimeRef = useRef<number | null>(null);
+  const rafIdRef = useRef<number | null>(null);
+  const routeRef = useRef<Route | null>(route);
 
-function isRoutePoint(point: unknown): point is RoutePoint {
-  return (
-    point !== null &&
-    typeof point === "object" &&
-    "lngLat" in point &&
-    (point as { lngLat?: unknown }).lngLat !== undefined
+  // Update route ref when route prop changes (this happens on re-mount due to key change)
+  routeRef.current = route;
+
+  const getAnimatedSliceCallback = useCallback(
+    (progress: number, originalCoordinates: [number, number][]): [number, number][] => {
+      return getAnimatedSlice(progress, originalCoordinates);
+    },
+    []
   );
-}
 
-export default function RouteLayer() {
-  const {
-    animatedRoute,
-    startingPoint,
-    endingPoint,
-    isBothSelected,
-    setRoute,
-    setAnimatedRoute,
-    animateRoute,
-    handleFitBoundsForRoute,
-  } = useCheckRoutes();
+  const animateStep = useCallback(() => {
+    const currentRoute = routeRef.current;
+    if (!animationStartTimeRef.current || !currentRoute?.geometry?.coordinates) {
+      return;
+    }
+
+    const elapsedTime = Date.now() - animationStartTimeRef.current;
+
+    if (elapsedTime < 1000) {
+      const progress = elapsedTime / 1000;
+      const originalCoords = currentRoute.geometry.coordinates as [number, number][];
+      const newAnimatedCoordinates = getAnimatedSliceCallback(progress, originalCoords);
+
+      setAnimatedCoordinates(newAnimatedCoordinates);
+      rafIdRef.current = requestAnimationFrame(animateStep);
+    } else {
+      // Ensure full route display on animation completion
+      const originalCoords = currentRoute.geometry.coordinates as [number, number][];
+      setAnimatedCoordinates(originalCoords);
+      rafIdRef.current = null;
+    }
+  }, [getAnimatedSliceCallback]);
 
   useEffect(() => {
-    if (!isBothSelected) return;
+    const currentRoute = routeRef.current;
 
-    const handleRoute = async () => {
-      try {
-        if (!isRoutePoint(startingPoint) || !isRoutePoint(endingPoint)) {
-          throw new Error("Invalid route points");
-        }
+    if (
+      currentRoute?.geometry?.coordinates &&
+      Array.isArray(currentRoute.geometry.coordinates) &&
+      currentRoute.geometry.coordinates.length >= 2
+    ) {
+      animationStartTimeRef.current = Date.now();
+      setAnimatedCoordinates([]);
+      rafIdRef.current = requestAnimationFrame(animateStep);
+    } else {
+      // Graceful handling for routes with fewer than 2 coordinates
+      setAnimatedCoordinates([]);
+    }
 
-        const startingLngLat = startingPoint.lngLat;
-        const endingLngLat = endingPoint.lngLat;
-        const coords = `${startingLngLat.lng},${startingLngLat.lat};${endingLngLat.lng},${endingLngLat.lat}`;
-        // Fetch the route from the OSRM API
-        const data = await fetchRoute(coords);
-        setRoute(data);
-        handleFitBoundsForRoute(data);
-        // Start animation
-        animateRoute(data.geometry, ANIMATION_DURATION);
-      } catch (error) {
-        toast({
-          variant: "destructive",
-          title: "Get routes failed.",
-          description: "There was a problem with your request.",
-          duration: 10000,
-        });
+    return () => {
+      if (rafIdRef.current !== null) {
+        cancelAnimationFrame(rafIdRef.current);
+        rafIdRef.current = null;
       }
     };
-
-    setAnimatedRoute(null);
-    handleRoute();
-  }, [
-    startingPoint,
-    endingPoint,
-    isBothSelected,
-    setRoute,
-    setAnimatedRoute,
-    animateRoute,
-    handleFitBoundsForRoute,
-  ]);
+  }, [animateStep]);
 
   return (
     <>
-      {isBothSelected && animatedRoute && (
-        <Source id={"route-source"} type="geojson" data={animatedRoute}>
-          <Layer id={"route-layer"} {...layerStyle} />
+      {route && animatedCoordinates.length >= 2 && (
+        <Source
+          id="route-source"
+          type="geojson"
+          data={{
+            type: "Feature",
+            geometry: {
+              type: "LineString",
+              coordinates: animatedCoordinates,
+            },
+            properties: {},
+          }}
+        >
+          <Layer id="route-layer" {...layerStyle} />
         </Source>
       )}
     </>
