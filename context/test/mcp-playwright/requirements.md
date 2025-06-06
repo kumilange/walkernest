@@ -1,7 +1,7 @@
 # E2E Testing Requirements for WalkerNest UX Flows
 
 ## Overview
-This document outlines comprehensive End-to-End (E2E) testing requirements for WalkerNest application components using MCP Playwright server. The testing framework should validate core user journeys, cross-component integration, performance benchmarks, and mobile touch interactions.
+This document outlines comprehensive End-to-End (E2E) testing requirements for WalkerNest application components using MCP Playwright server. The testing framework should validate core user journeys, cross-component integration, and mobile touch interactions.
 
 ## Component Coverage
 
@@ -75,7 +75,7 @@ This document outlines comprehensive End-to-End (E2E) testing requirements for W
 - ✅ 6 toggle switches: result, cluster, park, supermarket, cafe, boundary
 - ✅ Real-time map layer visibility updates
 - ✅ State persistence during session
-- ✅ Maximum 4 concurrent visible layers for optimal performance
+- ✅ Maximum 4 concurrent visible layers for optimal map performance
 
 **Layer Types:**
 - **result**: Matched apartments (post-analysis)
@@ -127,7 +127,6 @@ This document outlines comprehensive End-to-End (E2E) testing requirements for W
 **Sequence:** City Selection → Amenities Load → Analysis Trigger → Results Display
 - ✅ City change loads amenities immediately (default data via AmenitiesLayers API)
 - ✅ Analysis creates apartment features (clickable post-analysis)
-- ✅ Performance: City data loads in <2 seconds, analysis completes in 3-8 seconds
 
 ### 2. Feature Interaction & Favorites Flow  
 **Sequence:** Feature Click → Popup → Favorite → Name → Save
@@ -143,10 +142,9 @@ This document outlines comprehensive End-to-End (E2E) testing requirements for W
 - ✅ Cross-city routing supported with automatic city context switching
 
 ### 4. Layer Visibility Control Flow
-**Sequence:** Toggle Layers → Real-time Updates → Performance Monitoring
+**Sequence:** Toggle Layers → Real-time Updates → Visual Feedback
 - ✅ Immediate visual feedback on toggle
 - ✅ Maximum 4 concurrent layers enforced
-- ✅ Performance degradation monitoring with >4 layers
 
 ### 5. Cross-Component State Synchronization
 **Sequence:** State Changes → Component Updates → Data Persistence
@@ -154,31 +152,13 @@ This document outlines comprehensive End-to-End (E2E) testing requirements for W
 - ✅ Favorites synchronize between localStorage and component state
 - ✅ Route state clears appropriately on context changes
 
-## Performance Benchmarks
-
-### API Response Times
-- **City Data Loading:** 1-2 seconds (Good), 3 seconds (Acceptable), 4+ seconds (Poor)
-- **Analysis Processing:** 3-8 seconds (Good), 12 seconds (Acceptable), 15+ seconds (Poor)  
-- **Route Calculation:** 1-3 seconds (Good), 4.5 seconds (Acceptable), 6+ seconds (Poor)
-- **Favorite Save Operation:** <1 second (Good), 1.5 seconds (Acceptable), 2+ seconds (Poor)
-
-### UI Responsiveness
-- **Component Interactions:** <200ms (Good), 300ms (Acceptable), 400ms+ (Poor)
-- **Map Layer Toggles:** <100ms (Good), 200ms (Acceptable), 300ms+ (Poor)
-- **Data Operations:** <30ms (Good), 50ms (Acceptable), 100ms+ (Poor)
-
-### User Journey Completion
-- **Complete Analysis Flow:** 3-10 seconds (Good), 15 seconds (Acceptable), 20+ seconds (Poor)
-- **Favorite Management:** 2-5 seconds (Good), 8 seconds (Acceptable), 10+ seconds (Poor)
-- **Route Planning:** 3-6 seconds (Good), 9 seconds (Acceptable), 12+ seconds (Poor)
-
 ## Technical Requirements
 
 ### State Management
 - **Form Persistence:** No - forms reset across browser sessions
 - **Favorites Persistence:** Yes - localStorage with cross-city display
 - **Route Caching:** Recommended - memory-only cache with LRU eviction (15 routes max)
-- **Layer Performance:** Maximum 6 concurrent visible layers
+- **Layer Management:** Maximum 6 concurrent visible layers
 
 ### Error Handling
 - **Retry Logic:** 1 automatic retry before showing error message
@@ -248,15 +228,9 @@ This document outlines comprehensive End-to-End (E2E) testing requirements for W
 
 ### Edge Case Testing  
 1. **Network Failures:** API timeouts, retry mechanisms, offline behavior
-2. **Data Limits:** Maximum favorites, layer performance thresholds
+2. **Data Limits:** Maximum favorites, layer visibility thresholds
 3. **Cross-Browser:** Ensure consistent behavior across all supported browsers
 4. **Mobile-Specific:** Touch interactions, screen size adaptations, orientation changes
-
-### Performance Testing
-1. **Load Testing:** Multiple concurrent operations
-2. **Memory Testing:** Long-session usage patterns  
-3. **API Testing:** Response time validation under various conditions
-4. **Mobile Performance:** Touch responsiveness on various devices
 
 ## Success Criteria
 
@@ -266,16 +240,9 @@ This document outlines comprehensive End-to-End (E2E) testing requirements for W
 - ✅ Data persistence works correctly across sessions
 - ✅ Error handling provides appropriate user feedback
 
-### Performance Success  
-- ✅ 95% of operations complete within "Good" benchmarks
-- ✅ No operations exceed "Poor" thresholds¬
-- ✅ Mobile touch interactions respond within 200ms
-- ✅ Map performance maintains smooth interaction with ≤6 layers
-
 ### Cross-Platform Success
 - ✅ Identical functionality across all supported browsers
 - ✅ Touch interactions work properly on all mobile devices
 - ✅ Responsive design adapts appropriately to all screen sizes
-- ✅ Performance benchmarks met across all device types
 
 This comprehensive testing framework ensures robust validation of WalkerNest's core user experience across all supported platforms and interaction methods. 
