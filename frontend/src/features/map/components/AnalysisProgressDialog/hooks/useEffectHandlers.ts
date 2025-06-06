@@ -25,11 +25,11 @@ export default function useEffectHandlers({ cityId }: { cityId: number }) {
   const isFirstFetching = cityId && !data && isFetching;
 
   useEffect(() => {
-    if (isFirstFetching || isError) {
+    if (isFirstFetching) {
       setIsOpen(true);
-      setProgress(isError ? 100 : 0); // Set progress to 100% if error (to stop animation)
+      setProgress(0);
     }
-  }, [isFirstFetching, isError]);
+  }, [isFirstFetching]);
 
   useEffect(() => {
     if (isFirstFetching && isOpen && !isError) {
@@ -40,7 +40,12 @@ export default function useEffectHandlers({ cityId }: { cityId: number }) {
       }, PROGRESS_INTERVAL_MS);
     } else if ((!isFetching && isOpen && progress < 100) || isError) {
       clearInterval(progressIntervalRef.current as NodeJS.Timeout);
-      setProgress(100);
+      if (isError) {
+        // Close dialog immediately on error so only toast is shown
+        setIsOpen(false);
+      } else {
+        setProgress(100);
+      }
     }
 
     return () => {
@@ -60,5 +65,5 @@ export default function useEffectHandlers({ cityId }: { cityId: number }) {
     }
   }, [progress, isError]);
 
-  return { isOpen, setIsOpen, progress, isError, error };
+  return { isOpen, setIsOpen, progress };
 }

@@ -9,22 +9,13 @@ import { useEventHandlers, useFormHandlers } from "./hooks";
 export default function AnalyzeApartment() {
   const { city } = useAtomCity();
   const { form, isSubmitDisabled } = useFormHandlers({ city });
-  const { onSubmit } = useEventHandlers();
   const closeButtonRef = useRef<HTMLButtonElement>(null);
+  const handleClose = () => closeButtonRef.current?.click();
 
-  // Touch event handlers for mobile support
-  const handleCloseTouch = useCallback((e: React.TouchEvent) => {
-    e.preventDefault();
-    closeButtonRef.current?.click();
-  }, []);
-
-  const handleSubmitTouch = useCallback(
-    (e: React.TouchEvent) => {
-      e.preventDefault();
-      form.handleSubmit(onSubmit)();
-    },
-    [form, onSubmit]
-  );
+  const { onSubmit, handleCloseTouch, handleSubmitTouch } = useEventHandlers({
+    handleClose,
+    handleSubmit: form.handleSubmit,
+  });
 
   return (
     <Form {...form}>
