@@ -2,7 +2,7 @@ import { Button } from "@/components/ui/button";
 import { Form } from "@/components/ui/form";
 import { PopoverClose } from "@/components/ui/popover";
 import { useAtomCity } from "@/stores";
-import { useRef } from "react";
+import { useCallback, useRef } from "react";
 import FormFieldItem from "./form-field-item";
 import { useEventHandlers, useFormHandlers } from "./hooks";
 
@@ -11,6 +11,20 @@ export default function AnalyzeApartment() {
   const { form, isSubmitDisabled } = useFormHandlers({ city });
   const { onSubmit } = useEventHandlers();
   const closeButtonRef = useRef<HTMLButtonElement>(null);
+
+  // Touch event handlers for mobile support
+  const handleCloseTouch = useCallback((e: React.TouchEvent) => {
+    e.preventDefault();
+    closeButtonRef.current?.click();
+  }, []);
+
+  const handleSubmitTouch = useCallback(
+    (e: React.TouchEvent) => {
+      e.preventDefault();
+      form.handleSubmit(onSubmit)();
+    },
+    [form, onSubmit]
+  );
 
   return (
     <Form {...form}>
@@ -23,11 +37,16 @@ export default function AnalyzeApartment() {
         </div>
         <div className="w-full flex justify-between">
           <PopoverClose asChild>
-            <Button ref={closeButtonRef} variant="outline">
+            <Button ref={closeButtonRef} variant="outline" onTouchEnd={handleCloseTouch}>
               Close
             </Button>
           </PopoverClose>
-          <Button type="submit" className="flex gap-2" disabled={isSubmitDisabled}>
+          <Button
+            type="submit"
+            className="flex gap-2"
+            disabled={isSubmitDisabled}
+            onTouchEnd={handleSubmitTouch}
+          >
             Analyze
           </Button>
         </div>

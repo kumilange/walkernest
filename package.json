@@ -16,7 +16,6 @@
     "test:frontend": "nx run frontend:test",
     "test:backend": "nx run backend:test",
     "test:seed": "nx run seed:test",
-
     "seed:generate": "nx run seed:generate",
     "seed": "nx run seed:seed",
     "docker:dev": "nx run develop:dev",
@@ -30,6 +29,7 @@
   "devDependencies": {
     "@nx/devkit": "^17.0.0",
     "@nx/workspace": "^17.0.0",
+    "@playwright/test": "1.52.0",
     "lint-staged": "16.1.0",
     "nx": "^17.0.0"
   },

@@ -18,6 +18,15 @@ export default function HeartIcon() {
     setIsFavPopupOpen(true);
   }, [setIsFavPopupOpen]);
 
+  // Touch/click event handler for mobile support
+  const handleInteraction = useCallback(
+    (e: React.TouchEvent | React.MouseEvent) => {
+      e.preventDefault();
+      handleClick();
+    },
+    [handleClick]
+  );
+
   return (
     <Heart
       size="20px"
@@ -25,7 +34,8 @@ export default function HeartIcon() {
       className="transition-all duration-200 ease-in-out text-apartmentLine hover:text-apartmentLine cursor-pointer"
       onMouseEnter={handleMouseEnter}
       onMouseLeave={handleMouseLeave}
-      onClick={handleClick}
+      onClick={handleInteraction}
+      onTouchEnd={handleInteraction}
     />
   );
 }

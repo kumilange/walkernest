@@ -15,6 +15,7 @@ import type { FavoriteItem } from "@/types";
 import { addToLocalStorageList } from "@/utils/localstorage";
 import { zodResolver } from "@hookform/resolvers/zod";
 import type { Feature, GeoJsonProperties, Point } from "geojson";
+import { useCallback } from "react";
 import { useForm } from "react-hook-form";
 import { type LngLat, Popup } from "react-map-gl/maplibre";
 import { z } from "zod";
@@ -66,6 +67,15 @@ export default function NameFavoritePopup({
 
   const isSubmitDisabled =
     !form.getValues().favorite || !form.formState.isValid || form.formState.isSubmitting;
+
+  // Touch event handler for mobile support
+  const handleCancelTouch = useCallback(
+    (e: React.TouchEvent) => {
+      e.preventDefault();
+      handlePopupClose();
+    },
+    [handlePopupClose]
+  );
 
   const onSubmit = async (data: z.infer<typeof FormSchema>) => {
     try {
@@ -126,7 +136,7 @@ export default function NameFavoritePopup({
             )}
           />
           <div className="w-full flex justify-between">
-            <Button variant="ghost" onClick={handlePopupClose}>
+            <Button variant="ghost" onClick={handlePopupClose} onTouchEnd={handleCancelTouch}>
               Cancel
             </Button>
             <Button

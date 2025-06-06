@@ -58,6 +58,23 @@ export default function SelectPoint({
     inputRef.current?.focus();
   }, [setIsPointSelecting, setPoint]);
 
+  // Touch event handlers for mobile support
+  const handleMapClickTouch = useCallback(
+    (e: React.TouchEvent) => {
+      e.preventDefault();
+      handleMapClick();
+    },
+    [handleMapClick]
+  );
+
+  const handleClearPointTouch = useCallback(
+    (e: React.TouchEvent) => {
+      e.preventDefault();
+      handleClearPoint();
+    },
+    [handleClearPoint]
+  );
+
   const handleAddressSearch = useCallback(async () => {
     if (!addressInput.trim() || addressInput === point?.name) return;
 
@@ -124,6 +141,7 @@ export default function SelectPoint({
           size="icon"
           variant="ghost"
           onClick={handleMapClick}
+          onTouchEnd={handleMapClickTouch}
           disabled={isGeocoding || isRouteFetching}
           title="Click on map to select point"
           className="w-4 h-4 hover:bg-transparent hover:text-current"
@@ -135,6 +153,7 @@ export default function SelectPoint({
           size="icon"
           variant="ghost"
           onClick={handleClearPoint}
+          onTouchEnd={handleClearPointTouch}
           disabled={isGeocoding || isRouteFetching}
           title="Clear point"
           className="w-4 h-4 hover:bg-transparent hover:text-current"
