@@ -58,9 +58,36 @@ export default function useEventHandlers() {
     [favItems, flyTo, city, setCity]
   );
 
+  // Touch event handlers for mobile support
+  const handleSelectTouch = useCallback(
+    (e: React.TouchEvent<HTMLButtonElement>, id: number, lngLat: LngLat) => {
+      e.preventDefault();
+      setSelectedId(id);
+      flyTo(lngLat);
+
+      const favItem = favItems.find((fav) => fav.id === id);
+      if (favItem?.city && city !== favItem.city) {
+        setCity(favItem.city);
+      }
+    },
+    [favItems, flyTo, city, setCity]
+  );
+
+  const handleDeleteTouch = useCallback(
+    (e: React.TouchEvent<SVGSVGElement>, id: number) => {
+      e.preventDefault();
+      e.stopPropagation(); // Prevent the parent button from being clicked
+      removeFromLocalStorageList<FavoriteItem>("favorites", id);
+      setFavItems(favItems.filter((fav) => fav.id !== id));
+    },
+    [favItems, setFavItems]
+  );
+
   return {
     selectedId,
     handleDelete,
     handleSelect,
+    handleSelectTouch,
+    handleDeleteTouch,
   };
 }

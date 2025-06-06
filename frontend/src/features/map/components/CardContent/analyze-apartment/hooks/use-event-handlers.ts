@@ -6,7 +6,9 @@ import type { FormSchema, MinutesToMeters } from "../types";
 
 interface UseEventHandlersParams {
   handleClose: () => void;
-  handleSubmit: (callback: (data: z.infer<typeof FormSchema>) => void) => (e?: React.FormEvent) => void;
+  handleSubmit: (
+    callback: (data: z.infer<typeof FormSchema>) => void
+  ) => (e?: React.FormEvent) => void;
 }
 
 export default function useEventHandlers({ handleClose, handleSubmit }: UseEventHandlersParams) {

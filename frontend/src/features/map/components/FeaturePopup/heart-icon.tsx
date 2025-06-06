@@ -1,31 +1,8 @@
 import { Heart } from "lucide-react";
-import { useCallback, useState } from "react";
-import { useAtomIsFavPopupOpen } from "../../stores/favoritesAtoms";
+import useEventHandlers from "./hooks/use-event-handlers";
 
 export default function HeartIcon() {
-  const { setIsFavPopupOpen } = useAtomIsFavPopupOpen();
-  const [isHovering, setIsHovering] = useState(false);
-
-  const handleMouseEnter = useCallback(() => {
-    setIsHovering(true);
-  }, []);
-
-  const handleMouseLeave = useCallback(() => {
-    setIsHovering(false);
-  }, []);
-
-  const handleClick = useCallback(() => {
-    setIsFavPopupOpen(true);
-  }, [setIsFavPopupOpen]);
-
-  // Touch/click event handler for mobile support
-  const handleInteraction = useCallback(
-    (e: React.TouchEvent | React.MouseEvent) => {
-      e.preventDefault();
-      handleClick();
-    },
-    [handleClick]
-  );
+  const { isHovering, handleMouseEnter, handleMouseLeave, handleInteraction } = useEventHandlers();
 
   return (
     <Heart

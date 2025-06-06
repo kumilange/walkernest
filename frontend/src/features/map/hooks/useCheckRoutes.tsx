@@ -249,6 +249,15 @@ export default function useCheckRoutes() {
     fetchRouteWithSafeguards,
   ]);
 
+  // Touch event handler for mobile support
+  const handleReverseTouch = useCallback(
+    (e: React.TouchEvent) => {
+      e.preventDefault();
+      reversePoints();
+    },
+    [reversePoints]
+  );
+
   return {
     route,
     routeId: route && isBothSelected ? `route-${routeFetchRef.current}` : "no-route",
@@ -266,6 +275,7 @@ export default function useCheckRoutes() {
     setIsEndingPointSelecting,
     clearAllRouteStates,
     reversePoints,
+    handleReverseTouch,
     handleAddressName,
     handleGeocodeAddress,
   };

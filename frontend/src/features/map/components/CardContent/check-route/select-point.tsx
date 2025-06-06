@@ -1,9 +1,9 @@
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
 import type { Route, RoutePoint } from "@/types";
-import { setCursorStyle } from "@/utils/misc";
 import { CircleX, Locate, LocateFixed, MapPin } from "lucide-react";
-import { useCallback, useEffect, useRef, useState } from "react";
+import { useEffect, useRef, useState } from "react";
+import useEventHandlers from "./hooks/use-event-handlers";
 
 export default function SelectPoint({
   isStarting,
@@ -28,6 +28,28 @@ export default function SelectPoint({
   const [isGeocoding, setIsGeocoding] = useState(false);
   const inputRef = useRef<HTMLInputElement>(null);
 
+  const {
+    handleMapClick,
+    handleClearPoint,
+    handleMapClickTouch,
+    handleClearPointTouch,
+    handleKeyDown,
+    handleInputChange,
+    handleFocus,
+  } = useEventHandlers({
+    isPointSelecting,
+    setIsPointSelecting,
+    setRoute,
+    setPoint,
+    setAddressInput,
+    onGeocodeAddress,
+    isStarting,
+    inputRef,
+    addressInput,
+    point,
+    setIsGeocoding,
+  });
+
   const classes = `w-[16px] w-4 h-4 ${point ? "text-green-600" : ""}`;
 
   // Update input value when point changes
@@ -38,81 +60,6 @@ export default function SelectPoint({
       setAddressInput("");
     }
   }, [point]);
-
-  const handleMapClick = useCallback(() => {
-    if (!isPointSelecting) {
-      setRoute(null);
-      setPoint(null);
-      setAddressInput("");
-      setIsPointSelecting(true);
-      setCursorStyle({ isSelecting: true });
-      inputRef.current?.blur(); // Remove focus to prevent interference
-    }
-  }, [isPointSelecting, setIsPointSelecting, setRoute, setPoint]);
-
-  const handleClearPoint = useCallback(() => {
-    setIsPointSelecting(false);
-    setPoint(null);
-    setAddressInput("");
-    setCursorStyle({ isSelecting: false });
-    inputRef.current?.focus();
-  }, [setIsPointSelecting, setPoint]);
-
-  // Touch event handlers for mobile support
-  const handleMapClickTouch = useCallback(
-    (e: React.TouchEvent) => {
-      e.preventDefault();
-      handleMapClick();
-    },
-    [handleMapClick]
-  );
-
-  const handleClearPointTouch = useCallback(
-    (e: React.TouchEvent) => {
-      e.preventDefault();
-      handleClearPoint();
-    },
-    [handleClearPoint]
-  );
-
-  const handleAddressSearch = useCallback(async () => {
-    if (!addressInput.trim() || addressInput === point?.name) return;
-
-    setIsGeocoding(true);
-    try {
-      await onGeocodeAddress(addressInput.trim(), isStarting);
-    } finally {
-      setIsGeocoding(false);
-    }
-  }, [addressInput, onGeocodeAddress, isStarting, point?.name]);
-
-  const handleKeyDown = useCallback(
-    (e: React.KeyboardEvent<HTMLInputElement>) => {
-      if (e.key === "Enter") {
-        handleAddressSearch();
-      }
-    },
-    [handleAddressSearch]
-  );
-
-  const handleInputChange = useCallback(
-    (e: React.ChangeEvent<HTMLInputElement>) => {
-      setAddressInput(e.target.value);
-      // Clear point if user starts typing a different address
-      if (point && e.target.value !== point.name) {
-        setPoint(null);
-      }
-    },
-    [point, setPoint]
-  );
-
-  const handleFocus = useCallback(() => {
-    // Stop map clicking when focused on input
-    if (isPointSelecting) {
-      setIsPointSelecting(false);
-      setCursorStyle({ isSelecting: false });
-    }
-  }, [isPointSelecting, setIsPointSelecting]);
 
   return (
     <div className="flex items-center w-full gap-1">

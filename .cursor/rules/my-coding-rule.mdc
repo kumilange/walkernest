@@ -22,6 +22,11 @@ Create a Vite + React solution that is not only functional but also adheres to t
 - Structure files with exported components, subcomponents, helpers, static content, and types.
 - Use PascalCase for directories containing React components (e.g., `components/CityMap`).
 - Use camelCase for utility directories and files.
+- **Extract component logic to custom hooks with proper collocation**:
+  - **Component-level hooks**: If component logic can be moved to local custom hooks, create them under the same component directory and collocate them (e.g., `components/AnalyzeApartment/hooks/useEventHandlers.ts`). This improves separation of concerns, reusability, and testability.
+  - **Feature-level hooks**: If logic is shared between components within the same feature directory, create hooks under the feature's hooks directory (e.g., `features/map/hooks/useMapInteractions.ts`).
+  - **Global hooks**: Only create hooks in the shared `src/hooks` directory if they're used across multiple features.
+  - Follow the Project Structure principles: keep feature-specific code within feature boundaries and avoid cross-feature imports.
 
 ## Modern JavaScript/TypeScript Syntax
 

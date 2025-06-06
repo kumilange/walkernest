@@ -1,7 +1,6 @@
 import { Button } from "@/components/ui/button";
 import { useCheckRoutes } from "@/features/map/hooks";
 import { ArrowDownUp } from "lucide-react";
-import { useCallback } from "react";
 import RouteResult from "./route-result";
 import SelectPoint from "./select-point";
 
@@ -18,17 +17,9 @@ export default function CheckRoute() {
     setIsEndingPointSelecting,
     setRoute,
     reversePoints,
+    handleReverseTouch,
     handleGeocodeAddress,
   } = useCheckRoutes();
-
-  // Touch event handler for mobile support
-  const handleReverseTouch = useCallback(
-    (e: React.TouchEvent) => {
-      e.preventDefault();
-      reversePoints();
-    },
-    [reversePoints]
-  );
 
   return (
     <div className="flex flex-col gap-4">

@@ -168,6 +168,7 @@ describe("CheckRoute Component", () => {
       setIsEndingPointSelecting: mockSetIsEndingPointSelecting,
       clearAllRouteStates: mockClearAllRouteStates,
       reversePoints: mockReversePoints,
+      handleReverseTouch: vi.fn(),
       handleAddressName: mockHandleAddressName,
       handleGeocodeAddress: mockHandleGeocodeAddress,
     });
@@ -198,6 +199,7 @@ describe("CheckRoute Component", () => {
       setIsEndingPointSelecting: mockSetIsEndingPointSelecting,
       clearAllRouteStates: mockClearAllRouteStates,
       reversePoints: mockReversePoints,
+      handleReverseTouch: vi.fn(),
       handleAddressName: mockHandleAddressName,
       handleGeocodeAddress: mockHandleGeocodeAddress,
     });

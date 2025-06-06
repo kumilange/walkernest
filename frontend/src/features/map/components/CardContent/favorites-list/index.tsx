@@ -2,39 +2,13 @@ import type { FavoriteItem } from "@/types";
 import { capitalize, cn } from "@/utils/misc";
 import { Trash2 } from "lucide-react";
 import { LngLat } from "maplibre-gl";
-import { useCallback } from "react";
 import { useAtomFavItems } from "../../../stores/favoritesAtoms";
 import useEventHandlers from "./use-event-handlers";
 
 export default function FavoritesList() {
   const { favItems } = useAtomFavItems();
-  const { selectedId, handleSelect, handleDelete } = useEventHandlers();
-
-  // Touch event handlers for mobile support
-  const handleSelectTouch = useCallback(
-    (e: React.TouchEvent<HTMLButtonElement>, id: number, lngLat: LngLat) => {
-      e.preventDefault();
-      const syntheticEvent = {
-        preventDefault: () => {},
-        stopPropagation: () => {},
-      } as React.MouseEvent<HTMLButtonElement, MouseEvent>;
-      handleSelect({ e: syntheticEvent, id, lngLat });
-    },
-    [handleSelect]
-  );
-
-  const handleDeleteTouch = useCallback(
-    (e: React.TouchEvent<SVGSVGElement>, id: number) => {
-      e.preventDefault();
-      e.stopPropagation();
-      const syntheticEvent = {
-        preventDefault: () => {},
-        stopPropagation: () => {},
-      } as React.MouseEvent<SVGSVGElement, MouseEvent>;
-      handleDelete({ e: syntheticEvent, id });
-    },
-    [handleDelete]
-  );
+  const { selectedId, handleSelect, handleDelete, handleSelectTouch, handleDeleteTouch } =
+    useEventHandlers();
 
   return (
     <>
