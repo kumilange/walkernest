@@ -12,13 +12,15 @@ This document defines the comprehensive implementation strategy for End-to-End (
 - **6 Critical Components:** AnalyzeApartment (analysis form), FavoritesList (apartment management), CheckRoute (route planning), ManageLayer (layer controls), FeaturePopup (feature details), NameFavoritePopup (favorite naming)
 - **Functional Validation:** Form validation, interaction flows, state management, data persistence
 - **Touch Enhancement:** All interactive elements must support onTouchEnd with proper event handling
+- **Analysis-Dependent Components:** FeaturePopup and ManageLayer controls are only available POST-ANALYSIS
 
 **Integration Flow Requirements:**
 - **5 Critical User Journeys:** Primary data loading, feature interaction & favorites, favorites to route planning, layer visibility control, cross-component state synchronization
 - **Cross-Component Communication:** City changes, favorites synchronization, route state management
+- **Analysis-Dependent Flows:** Layer visibility control and feature interaction flows require completed analysis as prerequisite
 
 **Cross-Platform Requirements:**
-- **Browser Matrix:** Chrome, Safari, Edge, Firefox across desktop/mobile/tablet
+- **Browser Matrix:** Chrome, Safari, Edge across desktop/mobile/tablet
 - **Device Testing:** iPhone 13/14, iPhone SE, Samsung Galaxy S21/S22, iPad configurations
 - **Touch Interaction:** Enhanced mobile usability with proper gesture support
 
@@ -54,8 +56,16 @@ class AnalyzeApartmentPage {
 // Multi-component journey orchestration
 class FeatureInteractionFlow {
   // Coordinates interactions across FeaturePopup, NameFavoritePopup, FavoritesList
+  // NOTE: Requires completed analysis as prerequisite
   async completeFeatureToFavoriteFlow(featureId: string, favoriteName: string)
   async validateCrossComponentSync(): Promise<ValidationResult>
+}
+
+class LayerVisibilityFlow {
+  // Layer management testing flow
+  // NOTE: Requires completed analysis as prerequisite (layers only available post-analysis)
+  async setupPostAnalysisState(): Promise<void>
+  async testLayerVisibilityControls(): Promise<ValidationResult>
 }
 ```
 
@@ -149,7 +159,7 @@ class TestUtilities {
 - **Database State Management:** Clean slate initialization for each test suite execution
 
 **MCP Playwright Server Capabilities:**
-- **Browser Engine Support:** Chromium, WebKit, Firefox automation across platforms
+- **Browser Engine Support:** Chromium, WebKit automation across platforms
 - **Device Emulation Accuracy:** Mobile viewport simulation with touch event support
 - **Network Control:** Request/response interception for error testing
 
@@ -159,7 +169,6 @@ class TestUtilities {
 - **Chrome (Blink):** Primary development target with full feature support
 - **Safari (WebKit):** iOS/macOS compatibility with unique rendering behaviors
 - **Edge (Chromium):** Windows platform coverage with Microsoft-specific optimizations
-- **Firefox (Gecko):** Alternative rendering engine validation for comprehensive coverage
 
 **Mobile Device Testing Strategy:**
 - **iOS Safari Testing:** iPhone 13/14 (390×844), iPhone SE (375×667) screen configurations
@@ -231,5 +240,16 @@ class TestUtilities {
 - Favorite management testing with realistic apartment data
 
 **Resolution Strategy:** Implement test data fixtures with API response mocking for deterministic test execution
+
+### 6. Analysis-Dependent Component Testing Flow
+
+**Current Challenge:** FeaturePopup and ManageLayer controls are only available after analysis completion
+
+**Testing Flow Requirements:**
+- **Prerequisite Setup:** City Selection → Analysis Execution → Component Access
+- **State Management:** Maintain analysis results for component testing
+- **Flow Validation:** Ensure proper component availability timing
+
+**Implementation Strategy:** Implement shared setup function for post-analysis state across all dependent test suites
 
 These technical considerations require collaborative resolution during the implementation phase to ensure the E2E testing framework delivers robust, maintainable, and comprehensive validation coverage for the WalkerNest application across all supported platforms and interaction methods. 

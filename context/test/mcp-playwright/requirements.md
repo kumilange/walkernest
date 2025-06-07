@@ -75,7 +75,7 @@ This document outlines comprehensive End-to-End (E2E) testing requirements for W
 - ✅ 6 toggle switches: result, cluster, park, supermarket, cafe, boundary
 - ✅ Real-time map layer visibility updates
 - ✅ State persistence during session
-- ✅ Maximum 4 concurrent visible layers for optimal map performance
+- ✅ Maximum 6 concurrent visible layers for optimal map performance
 
 **Layer Types:**
 - **result**: Matched apartments (post-analysis)
@@ -195,8 +195,7 @@ This document outlines comprehensive End-to-End (E2E) testing requirements for W
 **Required Testing:**
 - **Chrome** (latest) - Primary development browser
 - **Safari** (latest) - WebKit engine, Mac/iOS compatibility
-- **Edge** (latest) - Chromium-based, Windows compatibility  
-- **Firefox** (latest) - Gecko engine, alternative rendering
+- **Edge** (latest) - Chromium-based, Windows compatibility
 
 ### Device Testing Requirements
 **Mobile Devices:**
