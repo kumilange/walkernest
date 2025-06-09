@@ -1,19 +1,19 @@
 import { defineConfig, devices } from "@playwright/test";
+import path from "node:path";
+import { fileURLToPath } from "node:url";
+
+// Ensure all paths are resolved relative to this config file (frontend/e2e/)
+const E2E_BASE_DIR = path.dirname(fileURLToPath(import.meta.url));
 
 /**
- * Default Balanced Parallel Execution Configuration for WalkerNest E2E Testing
- *
- * Focus: Good balance between speed and resource usage
- * Use case: Standard development and CI/CD environments
- *
- * Note: Firefox is excluded from testing due to:
- * - Low user percentage in target market
- * - Additional complexity in E2E test setup and maintenance
- * - Resource optimization for faster CI/CD execution
+ * Walkernest E2E Testing Configuration
+ * 
+ * Balanced parallel execution optimized for speed and resource usage.
+ * Firefox excluded due to low target market usage and CI optimization.
  */
 export default defineConfig({
-  testDir: "./tests",
-  outputDir: "./test-results",
+  testDir: path.join(E2E_BASE_DIR, "tests"), // Tests located in frontend/e2e/tests/
+  outputDir: path.join(E2E_BASE_DIR, "test-results"), // Results output to frontend/e2e/test-results/
 
   // Balanced settings
   timeout: 45000, // 45 seconds per test
@@ -27,11 +27,11 @@ export default defineConfig({
   fullyParallel: true, // Allow test files to run in parallel
   retries: process.env.CI ? 2 : 1, // More retries in CI
 
-  // Reporter configuration
+  // Reporter configuration - ALL E2E outputs under frontend/e2e/
   reporter: [
-    ["html", { outputFolder: "./test-results/html" }],
-    ["json", { outputFile: "./test-results/results.json" }],
-    ["list"],
+    ["html", { outputFolder: path.join(E2E_BASE_DIR, "playwright-report") }], // HTML report in e2e/playwright-report/
+    ["json", { outputFile: path.join(E2E_BASE_DIR, "test-results", "results.json") }], // JSON results in e2e/test-results/
+    ["list"], // Console output
   ],
 
   // Shared settings for all the projects below
@@ -108,16 +108,15 @@ export default defineConfig({
     // Backend server (Docker) - run from root level
     {
       command: "npm run dev",
-      cwd: "../..", // Run from root directory (walkernest)
+      cwd: path.join(E2E_BASE_DIR, "..", ".."), // Run from root directory (walkernest)
       port: 3000,
       reuseExistingServer: true, // Use manually started server
       timeout: 120000, // 2 minutes to start Docker services
     },
     // Frontend server - run from frontend directory
     {
-      command:
-        "VITE_API_PROTOCOL=http VITE_API_DOMAIN=localhost:3000 VITE_MAPTILER_API_KEY=bW9foxCIoM3h5VZO8uZr npm run dev",
-      cwd: "..", // Run from frontend directory
+      command: "npm run dev",
+      cwd: path.join(E2E_BASE_DIR, ".."), // Run from frontend directory
       port: 5173,
       reuseExistingServer: true, // Use manually started server
       timeout: 90000, // 90 seconds to start server
