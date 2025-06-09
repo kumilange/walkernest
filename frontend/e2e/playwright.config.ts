@@ -1,13 +1,13 @@
-import { defineConfig, devices } from "@playwright/test";
 import path from "node:path";
 import { fileURLToPath } from "node:url";
+import { defineConfig, devices } from "@playwright/test";
 
 // Ensure all paths are resolved relative to this config file (frontend/e2e/)
 const E2E_BASE_DIR = path.dirname(fileURLToPath(import.meta.url));
 
 /**
  * Walkernest E2E Testing Configuration
- * 
+ *
  * Balanced parallel execution optimized for speed and resource usage.
  * Firefox excluded due to low target market usage and CI optimization.
  */
