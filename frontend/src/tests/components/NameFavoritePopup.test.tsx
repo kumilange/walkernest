@@ -62,7 +62,13 @@ vi.mock("@/utils/localstorage", () => ({
 
 // Mock UI components
 vi.mock("react-map-gl/maplibre", () => ({
-  Popup: ({ children, onClose }: { children: React.ReactNode; onClose?: () => void }) => (
+  Popup: ({
+    children,
+    onClose,
+  }: {
+    children: React.ReactNode;
+    onClose?: () => void;
+  }) => (
     <div data-testid="mock-popup">
       {children}
       <button type="button" data-testid="popup-close" onClick={onClose}>
@@ -118,7 +124,13 @@ vi.mock("@/components/button", () => ({
 // Mock the form component
 vi.mock("@/components/ui/form", () => ({
   __esModule: true,
-  Form: ({ children, onSubmit }: { children: React.ReactNode; onSubmit?: () => void }) => (
+  Form: ({
+    children,
+    onSubmit,
+  }: {
+    children: React.ReactNode;
+    onSubmit?: () => void;
+  }) => (
     // biome-ignore lint/a11y/useKeyWithClickEvents: test mock doesn't need keyboard events
     <div data-testid="mock-form" onClick={() => onSubmit?.()}>
       {children}
@@ -132,7 +144,11 @@ vi.mock("@/components/ui/form", () => ({
     render,
   }: {
     name: string;
-    render: (props: { field: unknown; fieldState: unknown; formState: unknown }) => React.ReactNode;
+    render: (props: {
+      field: unknown;
+      fieldState: unknown;
+      formState: unknown;
+    }) => React.ReactNode;
   }) => {
     const initialValue = name === "favorite" ? "Default Favorite Name" : "";
     const field = {
@@ -142,7 +158,11 @@ vi.mock("@/components/ui/form", () => ({
       onBlur: vi.fn(),
       ref: vi.fn(),
     };
-    return render({ field, fieldState: { invalid: false, error: null }, formState: {} });
+    return render({
+      field,
+      fieldState: { invalid: false, error: null },
+      formState: {},
+    });
   },
   FormItem: ({ children }: { children: React.ReactNode }) => (
     <div data-testid="form-item">{children}</div>

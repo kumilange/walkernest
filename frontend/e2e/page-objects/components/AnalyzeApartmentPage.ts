@@ -348,7 +348,7 @@ export class AnalyzeApartmentPage extends BaseComponent {
 
     // Check if touch events are properly handled
     const closeTouchSupport =
-      (await closeButton.getAttribute("onTouchEnd")) !== null ||
+      (await closeButton.getAttribute("ontouchend")) !== null ||
       (await closeButton.evaluate((el) => "ontouchend" in el));
 
     const analyzeTouchSupport =

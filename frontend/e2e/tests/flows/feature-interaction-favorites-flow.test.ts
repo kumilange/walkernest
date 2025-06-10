@@ -121,8 +121,12 @@ test.describe("@integration Feature Interaction & Favorites Flow", () => {
         const hasNameInput = await nameInput.isVisible();
 
         // Should have save/cancel buttons
-        const saveButton = namePopup.locator("button", { hasText: /save|add|confirm/i });
-        const cancelButton = namePopup.locator("button", { hasText: /cancel|close/i });
+        const saveButton = namePopup.locator("button", {
+          hasText: /save|add|confirm/i,
+        });
+        const cancelButton = namePopup.locator("button", {
+          hasText: /cancel|close/i,
+        });
 
         expect(hasNameInput).toBe(true);
 
@@ -273,7 +277,9 @@ test.describe("@integration Feature Interaction & Favorites Flow", () => {
             await expect(errorMessage).toBeVisible();
 
             // Look for retry button
-            const retryButton = page.locator("button", { hasText: /retry|try again/i });
+            const retryButton = page.locator("button", {
+              hasText: /retry|try again/i,
+            });
             if (await retryButton.isVisible()) {
               await expect(retryButton).toBeVisible();
             }

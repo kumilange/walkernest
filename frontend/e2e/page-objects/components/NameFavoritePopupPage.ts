@@ -53,7 +53,10 @@ export class NameFavoritePopupPage extends BaseComponent {
    * Wait for popup to appear
    */
   async waitForPopup(timeout = 5000): Promise<void> {
-    await this.page.waitForSelector(this.selectors.popup, { state: "visible", timeout });
+    await this.page.waitForSelector(this.selectors.popup, {
+      state: "visible",
+      timeout,
+    });
 
     // Wait for animation to complete
     await this.page.waitForTimeout(300);
@@ -130,7 +133,10 @@ export class NameFavoritePopupPage extends BaseComponent {
         await saveButton.click();
 
         // Wait for popup to disappear (successful save)
-        await this.page.waitForSelector(this.selectors.popup, { state: "hidden", timeout: 5000 });
+        await this.page.waitForSelector(this.selectors.popup, {
+          state: "hidden",
+          timeout: 5000,
+        });
       },
       {
         component: "NameFavoritePopup",
@@ -151,7 +157,10 @@ export class NameFavoritePopupPage extends BaseComponent {
         await cancelButton.click();
 
         // Wait for popup to disappear
-        await this.page.waitForSelector(this.selectors.popup, { state: "hidden", timeout: 2000 });
+        await this.page.waitForSelector(this.selectors.popup, {
+          state: "hidden",
+          timeout: 2000,
+        });
       },
       {
         component: "NameFavoritePopup",
@@ -176,7 +185,10 @@ export class NameFavoritePopupPage extends BaseComponent {
         await cancelButton.click();
 
         // Wait for popup to disappear
-        await this.page.waitForSelector(this.selectors.popup, { state: "hidden", timeout: 2000 });
+        await this.page.waitForSelector(this.selectors.popup, {
+          state: "hidden",
+          timeout: 2000,
+        });
       },
       {
         component: "NameFavoritePopup",
@@ -195,7 +207,10 @@ export class NameFavoritePopupPage extends BaseComponent {
         await closeButton.click();
 
         // Wait for popup to disappear
-        await this.page.waitForSelector(this.selectors.popup, { state: "hidden", timeout: 2000 });
+        await this.page.waitForSelector(this.selectors.popup, {
+          state: "hidden",
+          timeout: 2000,
+        });
       },
       {
         component: "NameFavoritePopup",
@@ -457,7 +472,10 @@ export class NameFavoritePopupPage extends BaseComponent {
    * Wait for popup to disappear
    */
   async waitForPopupToDisappear(timeout = 5000): Promise<void> {
-    await this.page.waitForSelector(this.selectors.popup, { state: "hidden", timeout });
+    await this.page.waitForSelector(this.selectors.popup, {
+      state: "hidden",
+      timeout,
+    });
   }
 
   /**

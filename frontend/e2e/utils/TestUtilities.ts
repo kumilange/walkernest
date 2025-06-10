@@ -158,7 +158,10 @@ export class TestUtilities {
    */
   async waitForMapLoad(timeout = 10000): Promise<void> {
     // Wait for map container
-    await this.page.waitForSelector(".maplibregl-map", { state: "visible", timeout });
+    await this.page.waitForSelector(".maplibregl-map", {
+      state: "visible",
+      timeout,
+    });
 
     // Wait for map to be loaded (no loading indicators)
     await this.page.waitForFunction(

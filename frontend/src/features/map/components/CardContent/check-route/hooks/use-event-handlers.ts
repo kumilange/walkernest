@@ -67,7 +67,8 @@ export default function useEventHandlers({
 
   // Internal function for address search with loading state
   const handleAddressSearch = useCallback(async () => {
-    if (!addressInput.trim() || addressInput === point?.name) return;
+    const trimmed = addressInput.trim();
+    if (!trimmed || trimmed === point?.name) return;
 
     setIsGeocoding(true);
     try {

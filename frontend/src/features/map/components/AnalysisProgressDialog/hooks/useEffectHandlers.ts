@@ -65,5 +65,5 @@ export default function useEffectHandlers({ cityId }: { cityId: number }) {
     }
   }, [progress, isError]);
 
-  return { isOpen, setIsOpen, progress };
+  return { isOpen, setIsOpen, progress, isError, error };
 }

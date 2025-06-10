@@ -208,7 +208,10 @@ export class ManageLayerPage extends BaseComponent {
   /**
    * Find switch element for a specific layer using multiple strategies
    */
-  private async findSwitchForLayer(layer: { id: string; label: string }): Promise<Locator | null> {
+  private async findSwitchForLayer(layer: {
+    id: string;
+    label: string;
+  }): Promise<Locator | null> {
     // Strategy 1: Look for switch by text content
     const switchByText = this.page.locator(`[role="switch"]`).filter({ hasText: layer.label });
     if ((await switchByText.count()) > 0) {

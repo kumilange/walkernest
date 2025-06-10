@@ -7,7 +7,7 @@ This guide helps you find the optimal balance between test execution speed and r
 We provide three different Playwright configurations to test different parallel execution strategies:
 
 1. **Conservative** - Prioritizes reliability and resource conservation
-2. **Balanced** - Good balance between speed and resource usage  
+2. **Balanced** - Good balance between speed and resource usage
 3. **Aggressive** - Maximum speed and parallelism
 
 ## 🚀 Quick Start
@@ -25,6 +25,7 @@ npm run dev
 ```
 
 This will:
+
 - Run tests with each configuration
 - Measure execution time and resource usage
 - Generate comparison report with recommendations
@@ -46,13 +47,14 @@ The script generates several outputs:
 **Best for**: Resource-constrained environments, initial testing
 
 ```typescript
-workers: 2                    // Limited parallel workers
-fullyParallel: false         // Sequential test file execution
-retries: 2                   // More retries for stability
-projects: ["Chrome only"]    // Single browser
+workers: 2; // Limited parallel workers
+fullyParallel: false; // Sequential test file execution
+retries: 2; // More retries for stability
+projects: ["Chrome only"]; // Single browser
 ```
 
 **Characteristics**:
+
 - Lowest resource usage
 - Highest reliability
 - Slowest execution
@@ -63,13 +65,14 @@ projects: ["Chrome only"]    // Single browser
 **Best for**: Standard development and CI/CD environments
 
 ```typescript
-workers: process.env.CI ? 4 : 2    // Environment-aware
-fullyParallel: true               // Parallel test files
-retries: process.env.CI ? 2 : 1   // Adaptive retries
-projects: ["Chrome", "iPhone"] // Key browsers
+workers: process.env.CI ? 4 : 2; // Environment-aware
+fullyParallel: true; // Parallel test files
+retries: process.env.CI ? 2 : 1; // Adaptive retries
+projects: ["Chrome", "iPhone"]; // Key browsers
 ```
 
 **Characteristics**:
+
 - Good speed/resource balance
 - Moderate reliability
 - Covers main browsers
@@ -80,13 +83,16 @@ projects: ["Chrome", "iPhone"] // Key browsers
 **Best for**: High-resource environments, time-critical testing
 
 ```typescript
-workers: process.env.CI ? 8 : 4     // Maximum workers
-fullyParallel: true                // Full parallelism
-retries: 1                         // Minimal retries
-projects: [/* All browsers */]     // Complete matrix
+workers: process.env.CI ? 8 : 4; // Maximum workers
+fullyParallel: true; // Full parallelism
+retries: 1; // Minimal retries
+projects: [
+  /* All browsers */
+]; // Complete matrix
 ```
 
 **Characteristics**:
+
 - Fastest execution
 - Highest resource usage
 - May have flaky tests
@@ -97,16 +103,19 @@ projects: [/* All browsers */]     // Complete matrix
 The performance testing measures:
 
 ### Speed Metrics
+
 - **Total Duration**: Wall-clock time for complete test run
 - **Tests per Minute**: Throughput measurement
 - **Speedup Factor**: Relative speed compared to conservative config
 
 ### Resource Metrics
+
 - **Worker Count**: Number of parallel processes
 - **Project Count**: Number of browser/device combinations
 - **CPU Usage**: Estimated based on worker count and system specs
 
-### Reliability Metrics  
+### Reliability Metrics
+
 - **Success Rate**: Percentage of tests passing
 - **Retry Count**: Number of test retries needed
 - **Flakiness Score**: Reliability with retry penalty
@@ -136,7 +145,7 @@ npx playwright test --config=e2e/configs/playwright.balanced.config.ts
 # Quick smoke tests - use aggressive
 npx playwright test --config=e2e/configs/playwright.aggressive.config.ts --grep="@smoke"
 
-# Critical path tests - use conservative  
+# Critical path tests - use conservative
 npx playwright test --config=e2e/configs/playwright.conservative.config.ts --grep="@critical"
 
 # Full regression - use balanced
@@ -154,13 +163,13 @@ import { defineConfig, devices } from "@playwright/test";
 export default defineConfig({
   // Adjust based on your environment
   workers: process.env.CI_CORES ? parseInt(process.env.CI_CORES) : 2,
-  
+
   // Balance projects based on priorities
   projects: [
     { name: "chrome", use: devices["Desktop Chrome"] },
     // Add other browsers based on user analytics
   ],
-  
+
   // Optimize for your specific needs
   timeout: 30000,
   retries: process.env.CI ? 1 : 0,
@@ -181,19 +190,19 @@ jobs:
     strategy:
       matrix:
         config: [conservative, balanced, aggressive]
-    
+
     steps:
       - uses: actions/checkout@v3
       - uses: actions/setup-node@v3
         with:
-          node-version: '18'
-      
+          node-version: "18"
+
       - name: Install dependencies
         run: npm ci
-      
+
       - name: Run E2E tests
         run: npx playwright test --config=e2e/configs/playwright.${{ matrix.config }}.config.ts
-        
+
       - name: Upload test results
         uses: actions/upload-artifact@v3
         if: always()
@@ -224,11 +233,13 @@ RUN npx playwright test --config=e2e/configs/playwright.balanced.config.ts
 ### Key Metrics to Track
 
 1. **Execution Time Trends**
+
    - Monitor test duration over time
    - Watch for performance degradation
    - Set alerting thresholds
 
 2. **Flakiness Rates**
+
    - Track retry rates by configuration
    - Identify problematic tests
    - Adjust parallelism if needed
@@ -252,21 +263,25 @@ RUN npx playwright test --config=e2e/configs/playwright.balanced.config.ts
 ### Common Issues
 
 **Tests failing in aggressive mode only**
+
 - Reduce worker count
 - Check for resource contention
 - Look for state pollution between tests
 
 **CI/CD timeouts**
+
 - Increase overall timeout
 - Use more conservative configuration
 - Split tests into parallel jobs
 
 **High flakiness rates**
+
 - Add better wait conditions
 - Improve test isolation
 - Reduce parallelism
 
 **Resource exhaustion**
+
 - Lower worker count
 - Reduce concurrent projects
 - Use headless mode
@@ -292,4 +307,4 @@ time npx playwright test --config=e2e/configs/playwright.balanced.config.ts
 
 ---
 
-**Next Steps**: Run the performance testing script and use the results to optimize your specific environment and requirements. 
+**Next Steps**: Run the performance testing script and use the results to optimize your specific environment and requirements.

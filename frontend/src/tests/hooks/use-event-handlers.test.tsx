@@ -35,14 +35,23 @@ const useCityMapEventHandlers = () => {
 };
 
 // Define types for our mocked modules
+interface MapStyle {
+  layers: Array<{ id: string }>;
+}
+
+interface RenderedFeature {
+  properties?: Record<string, unknown>;
+}
+
 interface MaplibreMap {
-  // biome-ignore lint/suspicious/noExplicitAny: test mock requires any type for getStyle return
-  getStyle: () => any;
+  getStyle: () => MapStyle;
   getCanvas: () => HTMLCanvasElement;
   on: Mock;
   off: Mock;
-  // biome-ignore lint/suspicious/noExplicitAny: test mock requires any type for query results flexibility
-  queryRenderedFeatures: (point: [number, number], options?: { layers?: string[] }) => any[];
+  queryRenderedFeatures: (
+    point: [number, number],
+    options?: { layers?: string[] }
+  ) => RenderedFeature[];
   remove: () => void; // Added remove method
 }
 
@@ -129,7 +138,9 @@ describe("useCityMapEventHandlers hook", () => {
     isSelecting = false;
 
     // Reset map instance mocks
-    mockMapGetStyle.mockReturnValue({ layers: [{ id: "layer1" }, { id: "layer2" }] });
+    mockMapGetStyle.mockReturnValue({
+      layers: [{ id: "layer1" }, { id: "layer2" }],
+    });
     mockGetCanvas.mockReturnValue({ style: { cursor: "default" } });
     mockQueryRenderedFeatures.mockReturnValue([]);
     mockMapOn.mockClear();

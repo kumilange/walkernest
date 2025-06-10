@@ -97,7 +97,10 @@ export abstract class BaseComponent extends BasePage {
    * Wait for component element to be hidden
    */
   async waitForComponentElementHidden(selector: string, timeout = 5000): Promise<void> {
-    await this.getComponentElement(selector).waitFor({ state: "hidden", timeout });
+    await this.getComponentElement(selector).waitFor({
+      state: "hidden",
+      timeout,
+    });
   }
 
   /**

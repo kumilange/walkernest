@@ -144,7 +144,7 @@ This document outlines comprehensive End-to-End (E2E) testing requirements for W
 ### 4. Layer Visibility Control Flow
 **Sequence:** Toggle Layers → Real-time Updates → Visual Feedback
 - ✅ Immediate visual feedback on toggle
-- ✅ Maximum 4 concurrent layers enforced
+- ✅ Maximum 6 concurrent layers enforced
 
 ### 5. Cross-Component State Synchronization
 **Sequence:** State Changes → Component Updates → Data Persistence

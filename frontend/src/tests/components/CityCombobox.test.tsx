@@ -90,7 +90,13 @@ vi.mock("@/features/map/components/CityCombobox/use-event-handlers", () => {
 // Mock UI components
 vi.mock("@/components/ui/button", () => {
   return {
-    Button: ({ children, ...props }: { children: React.ReactNode; [key: string]: unknown }) => (
+    Button: ({
+      children,
+      ...props
+    }: {
+      children: React.ReactNode;
+      [key: string]: unknown;
+    }) => (
       <button type="button" data-testid="mock-button" {...props}>
         {children}
       </button>

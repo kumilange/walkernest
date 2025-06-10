@@ -110,7 +110,7 @@ export default defineConfig({
       command: "npm run dev",
       cwd: path.join(E2E_BASE_DIR, "..", ".."), // Run from root directory (walkernest)
       port: 3000,
-      reuseExistingServer: true, // Use manually started server
+      reuseExistingServer: !process.env.CI, // Auto-manage in CI, reuse locally
       timeout: 120000, // 2 minutes to start Docker services
     },
     // Frontend server - run from frontend directory

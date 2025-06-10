@@ -216,7 +216,10 @@ export class ErrorHandler {
       return await operation();
     } catch (error) {
       const testError = await this.handleError(error as Error, context);
-      throw new Error(`${testError.type} error: ${testError.message}`);
+      const enhancedError = new Error(`${testError.type} error: ${testError.message}`);
+      // Add cause property safely for older TypeScript versions
+      (enhancedError as Error & { cause?: unknown }).cause = error;
+      throw enhancedError;
     }
   }
 }

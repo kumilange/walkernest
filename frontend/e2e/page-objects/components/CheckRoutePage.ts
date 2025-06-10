@@ -382,8 +382,14 @@ export class CheckRoutePage extends BaseComponent {
     // Wait for route result to appear or error message
     try {
       await Promise.race([
-        this.page.waitForSelector(this.selectors.routeResult, { state: "visible", timeout }),
-        this.page.waitForSelector(this.selectors.errorMessage, { state: "visible", timeout }),
+        this.page.waitForSelector(this.selectors.routeResult, {
+          state: "visible",
+          timeout,
+        }),
+        this.page.waitForSelector(this.selectors.errorMessage, {
+          state: "visible",
+          timeout,
+        }),
       ]);
     } catch {
       // Timeout - route calculation may have failed
