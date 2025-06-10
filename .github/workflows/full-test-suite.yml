@@ -89,6 +89,7 @@ jobs:
           echo "NX version: $(npx nx --version)"
           
       - name: Run complete test suite
+        working-directory: ./frontend
         run: |
           echo "Running complete test suite..."
           npm run test:unit
