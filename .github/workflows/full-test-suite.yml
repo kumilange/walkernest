@@ -91,7 +91,7 @@ jobs:
       - name: Run complete test suite
         run: |
           echo "Running complete test suite..."
-          npm run test
+          npm run test:unit
           echo "✅ All tests completed successfully"
           
       - name: Run Biome check

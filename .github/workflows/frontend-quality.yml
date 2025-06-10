@@ -83,7 +83,7 @@ jobs:
         working-directory: ./frontend
         run: |
           echo "Running frontend tests..."
-          npm run test
+          npm run test:unit
           echo "✅ Frontend tests passed"
 
       - name: Run Biome check

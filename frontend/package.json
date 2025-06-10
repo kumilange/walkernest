@@ -17,14 +17,13 @@
     "prepare": "husky",
     "validate": "concurrently \"npm run lint\" \"npm run typecheck\" \"npm run format\"",
     "validate:biome": "concurrently \"npm run check:biome\" \"npm run typecheck\"",
-    "test": "vitest run --watch=false",
-    "test:ui": "vitest --ui",
-    "test:coverage": "vitest run --coverage",
+    "test:unit": "vitest run --watch=false",
+    "test:unit:ui": "vitest --ui",
+    "test:unit:coverage": "vitest run --coverage",
     "test:e2e": "playwright test --config=e2e/playwright.config.ts",
     "test:e2e:ui": "playwright test --config=e2e/playwright.config.ts --ui",
     "test:e2e:debug": "playwright test --config=e2e/playwright.config.ts --debug",
-    "test:e2e:headed": "playwright test --config=e2e/playwright.config.ts --headed",
-    "dev:test": "VITE_API_PROTOCOL=http VITE_API_DOMAIN=localhost:3000 VITE_MAPTILER_API_KEY=bW9foxCIoM3h5VZO8uZr npm run dev"
+    "test:e2e:headed": "playwright test --config=e2e/playwright.config.ts --headed"
   },
   "dependencies": {
     "@hookform/resolvers": "^4.1.3",
