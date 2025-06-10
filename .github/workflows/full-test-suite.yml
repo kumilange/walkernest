@@ -99,7 +99,7 @@ jobs:
         working-directory: ./frontend
         run: |
           echo "Running Biome check..."
-          npm run check:biome-ci
+          npm run check:ci
           echo "✅ Biome check passed"
         
       - name: Run TypeScript check

@@ -8,7 +8,7 @@ export default function HeartIcon() {
     <Heart
       size="20px"
       fill={isHovering ? "#ff93ac" : "none"}
-      className="transition-all duration-200 ease-in-out text-apartmentLine hover:text-apartmentLine cursor-pointer"
+      className="cursor-pointer text-apartmentLine transition-all duration-200 ease-in-out hover:text-apartmentLine"
       onMouseEnter={handleMouseEnter}
       onMouseLeave={handleMouseLeave}
       onClick={handleInteraction}

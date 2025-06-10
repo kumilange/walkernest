@@ -11,10 +11,10 @@ export default function ErrorFallback({
   resetErrorBoundary: () => void;
 }) {
   return (
-    <div className="fixed w-full flex items-center justify-center h-screen bg-gray-50">
+    <div className="fixed flex h-screen w-full items-center justify-center bg-gray-50">
       <Card className="w-full max-w-sm shadow-lg">
         <CardHeader>
-          <CardTitle className="text-red-600 flex items-center gap-2">
+          <CardTitle className="flex items-center gap-2 text-red-600">
             <TriangleAlert size={24} />
             Something went wrong
           </CardTitle>

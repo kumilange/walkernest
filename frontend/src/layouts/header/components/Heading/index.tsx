@@ -2,13 +2,13 @@ import houseImage from "./assets/house-white.png";
 
 export default function Heading() {
   return (
-    <h1 className="absolute top-2 left-2 w-[145px] flex items-center text-white text-2xl font-bungee-tint">
-      <a href="/" className="flex items-center h-8">
+    <h1 className="absolute top-2 left-2 flex w-[145px] items-center font-bungee-tint text-2xl text-white">
+      <a href="/" className="flex h-8 items-center">
         <span
-          className="inline-block w-6 h-6 bg-contain bg-no-repeat"
+          className="inline-block h-6 w-6 bg-contain bg-no-repeat"
           style={{ backgroundImage: `url(${houseImage})` }}
         />
-        <span className="hidden sm:inline ml-2">Walkernest</span>
+        <span className="ml-2 hidden sm:inline">Walkernest</span>
       </a>
     </h1>
   );

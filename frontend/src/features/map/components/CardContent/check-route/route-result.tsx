@@ -8,10 +8,10 @@ export default function RouteResult() {
   return (
     <>
       {isBothSelected && route && (
-        <div className="relative mt-6 w-full h-[28px] flex gap-2 items-baseline">
-          <Car className="absolute top-0 w-[26px] h-[26px]" />
+        <div className="relative mt-6 flex h-[28px] w-full items-baseline gap-2">
+          <Car className="absolute top-0 h-[26px] w-[26px]" />
           <div className="ml-9">
-            <span className="font-bold text-xl text-green-600">
+            <span className="font-bold text-green-600 text-xl">
               {formatDurationInMins(route.duration)}
             </span>
             <span className="ml-1">mins</span>

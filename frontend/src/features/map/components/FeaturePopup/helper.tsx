@@ -54,7 +54,7 @@ export function handleFavorites(
   ) : isApartment ? (
     <HeartIcon />
   ) : (
-    <span className="inline-block w-[20px] h-[20px]" />
+    <span className="inline-block h-[20px] w-[20px]" />
   );
 
   return { FavComponent, favItemName: favItem?.name };

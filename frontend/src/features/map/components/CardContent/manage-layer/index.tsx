@@ -18,16 +18,16 @@ export default function ManageLayer() {
 
   return (
     <div className="grid w-full items-center">
-      <div className="flex flex-col space-y-2 gap-3">
+      <div className="flex flex-col gap-3 space-y-2">
         {layerList.map(({ id, label, icon }) => (
           <div key={id} className="grid grid-cols-10 gap-2">
-            <div className="flex items-center col-span-8">
+            <div className="col-span-8 flex items-center">
               {icon}
               <Label htmlFor={id} className="ml-2">
                 {label}
               </Label>
             </div>
-            <div className="flex items-center col-span-2">
+            <div className="col-span-2 flex items-center">
               <Switch
                 id={id}
                 defaultChecked={layersVisibility[id]}

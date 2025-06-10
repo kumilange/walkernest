@@ -62,12 +62,12 @@ export default function SelectPoint({
   }, [point]);
 
   return (
-    <div className="flex items-center w-full gap-1">
+    <div className="flex w-full items-center gap-1">
       <div className="w-4 flex-shrink-0">
         {isStarting ? <Locate className={classes} /> : <LocateFixed className={classes} />}
       </div>
 
-      <div className="flex-1 min-w-0">
+      <div className="min-w-0 flex-1">
         <Input
           ref={inputRef}
           placeholder={`Enter ${isStarting ? "starting" : "ending"} address`}
@@ -82,7 +82,7 @@ export default function SelectPoint({
         />
       </div>
 
-      <div className="flex items-center gap-1 flex-shrink-0">
+      <div className="flex flex-shrink-0 items-center gap-1">
         <Button
           type="button"
           size="icon"
@@ -91,9 +91,9 @@ export default function SelectPoint({
           onTouchEnd={handleMapClickTouch}
           disabled={isGeocoding || isRouteFetching}
           title="Click on map to select point"
-          className="w-4 h-4 hover:bg-transparent hover:text-current"
+          className="h-4 w-4 hover:bg-transparent hover:text-current"
         >
-          <MapPin className={`w-4 h-4 ${isPointSelecting ? "text-green-600" : ""}`} />
+          <MapPin className={`h-4 w-4 ${isPointSelecting ? "text-green-600" : ""}`} />
         </Button>
         <Button
           type="button"
@@ -103,9 +103,9 @@ export default function SelectPoint({
           onTouchEnd={handleClearPointTouch}
           disabled={isGeocoding || isRouteFetching}
           title="Clear point"
-          className="w-4 h-4 hover:bg-transparent hover:text-current"
+          className="h-4 w-4 hover:bg-transparent hover:text-current"
         >
-          <CircleX className="w-4 h-4" />
+          <CircleX className="h-4 w-4" />
         </Button>
       </div>
     </div>

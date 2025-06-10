@@ -9,7 +9,7 @@ export default function MenuBar() {
   const { clearAllRouteStates } = useCheckRoutes();
 
   return (
-    <div className="w-full h-full flex items-center justify-center sm:gap-3 gap-2 ml-7">
+    <div className="ml-7 flex h-full w-full items-center justify-center gap-2 sm:gap-3">
       <CityCombobox />
       <MenuItem
         tooltip="Analyze apartment"

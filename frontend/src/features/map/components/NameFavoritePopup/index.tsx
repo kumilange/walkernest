@@ -42,7 +42,7 @@ export default function NameFavoritePopup({
       latitude={lngLat.lat}
       anchor="bottom"
       onClose={handlePopupClose}
-      className="relative animate-fade-in delay-200 opacity-100 favorite"
+      className="favorite relative animate-fade-in opacity-100 delay-200"
     >
       <Form {...form}>
         <form onSubmit={form.handleSubmit(onSubmit)} className="flex flex-col gap-4">
@@ -59,7 +59,7 @@ export default function NameFavoritePopup({
               </FormItem>
             )}
           />
-          <div className="w-full flex justify-between">
+          <div className="flex w-full justify-between">
             <Button variant="ghost" onClick={handlePopupClose} onTouchEnd={handleCancelTouch}>
               Cancel
             </Button>

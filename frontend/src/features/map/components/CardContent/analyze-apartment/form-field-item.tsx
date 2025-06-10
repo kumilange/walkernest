@@ -32,13 +32,13 @@ export default function FormFieldItem<T extends FieldValues>({
         <FormItem
           className={`grid grid-cols-12 gap-2 space-y-1.5 ${!isChecked ? "opacity-50" : ""}`}
         >
-          <div className="flex items-center col-span-6">
+          <div className="col-span-6 flex items-center">
             {IconMap[name as keyof typeof IconMap]}
             <FormLabel htmlFor={name} className="ml-2">
               {capitalize(name)}
             </FormLabel>
           </div>
-          <div className="flex items-center col-span-6 ml-2">
+          <div className="col-span-6 ml-2 flex items-center">
             <FormControl>
               <Input
                 id={name}
@@ -51,7 +51,7 @@ export default function FormFieldItem<T extends FieldValues>({
                 {...field}
               />
             </FormControl>
-            <p className="ml-2 mr-auto text-sm">min.</p>
+            <p className="mr-auto ml-2 text-sm">min.</p>
             <Controller
               control={control}
               name={`${name}Checkbox` as Path<T>}

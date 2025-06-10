@@ -10,18 +10,18 @@ export default function ErrorDialogContent({
 }) {
   return (
     <div className="flex flex-col items-center space-y-4">
-      <div className="flex items-center justify-center w-full space-x-2">
+      <div className="flex w-full items-center justify-center space-x-2">
         <AlertTriangle className="h-8 w-8 text-red-500" />
-        <h3 className="text-lg font-bold text-red-500">Analysis Failed</h3>
+        <h3 className="font-bold text-lg text-red-500">Analysis Failed</h3>
       </div>
-      <div className="w-full p-4 bg-red-50 border border-red-200 rounded-md">
-        <p className="text-red-500 text-center">{getErrorMessage(error)}</p>
+      <div className="w-full rounded-md border border-red-200 bg-red-50 p-4">
+        <p className="text-center text-red-500">{getErrorMessage(error)}</p>
       </div>
-      <div className="flex justify-center w-full mt-4">
+      <div className="mt-4 flex w-full justify-center">
         <button
           type="button"
           onClick={() => setOpen(false)}
-          className="px-6 py-2 bg-primary text-white rounded-md hover:bg-primary-dark outline-none transition-colors duration-200 shadow-sm"
+          className="rounded-md bg-primary px-6 py-2 text-white shadow-sm outline-none transition-colors duration-200 hover:bg-primary-dark"
           aria-label="Close error dialog"
         >
           Close

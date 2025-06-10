@@ -15,7 +15,7 @@ export default function PopoverFooter({
   isDisabled,
 }: PopoverFooterProps) {
   return (
-    <div className="w-full flex justify-between">
+    <div className="flex w-full justify-between">
       <PopoverClose asChild>
         <Button variant="outline" onClick={cancel}>
           Cancel

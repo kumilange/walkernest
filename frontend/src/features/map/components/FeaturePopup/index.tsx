@@ -24,7 +24,7 @@ export default function FeaturePopup({ lngLat, properties, handlePopupClose }: F
       {validProperties.map(([key, value]) => {
         const icon = VALID_PROPERTY_PAIRS[key]?.icon;
         return icon ? (
-          <div key={key} className="flex items-center mb-1">
+          <div key={key} className="mb-1 flex items-center">
             {icon}
             <span className="pl-1.5 font-bold">{capitalize(value)}</span>
           </div>

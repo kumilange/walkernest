@@ -26,7 +26,7 @@ export default function AnalyzeApartment() {
           <FormFieldItem control={form.control} name="supermarket" />
           <FormFieldItem control={form.control} name="cafe" />
         </div>
-        <div className="w-full flex justify-between">
+        <div className="flex w-full justify-between">
           <PopoverClose asChild>
             <Button ref={closeButtonRef} variant="outline" onTouchEnd={handleCloseTouch}>
               Close

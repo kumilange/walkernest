@@ -17,7 +17,7 @@ export default function App() {
       <Toaster />
       <Header />
       <ErrorBoundary onReset={() => setCity(null)}>
-        <main className="w-screen h-screen overflow-hidden">
+        <main className="h-screen w-screen overflow-hidden">
           <CityMap />
         </main>
       </ErrorBoundary>

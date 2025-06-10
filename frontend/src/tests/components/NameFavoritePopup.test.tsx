@@ -212,7 +212,7 @@ vi.mock("@/features/map/components/NameFavoritePopup", () => ({
               </div>
               <div data-testid="form-message" />
             </div>
-            <div className="w-full flex justify-between">
+            <div className="flex w-full justify-between">
               <button type="button" data-testid="button-cancel" onClick={handlePopupClose}>
                 Cancel
               </button>

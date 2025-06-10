@@ -41,8 +41,9 @@
     "deploy"
   ],
   "lint-staged": {
-    "frontend/src/**/*.{js,jsx,ts,tsx,json,css,md}": [
-      "cd frontend && npx biome check --write --files-ignore-unknown=true --no-errors-on-unmatched"
+    "frontend/**/*.{js,jsx,ts,tsx}": [
+      "cd frontend && npx biome check --write --files-ignore-unknown=true --no-errors-on-unmatched",
+      "cd frontend && npm run typecheck"
     ]
   },
   "resolutions": {}

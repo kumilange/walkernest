@@ -109,7 +109,7 @@ vi.mock("@/features/map/components/FeaturePopup", () => ({
     properties?: Record<string, unknown>;
     handlePopupClose?: () => void;
   }) => (
-    <div data-testid="mock-popup" className="relative animate-fade-in delay-300 text-green-800">
+    <div data-testid="mock-popup" className="relative animate-fade-in text-green-800 delay-300">
       <div className="flex items-center">
         <span className="flex-shrink-0">
           <span data-testid="mock-fav-component">★</span>

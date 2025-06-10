@@ -25,25 +25,25 @@ export default function FavoritesList() {
               <li
                 key={id}
                 className={cn(
-                  "p-2 border-t border-gray-200 transition-all duration-300 ease-in-out hover:bg-primary-lightGray",
+                  "border-gray-200 border-t p-2 transition-all duration-300 ease-in-out hover:bg-primary-lightGray",
                   { "bg-primary-lightGray": selectedId === id }
                 )}
               >
                 <button
                   type="button"
-                  className="grid grid-cols-[6fr_4fr_1fr] items-center w-full"
+                  className="grid w-full grid-cols-[6fr_4fr_1fr] items-center"
                   onClick={(e) => handleSelect({ e, id, lngLat })}
                   onTouchEnd={(e) => handleSelectTouch(e, id, lngLat)}
                 >
-                  <span className="pl-1 pr-1 text-left text-sm flex-grow leading-tight">
+                  <span className="flex-grow pr-1 pl-1 text-left text-sm leading-tight">
                     {name}
                   </span>
-                  <span className="pl-1 pr-1 border-l text-sm leading-none break-all">
+                  <span className="break-all border-l pr-1 pl-1 text-sm leading-none">
                     {capitalize(city)}
                   </span>
                   <span className="border-l pl-1">
                     <Trash2
-                      className="transition-all duration-200 ease-in-out hover:text-red-500 cursor-pointer"
+                      className="cursor-pointer transition-all duration-200 ease-in-out hover:text-red-500"
                       onClick={(e) => handleDelete({ e, id })}
                       onTouchEnd={(e) => handleDeleteTouch(e, id)}
                     />
