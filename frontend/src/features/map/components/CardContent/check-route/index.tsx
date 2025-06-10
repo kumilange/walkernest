@@ -17,6 +17,7 @@ export default function CheckRoute() {
     setIsEndingPointSelecting,
     setRoute,
     reversePoints,
+    handleReverseTouch,
     handleGeocodeAddress,
   } = useCheckRoutes();
 
@@ -52,6 +53,7 @@ export default function CheckRoute() {
               size="icon"
               variant="ghost"
               onClick={reversePoints}
+              onTouchEnd={handleReverseTouch}
               disabled={isRouteFetching}
               title="Reverse starting and ending points"
               className="w-4 h-4 hover:bg-transparent hover:text-current"

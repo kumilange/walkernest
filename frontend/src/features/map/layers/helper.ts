@@ -5,11 +5,7 @@ import { polygonColorMapping } from "./constants"; // Path will be correct after
 /**
  * Get the style configuration for a polygon layer.
  */
-export const getPolygonLayerStyle = ({
-  type,
-}: {
-  type: string;
-}) => {
+export const getPolygonLayerStyle = ({ type }: { type: string }) => {
   const baseName =
     Object.keys(polygonColorMapping).find((key) => type.includes(key)) || "apartment";
   const color = polygonColorMapping[baseName];

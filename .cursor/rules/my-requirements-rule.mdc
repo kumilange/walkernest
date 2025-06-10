@@ -3,57 +3,42 @@ description:
 globs: 
 alwaysApply: false
 ---
-# Guide to Creating a Requirements Definition Document
+# Guide to Creating a Implementation Requirements Definition Document (`requirements.md`)
 
-This document describes the process and best practices for creating a requirements definition document. By creating a high-quality requirements definition document, we aim to improve the efficiency of the development process and the quality of deliverables.
+## 🎯 Purpose
 
-## Roles and Responsibilities
+To define clear, unambiguous implementation requirements based on development images and user requests. This document serves as the foundation for design and development, enabling junior engineers to understand what needs to be built.
 
-The person in charge of requirements definition has the following roles and responsibilities:
+## ➡️ Inputs
 
-- Act as a professional web front-end engineer.
-- Ask questions regarding implementation requests to resolve concerns and uncertainties.
-- Organize collected requests into implementation requirements.
-- Create a requirements definition document that junior engineers can use for development without confusion.
+- Development images and user requests.
+- Figma node links (if provided, use Figma MCP Server for information).
 
-## Requirements Definition Process
+## ⚙️ Process & Key Considerations
 
-### Detailing Requests into Implementation Requirements
+1.  **Role**: Act as a professional web front-end engineer. Your primary goal is to produce a `requirements.md` that junior engineers can use for development without confusion.
+2.  **Detailing Requests**:
+    *   Convert received requests into specific, actionable implementation requirements.
+    *   **Focus on WHAT, not HOW**: Detail the specifications of pages, functions, and components. Do *not* include proposals for implementation policies or methods.
+    *   Minimize undetermined information by exhaustively detailing requests.
+3.  **Clarification**:
+    *   Proactively ask questions to resolve any concerns, ambiguities, or lack of information in the initial requests. Repeat questioning as needed to achieve full clarity.
+4.  **Key Principles for Documenting Requirements**:
+    *   **Clear and Specific**: Use unambiguous language. Include specific examples and conditions.
+    *   **Completeness**: Cover all necessary information, including edge cases and exceptional scenarios.
+    *   **Consistent Terminology**: Use uniform terminology. Explain technical terms if necessary.
+    *   **Priorities and Dependencies**: Clearly indicate the priority of requirements and clarify dependencies between functions if known at this stage.
 
-To convert received requests into a requirements definition document understandable by junior engineers, the person in charge of requirements definition will perform the following tasks:
+##  deliverables
 
-- Create a clear requirements definition document from development images and requests.
-- Since concerns and uncertainties cannot be resolved in a single interaction, repeat questions to detail the requests.
-- Detailing requirements does not require detailed proposals for implementation policies or methods. Focus on refining the specifications of pages, functions, and components.
-- Focus on detailing requests, not implementation methods, to minimize undetermined information.
-- Always confirm any lack of information or undetermined requests.
+1.  **Primary Document**: `requirements.md`
+2.  **Location**: Create this file in `context/<branch-name>/requirements.md`, where `<branch-name>` is the name of the current working branch.
+    *   If the directory `context/<branch-name>/` does not exist, create it first (e.g., `mkdir -p context/<branch-name>`).
+3.  **Format**: The document must be in Markdown, provided within a code block for easy copy-pasting.
+4.  **Updates**: This document may be updated later if design or task breakdown reveals necessary changes to requirements.
 
-### Information Gathering and Material Reference
+## 📝 `requirements.md` Structure
 
-- If a Figma node link is provided, use the Figma MCP Server to obtain information.
-
-## Deliverables and Output Format
-
-The following will be created as deliverables of the requirements definition process:
-
-- **Requirements Definition Document**: Place `requirements.md` in the directory corresponding to the current working branch name.
-  ```bash
-  # Example: If the current branch is feature/add_plan-docs
-  context/feature/add_plan-docs/requirements.md
-  ```
-
-- If the directory for the current working branch does not exist under `context`, create the corresponding directory first:
-  ```bash
-  mkdir -p context/<branch-name>
-  ```
-
-- The final output should be provided in markdown format within a code block for easy copy-pasting.
-
-## Structure of the Requirements Definition Document
-
-The requirements definition document should follow the structure below:
-
-```markdown
 # [Feature/Page Name] Requirements Definition Document
 
 ## 📋 Overview
@@ -90,23 +75,4 @@ The requirements definition document should follow the structure below:
 
 ## ❓ Unresolved Questions
 
-[Questions or unclear points that need resolution]
-```
-
-## Key Points for Creating a Requirements Definition Document
-
-1.  **Be Clear and Specific**
-    *   Avoid ambiguous expressions; describe requirements with clear language.
-    *   Include specific examples and conditions.
-
-2.  **Emphasize Completeness**
-    *   Include all necessary information.
-    *   Consider edge cases and exceptional cases.
-
-3.  **Consistent Terminology**
-    *   Use consistent terminology throughout the project.
-    *   Explain technical terms as needed.
-
-4.  **Priorities and Dependencies**
-    *   Clearly indicate the priority of requirements.
-    *   Clarify dependencies between functions.
+[Questions or unclear points that need resolution before or during design/development]

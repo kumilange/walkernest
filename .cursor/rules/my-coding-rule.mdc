@@ -22,6 +22,11 @@ Create a Vite + React solution that is not only functional but also adheres to t
 - Structure files with exported components, subcomponents, helpers, static content, and types.
 - Use PascalCase for directories containing React components (e.g., `components/CityMap`).
 - Use camelCase for utility directories and files.
+- **Extract component logic to custom hooks with proper collocation**:
+  - **Component-level hooks**: If component logic can be moved to local custom hooks, create them under the same component directory and collocate them (e.g., `components/AnalyzeApartment/hooks/useEventHandlers.ts`). This improves separation of concerns, reusability, and testability.
+  - **Feature-level hooks**: If logic is shared between components within the same feature directory, create hooks under the feature's hooks directory (e.g., `features/map/hooks/useMapInteractions.ts`).
+  - **Global hooks**: Only create hooks in the shared `src/hooks` directory if they're used across multiple features.
+  - Follow the Project Structure principles: keep feature-specific code within feature boundaries and avoid cross-feature imports.
 
 ## Modern JavaScript/TypeScript Syntax
 
@@ -43,6 +48,26 @@ Create a Vite + React solution that is not only functional but also adheres to t
   - Prefer `interface` over `type` for object shapes
   - Use generic constraints and utility types
   - Implement proper error boundaries with TypeScript
+  - **Avoid `any` and `as` type assertions whenever possible**:
+    - Never use `any` type - always define proper types or use `unknown` for truly dynamic content
+    - Minimize `as` type assertions - use type guards, narrowing, or proper typing instead
+    - When `as` is absolutely necessary (e.g., DOM manipulation), use specific types rather than `any`
+    - Use type-safe alternatives: `unknown`, union types, generic constraints, and type predicates
+    - Examples of better alternatives:
+      ```typescript
+      // ❌ Avoid
+      const data = response as any;
+      const element = document.getElementById('id') as any;
+      
+      // ✅ Prefer
+      const data: ApiResponse = response;
+      const element = document.getElementById('id') as HTMLInputElement | null;
+      
+      // ✅ Even better with type guards
+      function isHTMLInputElement(el: Element | null): el is HTMLInputElement {
+        return el !== null && el.tagName === 'INPUT';
+      }
+      ```
 
 ## Optimization and Best Practices
 
@@ -125,6 +150,7 @@ npm run test:coverage        # Run tests with coverage
 ### Error Resolution Guidelines
 
 - **TypeScript errors**: Fix type issues immediately, never use `@ts-ignore` unless absolutely necessary
+- **Type safety**: Avoid `any` and minimize `as` assertions - use proper typing, type guards, and type predicates instead
 - **Biome lint errors**: Follow Biome's suggestions, they align with project standards
 - **Import/export errors**: Ensure all imports are valid and exports are properly typed
 - **React Hook errors**: Fix dependency arrays and hook usage patterns

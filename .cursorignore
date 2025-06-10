@@ -1,0 +1,12 @@
+# Allow AI features for environment files (even though they're in .gitignore)
+!.env*
+!frontend/.env*
+
+# Keep AI features disabled for these sensitive/large files
+node_modules/
+.git/
+venv/
+cache/
+.nx/
+*.log
+*.tmp 

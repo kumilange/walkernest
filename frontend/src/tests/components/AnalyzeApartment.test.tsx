@@ -112,7 +112,11 @@ vi.mock("@/components/ui/form", () => ({
     render,
   }: {
     name: string;
-    render: (props: { field: unknown; fieldState: unknown; formState: unknown }) => React.ReactNode;
+    render: (props: {
+      field: unknown;
+      fieldState: unknown;
+      formState: unknown;
+    }) => React.ReactNode;
   }) => {
     const field = {
       name,
@@ -121,7 +125,11 @@ vi.mock("@/components/ui/form", () => ({
       onBlur: vi.fn(),
       ref: vi.fn(),
     };
-    return render({ field, fieldState: { invalid: false, error: null }, formState: {} });
+    return render({
+      field,
+      fieldState: { invalid: false, error: null },
+      formState: {},
+    });
   },
   FormItem: ({ children }: { children: React.ReactNode }) => (
     <div data-testid="form-item">{children}</div>
@@ -226,7 +234,11 @@ vi.mock("react-hook-form", async () => {
         onBlur: vi.fn(),
         ref: vi.fn(),
       };
-      return render({ field, fieldState: { invalid: false, error: null }, formState: {} });
+      return render({
+        field,
+        fieldState: { invalid: false, error: null },
+        formState: {},
+      });
     },
   };
 });

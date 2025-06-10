@@ -1,15 +1,12 @@
 import AnalysisProgressDialog from "@/features/map/components/AnalysisProgressDialog";
 import { QueryClient, QueryClientProvider } from "@tanstack/react-query";
 import { render, screen } from "@testing-library/react";
-import userEvent from "@testing-library/user-event";
 import { beforeEach, describe, expect, it, vi } from "vitest";
 
 // Setup mocks
 const mockSetIsOpen = vi.fn();
 let mockIsOpen = false;
 let mockProgress = 0;
-let mockIsError = false;
-let mockError: Error | null = null;
 
 // Mock the useEffectHandlers hook
 vi.mock("@/features/map/components/AnalysisProgressDialog/hooks/useEffectHandlers", () => {
@@ -18,8 +15,6 @@ vi.mock("@/features/map/components/AnalysisProgressDialog/hooks/useEffectHandler
       isOpen: mockIsOpen,
       setIsOpen: mockSetIsOpen,
       progress: mockProgress,
-      isError: mockIsError,
-      error: mockError,
     })),
   };
 });
@@ -79,29 +74,6 @@ vi.mock("@/components/ui/progress", () => ({
   ),
 }));
 
-// Mock the ErrorDialogContent component
-vi.mock("@/features/map/components/AnalysisProgressDialog/ErrorDialogContent", () => ({
-  default: ({
-    setOpen,
-    error,
-  }: {
-    setOpen: (open: boolean) => void;
-    error: Error | null;
-  }) => (
-    <div data-testid="mock-error-dialog-content">
-      <p data-testid="mock-error-message">Error: {error?.message || "Unknown error"}</p>
-      <button type="button" data-testid="mock-close-button" onClick={() => setOpen(false)}>
-        Close
-      </button>
-    </div>
-  ),
-}));
-
-// Mock the utility functions
-vi.mock("@/lib/misc", () => ({
-  getErrorMessage: (error: Error | null) => error?.message || "Unknown error",
-}));
-
 describe("AnalysisProgressDialog Component", () => {
   let queryClient: QueryClient;
 
@@ -109,8 +81,6 @@ describe("AnalysisProgressDialog Component", () => {
     vi.clearAllMocks();
     mockIsOpen = false;
     mockProgress = 0;
-    mockIsError = false;
-    mockError = null;
     queryClient = new QueryClient({
       defaultOptions: {
         queries: {
@@ -120,7 +90,7 @@ describe("AnalysisProgressDialog Component", () => {
     });
   });
 
-  it("displays progress information when not in error state", () => {
+  it("displays progress information", () => {
     // Arrange
     mockIsOpen = true;
     mockProgress = 50;
@@ -133,48 +103,10 @@ describe("AnalysisProgressDialog Component", () => {
     );
 
     // Assert
-    // Use a more specific selector to avoid ambiguity
     const progressText = screen.getByTestId("mock-dialog-description");
     expect(progressText).toHaveTextContent("Analyzing suitable apartments...");
     expect(screen.getByTestId("mock-progress")).toHaveAttribute("data-value", "50");
     expect(screen.getByText("Processing 50%")).toBeInTheDocument();
-  });
-
-  it("displays error content when in error state", () => {
-    // Arrange
-    mockIsOpen = true;
-    mockIsError = true;
-    mockError = new Error("Test error message");
-
-    // Act
-    render(
-      <QueryClientProvider client={queryClient}>
-        <AnalysisProgressDialog cityId={1} />
-      </QueryClientProvider>
-    );
-
-    // Assert
-    expect(screen.getByTestId("mock-error-dialog-content")).toBeInTheDocument();
-    expect(screen.getByTestId("mock-error-message")).toHaveTextContent("Error: Test error message");
-  });
-
-  it("calls setIsOpen when close button is clicked in error state", async () => {
-    // Arrange
-    mockIsOpen = true;
-    mockIsError = true;
-    mockError = new Error("Test error message");
-    const user = userEvent.setup();
-
-    // Act
-    render(
-      <QueryClientProvider client={queryClient}>
-        <AnalysisProgressDialog cityId={1} />
-      </QueryClientProvider>
-    );
-    await user.click(screen.getByTestId("mock-close-button"));
-
-    // Assert
-    expect(mockSetIsOpen).toHaveBeenCalledWith(false);
   });
 
   it("renders with the correct accessibility attributes", () => {
@@ -197,11 +129,9 @@ describe("AnalysisProgressDialog Component", () => {
     );
   });
 
-  it("changes the dialog description when in error state", () => {
+  it("renders dialog when open", () => {
     // Arrange
     mockIsOpen = true;
-    mockIsError = true;
-    mockError = new Error("Test error message");
 
     // Act
     render(
@@ -211,6 +141,21 @@ describe("AnalysisProgressDialog Component", () => {
     );
 
     // Assert
-    expect(screen.getByTestId("mock-dialog-description")).toHaveTextContent("Test error message");
+    expect(screen.getByTestId("mock-dialog")).toHaveAttribute("data-open", "true");
+  });
+
+  it("does not render dialog when closed", () => {
+    // Arrange
+    mockIsOpen = false;
+
+    // Act
+    render(
+      <QueryClientProvider client={queryClient}>
+        <AnalysisProgressDialog cityId={1} />
+      </QueryClientProvider>
+    );
+
+    // Assert
+    expect(screen.getByTestId("mock-dialog")).toHaveAttribute("data-open", "false");
   });
 });

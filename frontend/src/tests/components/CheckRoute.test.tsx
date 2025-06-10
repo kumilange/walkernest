@@ -125,7 +125,13 @@ vi.mock("lucide-react", () => ({
   LocateFixed: ({ className }: { className?: string }) => (
     <div data-testid="mock-locate-fixed-icon" className={className} />
   ),
-  CircleX: ({ className, onClick }: { className?: string; onClick?: () => void }) => (
+  CircleX: ({
+    className,
+    onClick,
+  }: {
+    className?: string;
+    onClick?: () => void;
+  }) => (
     // biome-ignore lint/a11y/useKeyWithClickEvents: test mock doesn't need keyboard events
     <div data-testid="mock-circle-x" className={className} onClick={onClick}>
       ✕
@@ -168,6 +174,7 @@ describe("CheckRoute Component", () => {
       setIsEndingPointSelecting: mockSetIsEndingPointSelecting,
       clearAllRouteStates: mockClearAllRouteStates,
       reversePoints: mockReversePoints,
+      handleReverseTouch: vi.fn(),
       handleAddressName: mockHandleAddressName,
       handleGeocodeAddress: mockHandleGeocodeAddress,
     });
@@ -198,6 +205,7 @@ describe("CheckRoute Component", () => {
       setIsEndingPointSelecting: mockSetIsEndingPointSelecting,
       clearAllRouteStates: mockClearAllRouteStates,
       reversePoints: mockReversePoints,
+      handleReverseTouch: vi.fn(),
       handleAddressName: mockHandleAddressName,
       handleGeocodeAddress: mockHandleGeocodeAddress,
     });
