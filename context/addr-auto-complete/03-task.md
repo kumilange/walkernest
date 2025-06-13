@@ -88,11 +88,11 @@ The objective is to deliver an accessible, performant autocomplete dropdown inte
 7. **Task 2.3 – Geographic prioritisation**
    - **Overview**: Sort results by distance from map centre using haversine util.
    - **Completion Criteria**:
-     - [] Unit test supplies mock centre & asserts order.
+     - [x] Unit test supplies mock centre & asserts order.
    - **Operational Confirmation**:
-     - [] `npm run test` green.
-     - [] `npm run check:biome` zero issues.
-     - [] `npm run typecheck` zero issues.
+     - [x] `npm run test:unit` green.
+     - [x] `npm run check` zero issues.
+     - [x] `npm run typecheck` zero issues.
 
 ### Phase 3 – UX Polish & Accessibility (REQ-14 → REQ-15)
 
@@ -125,8 +125,8 @@ The objective is to deliver an accessible, performant autocomplete dropdown inte
 
 ### Phase 4 – Documentation & Clean-up
 
-11. [] **Task 4.1 – Update README / Storybook stories**
-    - Provide usage docs and interactive stories for `SelectPoint` with autocomplete.
+11. [] **Task 4.1 – Update README **
+    - Provide usage docs for `SelectPoint` with autocomplete.
 
 12. [] **Task 4.2 – Code cleanup & CI checks**
     - Ensure all scripts (`test`, `check:biome`, `typecheck`) pass in CI.

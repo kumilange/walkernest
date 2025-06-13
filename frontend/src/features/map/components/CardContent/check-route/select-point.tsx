@@ -3,6 +3,7 @@ import { Input } from "@/components/ui/input";
 import { Popover, PopoverAnchor, PopoverContent } from "@/components/ui/popover";
 import type { AutocompleteResult } from "@/features/map/api";
 import AddressSuggestions from "@/features/map/components/AddressSuggestions";
+import { useCityMap } from "@/features/map/hooks";
 import { useAddressAutocomplete } from "@/features/map/hooks/useAddressAutocomplete";
 import type { Route, RoutePoint } from "@/types";
 import { CircleX, Locate, LocateFixed, MapPin } from "lucide-react";
@@ -34,8 +35,17 @@ export default function SelectPoint({
   const [addressInput, setAddressInput] = useState("");
   const [isGeocoding, setIsGeocoding] = useState(false);
   const inputRef = useRef<HTMLInputElement>(null);
+  const { map } = useCityMap();
 
-  const autocomplete = useAddressAutocomplete();
+  // Get map center for geographic prioritization
+  const mapCenter = map?.getCenter()
+    ? {
+        lat: map.getCenter().lat,
+        lng: map.getCenter().lng,
+      }
+    : undefined;
+
+  const autocomplete = useAddressAutocomplete({ mapCenter });
 
   // Enhanced address search using autocomplete cache and API
   const handleAddressSearch = useCallback(async () => {

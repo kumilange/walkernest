@@ -1,5 +1,7 @@
 import { fetchAddressSuggestions } from "@/features/map/api";
 import type { AutocompleteResult } from "@/features/map/api";
+import type { Coordinates } from "@/utils/geo";
+import { getDistanceBetweenCoordinates } from "@/utils/geo";
 import { useCallback, useEffect, useRef, useState } from "react";
 import { useDebouncedCallback } from "use-debounce";
 
@@ -58,11 +60,75 @@ class LRUCache {
   }
 }
 
-export function useAddressAutocomplete(currentCity?: string) {
+interface UseAddressAutocompleteOptions {
+  currentCity?: string;
+  mapCenter?: Coordinates;
+}
+
+export function useAddressAutocomplete(options: UseAddressAutocompleteOptions = {}) {
+  const { currentCity, mapCenter } = options;
   const [suggestions, setSuggestions] = useState<AutocompleteResult[]>([]);
   const [isLoading, setIsLoading] = useState(false);
   const abortControllerRef = useRef<AbortController | null>(null);
   const cacheRef = useRef(new LRUCache(CACHE_SIZE));
+
+  // Remove duplicate suggestions based on coordinates and display name
+  const deduplicateSuggestions = useCallback(
+    (results: AutocompleteResult[]): AutocompleteResult[] => {
+      if (results.length === 0) {
+        return results;
+      }
+
+      const seenCoords = new Set<string>();
+      const seenDisplayNames = new Set<string>();
+
+      return results.filter((result) => {
+        // Create a unique key based on coordinates (rounded to avoid floating point precision issues)
+        const coordKey = `${result.coordinates.lat.toFixed(4)},${result.coordinates.lng.toFixed(4)}`;
+        const displayName = result.displayName.trim();
+
+        // Check if we've already seen this exact coordinate location
+        if (seenCoords.has(coordKey)) {
+          return false;
+        }
+
+        // Check if we've already seen this exact display name
+        if (seenDisplayNames.has(displayName)) {
+          return false;
+        }
+
+        seenCoords.add(coordKey);
+        seenDisplayNames.add(displayName);
+        return true;
+      });
+    },
+    []
+  );
+
+  // Sort suggestions by distance from map center
+  const sortSuggestionsByDistance = useCallback(
+    (results: AutocompleteResult[]): AutocompleteResult[] => {
+      if (!mapCenter || results.length === 0) {
+        return results;
+      }
+
+      return results.slice().sort((a, b) => {
+        const distanceA = getDistanceBetweenCoordinates(mapCenter, a.coordinates);
+        const distanceB = getDistanceBetweenCoordinates(mapCenter, b.coordinates);
+        return distanceA - distanceB;
+      });
+    },
+    [mapCenter]
+  );
+
+  // Process results: deduplicate first, then sort by distance
+  const processResults = useCallback(
+    (results: AutocompleteResult[]): AutocompleteResult[] => {
+      const deduplicated = deduplicateSuggestions(results);
+      return sortSuggestionsByDistance(deduplicated);
+    },
+    [deduplicateSuggestions, sortSuggestionsByDistance]
+  );
 
   const fetchSuggestionsFromAPI = useCallback(
     async (query: string, cacheKey: string) => {
@@ -77,8 +143,9 @@ export function useAddressAutocomplete(currentCity?: string) {
         setIsLoading(true);
         const results = await fetchAddressSuggestions(query, 6, controller.signal);
         if (!controller.signal.aborted) {
-          setSuggestions(results);
-          // Cache the results
+          const processedResults = processResults(results);
+          setSuggestions(processedResults);
+          // Cache the results (unsorted to preserve original API response)
           cacheRef.current.set(cacheKey, results, currentCity);
         }
       } catch (error) {
@@ -92,7 +159,7 @@ export function useAddressAutocomplete(currentCity?: string) {
         }
       }
     },
-    [currentCity]
+    [currentCity, processResults]
   );
 
   const debouncedFetchSuggestions = useDebouncedCallback(fetchSuggestionsFromAPI, DEBOUNCE_TIMEOUT);
@@ -120,7 +187,8 @@ export function useAddressAutocomplete(currentCity?: string) {
       const cachedResults = cacheRef.current.get(cacheKey, currentCity);
 
       if (cachedResults) {
-        setSuggestions(cachedResults);
+        const processedCachedResults = processResults(cachedResults);
+        setSuggestions(processedCachedResults);
         setIsLoading(false);
         // Cancel any pending debounced calls
         debouncedFetchSuggestions.cancel();
@@ -131,7 +199,7 @@ export function useAddressAutocomplete(currentCity?: string) {
       setIsLoading(true);
       debouncedFetchSuggestions(trimmedQuery, cacheKey);
     },
-    [currentCity, debouncedFetchSuggestions]
+    [currentCity, debouncedFetchSuggestions, processResults]
   );
 
   const handleSelect = useCallback(
@@ -157,21 +225,21 @@ export function useAddressAutocomplete(currentCity?: string) {
       // Check cache first
       const cachedResults = cacheRef.current.get(cacheKey, currentCity);
       if (cachedResults) {
-        return cachedResults;
+        return processResults(cachedResults);
       }
 
       // No cache hit - fetch from API
       try {
         const results = await fetchAddressSuggestions(trimmedQuery, 6);
-        // Cache the results
+        // Cache the results (unsorted to preserve original API response)
         cacheRef.current.set(cacheKey, results, currentCity);
-        return results;
+        return processResults(results);
       } catch (error) {
         console.error("Failed to geocode address:", error);
         throw error;
       }
     },
-    [currentCity]
+    [currentCity, processResults]
   );
 
   // Clear cache when city changes
