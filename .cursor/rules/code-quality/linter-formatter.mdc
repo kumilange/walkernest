@@ -1,0 +1,19 @@
+---
+description: 
+globs: 
+alwaysApply: true
+---
+---
+description: Code quality enforcement rules for Biome formatting/linting with ESLint as a supplementary fallback.
+globs: "**/*.*"
+---
+
+# Linter & Formatter Guidelines
+
+- **Primary Command**: Before committing, run `biome check --write --unsafe .` to lint, format, and apply all safe and unsafe auto-fixes.
+- **Zero Tolerance**: Every commit must pass `biome check .` with zero errors or warnings. Any lint or format issue is a hard failure.
+- **Configuration is King**: All rules are defined in the project-wide `.biome.json`. Do not hand-tweak spacing or style.
+- **No Global Disables**: If an exception is unavoidable, suppress a rule locally for the smallest possible block and add a comment explaining why (`// biome-ignore lint/ruleName: <explanation>`).
+- **CI Enforcement**: The CI pipeline runs `biome check .` and will block any merge if the report is not clean.
+
+> **Remember**: Clean code, strict typing, and accessibility are non-negotiable. Leave the codebase better than you found it.

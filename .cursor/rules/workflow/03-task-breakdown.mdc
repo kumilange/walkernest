@@ -3,25 +3,31 @@ description:
 globs: 
 alwaysApply: false
 ---
-# Guide to Creating a Task Organization Document (`task.md`)
+# Guide to Creating a Task Breakdown Document (`03-task.md`)
 
 ## 🎯 Purpose
 
-To break down development work, based on `requirements.md` and `design.md`, into manageable, testable tasks. This document enables junior engineers to proceed with implementation systematically.
+To break down development work, based on `01-requirements.md` and `02-design.md`, into manageable, testable tasks. This document enables junior engineers to proceed with implementation systematically.
 
 ## ➡️ Inputs
 
-- `requirements.md` (Implementation Requirements).
-- `design.md` (Design Policy).
+- `01-requirements.md` (Implementation Requirements).
+- `02-design.md` (Design Policy).
 
 ## ⚙️ Process & Key Considerations
 
-1.  **Role**: Act as a professional web front-end engineer. Your goal is to organize tasks from `requirements.md` and `design.md` so that junior engineers can develop without confusion.
-2.  **Confirmation**: Before breakdown, confirm the contents of `requirements.md` and `design.md` in the `context/<branch-name>/` directory.
+1.  **Role**: Act as a professional web front-end engineer. Your goal is to organize tasks from `01-requirements.md` and `02-design.md` so that junior engineers can develop without confusion.
+2.  **Confirmation**: Before breakdown, confirm the contents of `01-requirements.md` and `02-design.md` in the `context/<branch-name>/` directory.
 3.  **Task Breakdown Principles**:
     *   **Operational Guarantee**: Each task, upon completion, should result in a functionally verifiable part of the system.
         *   Verification should primarily be through automated tests (unit, visual regression, etc.) using Vitest and React Testing Library (as per `@my-coding-rule.mdc`).
         *   For aspects not easily testable via automation, specify clear manual confirmation procedures.
+    *   **Quality Gate – Mandatory for Every Task**:  
+        *   After implementing a task, **all** of the following must be true:
+            *   `npm run test` passes (no test errors).
+            *   `npm run check:biome` passes (no linting errors).
+            *   `npm run typecheck` passes (no type errors).
+        *   These checks are implicit for *every* task, even if not redundantly listed in that task's _Operational Confirmation_ block.
     *   **Test-Driven Development (TDD)**: Tasks should be approached with TDD. Write tests *before* implementation code.
     *   **Completion Criteria**: For each task, define specific criteria for completion. Upon task completion, ensure (as per Quality Assurance in `@my-coding-rule.mdc`):
         - `npm run test` passes (no test errors).
@@ -29,20 +35,20 @@ To break down development work, based on `requirements.md` and `design.md`, into
         - `npm run typecheck` passes (no type errors).
 4.  **Clarification**: If any ambiguities arise during task breakdown, ask questions to clarify.
 5.  **Document Updates**:
-    *   If task breakdown reveals necessary changes to requirements or design, ensure `requirements.md` and/or `design.md` are updated accordingly.
+    *   If task breakdown reveals necessary changes to requirements or design, ensure `01-requirements.md` and/or `02-design.md` are updated accordingly.
 
 ## deliverables
 
-1.  **Primary Document**: `task.md`
-2.  **Location**: Create this file in `context/<branch-name>/task.md`, where `<branch-name>` is the name of the current working branch.
+1.  **Primary Document**: `03-task.md`
+2.  **Location**: Create this file in `context/<branch-name>/03-task.md`, where `<branch-name>` is the name of the current working branch.
     *   If the directory `context/<branch-name>/` does not exist, create it first.
 3.  **Format**: The document must be in Markdown, provided within a code block for easy copy-pasting.
 4.  **Potentially Updated Documents**:
-    *   `requirements.md` (if changes were identified).
-    *   `design.md` (if changes were identified).
-    *   If no changes to `requirements.md` or `design.md` are needed, only output `task.md`.
+    *   `01-requirements.md` (if changes were identified).
+    *   `02-design.md` (if changes were identified).
+    *   If no changes to `01-requirements.md` or `02-design.md` are needed, only output `03-task.md`.
 
-## 📝 `task.md` Structure
+## 📝 `03-task.md` Structure
 
 # [Feature/Page Name] Task List
 
@@ -55,7 +61,7 @@ To break down development work, based on `requirements.md` and `design.md`, into
 ### Phase 1: [Phase Name, e.g., Basic Component Implementation]
 
 1.  **[Task 1 Name/ID]**
-    - Overview: [Brief description of the task, linking to specific parts of requirements.md or design.md]
+    - Overview: [Brief description of the task, linking to specific parts of 01-requirements.md or 02-design.md]
     - Completion Criteria:
         - [ ] [Specific completion criterion 1, e.g., Test cases for X, Y, Z written and passing]
         - [ ] [Specific completion criterion 2, e.g., Component renders correctly according to Figma spec for state A]
@@ -65,7 +71,7 @@ To break down development work, based on `requirements.md` and `design.md`, into
         - [ ] `npm run typecheck` reports no type errors
         - [ ] Visual confirmation in Storybook (if applicable)
         - [ ] Manual Confirmation: [Clear, step-by-step procedure] (if not covered by automated tests)
-    - Notes: [Supplementary information, e.g., link to specific test files, relevant part of design.md, dependencies]
+    - Notes: [Supplementary information, e.g., link to specific test files, relevant part of 02-design.md, dependencies]
 
 2.  **[Task 2 Name/ID]**
     - Overview: [...]
@@ -84,5 +90,5 @@ To break down development work, based on `requirements.md` and `design.md`, into
 
 ## 🔗 Related Documents
 
-- Implementation Requirements: [./requirements.md](./requirements.md)
-- Design Policy: [./design.md](./design.md)
+- Implementation Requirements: [./01-requirements.md](mdc:01-requirements.md)
+- Design Policy: [./02-design.md](mdc:02-design.md)

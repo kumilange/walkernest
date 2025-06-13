@@ -1,0 +1,31 @@
+// Vitest Snapshot v1, https://vitest.dev/guide/snapshot.html
+
+exports[`AddressSuggestions > should match empty state snapshot 1`] = `
+<div>
+  <button
+    type="button"
+  >
+    Trigger
+  </button>
+</div>
+`;
+
+exports[`AddressSuggestions > should match loading state snapshot 1`] = `
+<div>
+  <button
+    type="button"
+  >
+    Trigger
+  </button>
+</div>
+`;
+
+exports[`AddressSuggestions > should match suggestions list snapshot 1`] = `
+<div>
+  <button
+    type="button"
+  >
+    Trigger
+  </button>
+</div>
+`;
