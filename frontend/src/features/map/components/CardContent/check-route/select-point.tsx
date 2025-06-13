@@ -7,7 +7,7 @@ import { useAddressAutocomplete } from "@/features/map/hooks/useAddressAutocompl
 import type { Route, RoutePoint } from "@/types";
 import { CircleX, Locate, LocateFixed, MapPin } from "lucide-react";
 import { LngLat } from "maplibre-gl";
-import { useEffect, useRef, useState } from "react";
+import { useCallback, useEffect, useRef, useState } from "react";
 import useEventHandlers from "./hooks/use-event-handlers";
 
 export default function SelectPoint({
@@ -37,12 +37,55 @@ export default function SelectPoint({
 
   const autocomplete = useAddressAutocomplete();
 
+  // Enhanced address search using autocomplete cache and API
+  const handleAddressSearch = useCallback(async () => {
+    const trimmed = addressInput.trim();
+    if (!trimmed || trimmed === point?.name) return;
+
+    setIsGeocoding(true);
+    try {
+      // Use autocomplete's geocoding function which uses cache and same API
+      const results = await autocomplete.handleGeocodeSearch(trimmed);
+
+      if (results.length === 0) {
+        // Fallback to original geocoding if no results from autocomplete API
+        await onGeocodeAddress(trimmed, isStarting);
+        return;
+      }
+
+      // Use first result from autocomplete API
+      const result = results[0];
+      const newPoint = {
+        name: result.displayName,
+        lngLat: new LngLat(result.coordinates.lng, result.coordinates.lat),
+      };
+      setPoint(newPoint);
+
+      if (onPointSet) {
+        onPointSet(newPoint, isStarting);
+      }
+    } catch (error) {
+      console.error("Address search failed:", error);
+      // Fallback to original geocoding on error
+      await onGeocodeAddress(trimmed, isStarting);
+    } finally {
+      setIsGeocoding(false);
+    }
+  }, [
+    addressInput,
+    point?.name,
+    autocomplete.handleGeocodeSearch,
+    isStarting,
+    setPoint,
+    onPointSet,
+    onGeocodeAddress,
+  ]);
+
   const {
     handleMapClick,
     handleClearPoint,
     handleMapClickTouch,
     handleClearPointTouch,
-    handleKeyDown,
     handleInputChange,
     handleFocus,
   } = useEventHandlers({
@@ -58,6 +101,16 @@ export default function SelectPoint({
     point,
     setIsGeocoding,
   });
+
+  // Handle Enter key press
+  const handleKeyDown = useCallback(
+    (e: React.KeyboardEvent<HTMLInputElement>) => {
+      if (e.key === "Enter") {
+        handleAddressSearch();
+      }
+    },
+    [handleAddressSearch]
+  );
 
   const onNewInputChange = (e: React.ChangeEvent<HTMLInputElement>) => {
     handleInputChange(e);

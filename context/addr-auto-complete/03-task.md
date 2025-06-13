@@ -78,12 +78,12 @@ The objective is to deliver an accessible, performant autocomplete dropdown inte
 6. **Task 2.2 – Client-side cache (LRU)**
    - **Overview**: Add Map-based cache (size 100, TTL 5 min) to hook.
    - **Completion Criteria**:
-     - [] Cache hit prevents network call (mock verified).
-     - [] Cache invalidates after TTL or city change.
+     - [x] Cache hit prevents network call (mock verified).
+     - [x] Cache invalidates after TTL or city change.
    - **Operational Confirmation**:
-     - [] `npm run test` green.
-     - [] `npm run check:biome` zero issues.
-     - [] `npm run typecheck` zero issues.
+     - [x] `npm run test` green.
+     - [x] `npm run check:biome` zero issues.
+     - [x] `npm run typecheck` zero issues.
 
 7. **Task 2.3 – Geographic prioritisation**
    - **Overview**: Sort results by distance from map centre using haversine util.
