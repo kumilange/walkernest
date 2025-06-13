@@ -45,14 +45,14 @@ The objective is to deliver an accessible, performant autocomplete dropdown inte
    - **Completion Criteria**:
      - [ ] Snapshot test verifies render of 3 states: loading, empty, list.
      - [ ] ARIA roles inherit from `cmdk`.
-   - **Operational Confirmation**: tests + Storybook visual (manual).
+   - **Operational Confirmation**: same as above.
 
 4. **Task 1.4 – Integrate dropdown into `SelectPoint`**
    - **Overview**: Replace plain `<Input>` with wrapped `Popover` showing suggestions; wire to mock hook.
    - **Completion Criteria**:
      - [ ] `SelectPoint` renders unchanged visually when no suggestions.
      - [ ] Keyboard nav selects item & triggers `onSelect` callback (unit test with RTL).
-   - **Operational Confirmation**: manual check in browser.
+   - **Operational Confirmation**: same as above.
 
 ### Phase 2 – Data, Caching & Performance (REQ-11 → REQ-13)
 

@@ -64,6 +64,7 @@ vi.mock("@/features/map/components/CardContent/check-route/select-point", () => 
     setIsPointSelecting: (selecting: boolean) => void;
     onGeocodeAddress: (address: string, isStarting: boolean) => Promise<void>;
   }) => (
+    // biome-ignore lint/a11y/useSemanticElements: This is a mock component for testing purposes
     <div
       role="button"
       tabIndex={0}
