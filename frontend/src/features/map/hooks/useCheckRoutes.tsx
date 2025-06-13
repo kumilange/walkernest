@@ -189,7 +189,7 @@ export default function useCheckRoutes() {
         if (currentRequestId === routeFetchRef.current) {
           setRoute(data);
 
-          // Fit map bounds if route extends beyond current view
+          // Always fit map bounds to show the complete route
           if (map) {
             const boundingBox = bbox(data.geometry);
             const lngLatBounds: LngLatBoundsLike = [
@@ -197,12 +197,9 @@ export default function useCheckRoutes() {
               [boundingBox[2], boundingBox[3]],
             ];
             const padding = window.innerWidth < 420 ? 40 : 100;
-            if (
-              !map.getBounds().contains(lngLatBounds[0]) ||
-              !map.getBounds().contains(lngLatBounds[1])
-            ) {
-              fitBounds(lngLatBounds, padding);
-            }
+
+            // Always fit bounds to show the complete route with both points
+            fitBounds(lngLatBounds, padding);
           }
         } else {
           logger.debug(
@@ -258,6 +255,26 @@ export default function useCheckRoutes() {
     [reversePoints]
   );
 
+  // Function to handle point setting and trigger flyTo (for autocomplete suggestions)
+  const handlePointSet = useCallback(
+    (newPoint: RoutePoint, isStartingPoint: boolean) => {
+      if (isStartingPoint) {
+        executeConditionalFlyTo(newPoint, endingPoint, map, flyTo);
+      } else {
+        executeConditionalFlyTo(newPoint, startingPoint, map, flyTo);
+      }
+
+      // Check if both points are now available and fetch route
+      const newStarting = isStartingPoint ? newPoint : startingPoint;
+      const newEnding = isStartingPoint ? endingPoint : newPoint;
+
+      if (newStarting?.lngLat && newEnding?.lngLat) {
+        fetchRouteWithSafeguards(newStarting, newEnding);
+      }
+    },
+    [map, flyTo, startingPoint, endingPoint, fetchRouteWithSafeguards]
+  );
+
   return {
     route,
     routeId: route && isBothSelected ? `route-${routeFetchRef.current}` : "no-route",
@@ -278,5 +295,6 @@ export default function useCheckRoutes() {
     handleReverseTouch,
     handleAddressName,
     handleGeocodeAddress,
+    handlePointSet,
   };
 }

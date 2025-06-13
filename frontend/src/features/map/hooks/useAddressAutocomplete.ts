@@ -1,75 +1,87 @@
+import { fetchAddressSuggestions } from "@/features/map/api";
 import type { AutocompleteResult } from "@/features/map/api";
 import { useCallback, useEffect, useRef, useState } from "react";
+import { useDebouncedCallback } from "use-debounce";
 
-const MOCK_SUGGESTIONS: AutocompleteResult[] = [
-  {
-    id: "1",
-    displayName: "Brandenburg Gate",
-    address: "Pariser Platz, 10117 Berlin, Germany",
-    city: "Berlin",
-    country: "Germany",
-    coordinates: { lat: 52.5163, lng: 13.3777 },
-  },
-  {
-    id: "2",
-    displayName: "Reichstag Building",
-    address: "Platz der Republik 1, 11011 Berlin, Germany",
-    city: "Berlin",
-    country: "Germany",
-    coordinates: { lat: 52.5186, lng: 13.3762 },
-  },
-  {
-    id: "3",
-    displayName: "Alexanderplatz",
-    address: "Alexanderplatz, 10178 Berlin, Germany",
-    city: "Berlin",
-    country: "Germany",
-    coordinates: { lat: 52.5219, lng: 13.4132 },
-  },
-];
+const DEBOUNCE_TIMEOUT = 300;
 
-export function useAddressAutocomplete(debounceTimeout = 300) {
+export function useAddressAutocomplete() {
   const [suggestions, setSuggestions] = useState<AutocompleteResult[]>([]);
   const [isLoading, setIsLoading] = useState(false);
-  const debounceRef = useRef<NodeJS.Timeout>();
+  const abortControllerRef = useRef<AbortController | null>(null);
+
+  const fetchSuggestions = useDebouncedCallback(
+    useCallback(async (query: string) => {
+      if (abortControllerRef.current) {
+        abortControllerRef.current.abort();
+      }
+
+      if (!query || query.trim().length < 3) {
+        setSuggestions([]);
+        setIsLoading(false);
+        return;
+      }
+
+      const controller = new AbortController();
+      abortControllerRef.current = controller;
+
+      try {
+        setIsLoading(true);
+        const results = await fetchAddressSuggestions(query, 6, controller.signal);
+        if (!controller.signal.aborted) {
+          setSuggestions(results);
+        }
+      } catch (error) {
+        if ((error as Error).name !== "AbortError") {
+          console.error("Failed to fetch address suggestions:", error);
+          setSuggestions([]);
+        }
+      } finally {
+        if (!controller.signal.aborted) {
+          setIsLoading(false);
+        }
+      }
+    }, []),
+    DEBOUNCE_TIMEOUT
+  );
 
   const handleInput = useCallback(
     (query: string) => {
-      if (debounceRef.current) {
-        clearTimeout(debounceRef.current);
+      if (query.trim().length > 0 && query.trim().length < 3) {
+        setIsLoading(false);
+        setSuggestions([]);
+        fetchSuggestions.cancel();
+        return;
       }
       setIsLoading(true);
-
-      debounceRef.current = setTimeout(() => {
-        if (query) {
-          setSuggestions(MOCK_SUGGESTIONS);
-        } else {
-          setSuggestions([]);
-        }
-        setIsLoading(false);
-      }, debounceTimeout);
+      fetchSuggestions(query);
     },
-    [debounceTimeout]
+    [fetchSuggestions]
   );
 
-  const handleSelect = useCallback((result: AutocompleteResult) => {
-    // eslint-disable-next-line no-console
-    console.log("Selected:", result);
-    setSuggestions([]);
-  }, []);
+  const handleSelect = useCallback(
+    (result: AutocompleteResult) => {
+      // eslint-disable-next-line no-console
+      console.log("Selected:", result);
+      setSuggestions([]);
+      fetchSuggestions.cancel();
+    },
+    [fetchSuggestions]
+  );
 
   useEffect(() => {
+    // Cleanup on unmount
     return () => {
-      if (debounceRef.current) {
-        clearTimeout(debounceRef.current);
+      fetchSuggestions.cancel();
+      if (abortControllerRef.current) {
+        abortControllerRef.current.abort();
       }
     };
-  }, []);
+  }, [fetchSuggestions]);
 
   return {
     suggestions,
     isLoading,
-    // `cmdk` will manage the index, so we return a dummy value for now.
     selectedIdx: -1,
     handleInput,
     handleSelect,

@@ -1,7 +1,12 @@
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
+import { Popover, PopoverAnchor, PopoverContent } from "@/components/ui/popover";
+import type { AutocompleteResult } from "@/features/map/api";
+import AddressSuggestions from "@/features/map/components/AddressSuggestions";
+import { useAddressAutocomplete } from "@/features/map/hooks/useAddressAutocomplete";
 import type { Route, RoutePoint } from "@/types";
 import { CircleX, Locate, LocateFixed, MapPin } from "lucide-react";
+import { LngLat } from "maplibre-gl";
 import { useEffect, useRef, useState } from "react";
 import useEventHandlers from "./hooks/use-event-handlers";
 
@@ -14,6 +19,7 @@ export default function SelectPoint({
   onGeocodeAddress,
   setRoute,
   isRouteFetching = false,
+  onPointSet,
 }: {
   isStarting: boolean;
   point: RoutePoint | null;
@@ -23,10 +29,13 @@ export default function SelectPoint({
   onGeocodeAddress: (address: string, isStarting: boolean) => Promise<void>;
   setRoute: (route: Route | null) => void;
   isRouteFetching?: boolean;
+  onPointSet?: (point: RoutePoint, isStarting: boolean) => void;
 }) {
   const [addressInput, setAddressInput] = useState("");
   const [isGeocoding, setIsGeocoding] = useState(false);
   const inputRef = useRef<HTMLInputElement>(null);
+
+  const autocomplete = useAddressAutocomplete();
 
   const {
     handleMapClick,
@@ -50,9 +59,29 @@ export default function SelectPoint({
     setIsGeocoding,
   });
 
+  const onNewInputChange = (e: React.ChangeEvent<HTMLInputElement>) => {
+    handleInputChange(e);
+    autocomplete.handleInput(e.target.value);
+  };
+
+  const handleSuggestionSelect = (suggestion: AutocompleteResult) => {
+    setAddressInput(suggestion.displayName);
+    const newPoint = {
+      name: suggestion.displayName,
+      lngLat: new LngLat(suggestion.coordinates.lng, suggestion.coordinates.lat),
+    };
+    setPoint(newPoint);
+
+    if (onPointSet) {
+      onPointSet(newPoint, isStarting);
+    }
+
+    autocomplete.handleSelect(suggestion);
+    inputRef.current?.focus();
+  };
+
   const classes = `w-[16px] w-4 h-4 ${point ? "text-green-600" : ""}`;
 
-  // Update input value when point changes
   useEffect(() => {
     if (point) {
       setAddressInput(point.name);
@@ -61,26 +90,42 @@ export default function SelectPoint({
     }
   }, [point]);
 
+  const isPopoverOpen = autocomplete.suggestions.length > 0 || autocomplete.isLoading;
+
   return (
     <div className="flex w-full items-center gap-1">
       <div className="w-4 flex-shrink-0">
         {isStarting ? <Locate className={classes} /> : <LocateFixed className={classes} />}
       </div>
 
-      <div className="min-w-0 flex-1">
-        <Input
-          ref={inputRef}
-          placeholder={`Enter ${isStarting ? "starting" : "ending"} address`}
-          value={addressInput}
-          onChange={handleInputChange}
-          onKeyDown={handleKeyDown}
-          onFocus={handleFocus}
-          disabled={isGeocoding || isRouteFetching}
-          className={`w-full focus:border-green-500 ${
-            isPointSelecting ? "border-green-500 bg-green-50" : ""
-          }`}
-        />
-      </div>
+      <Popover open={isPopoverOpen}>
+        <div className="min-w-0 flex-1">
+          <PopoverAnchor>
+            <Input
+              ref={inputRef}
+              placeholder={`Enter ${isStarting ? "starting" : "ending"} address`}
+              value={addressInput}
+              onChange={onNewInputChange}
+              onKeyDown={handleKeyDown}
+              onFocus={handleFocus}
+              disabled={isGeocoding || isRouteFetching}
+              className={`w-full focus:border-green-500 ${
+                isPointSelecting ? "border-green-500 bg-green-50" : ""
+              }`}
+            />
+          </PopoverAnchor>
+        </div>
+        <PopoverContent
+          onOpenAutoFocus={(e) => e.preventDefault()}
+          className="w-[--radix-popover-trigger-width] p-0"
+        >
+          <AddressSuggestions
+            suggestions={autocomplete.suggestions}
+            isLoading={autocomplete.isLoading}
+            onSelect={handleSuggestionSelect}
+          />
+        </PopoverContent>
+      </Popover>
 
       <div className="flex flex-shrink-0 items-center gap-1">
         <Button

@@ -47,6 +47,7 @@ vi.mock("@/features/map/hooks", () => ({
     reversePoints: mockReversePoints,
     handleAddressName: mockHandleAddressName,
     handleGeocodeAddress: mockHandleGeocodeAddress,
+    handlePointSet: vi.fn(),
   })),
 }));
 
@@ -179,6 +180,7 @@ describe("CheckRoute Component", () => {
       handleReverseTouch: vi.fn(),
       handleAddressName: mockHandleAddressName,
       handleGeocodeAddress: mockHandleGeocodeAddress,
+      handlePointSet: vi.fn(),
     });
 
     // Act
@@ -210,6 +212,7 @@ describe("CheckRoute Component", () => {
       handleReverseTouch: vi.fn(),
       handleAddressName: mockHandleAddressName,
       handleGeocodeAddress: mockHandleGeocodeAddress,
+      handlePointSet: vi.fn(),
     });
 
     // Act

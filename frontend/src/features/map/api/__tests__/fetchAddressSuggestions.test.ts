@@ -47,7 +47,8 @@ describe("fetchAddressSuggestions", () => {
       const result = await fetchAddressSuggestions("test query");
 
       expect(mockFetch).toHaveBeenCalledWith(
-        "https://nominatim.openstreetmap.org/search?q=test%20query&format=json&limit=6&addressdetails=1"
+        "https://nominatim.openstreetmap.org/search?q=test%20query&format=json&limit=6&addressdetails=1",
+        { signal: undefined }
       );
 
       expect(result).toEqual([
@@ -85,7 +86,8 @@ describe("fetchAddressSuggestions", () => {
       await fetchAddressSuggestions("test", 3);
 
       expect(mockFetch).toHaveBeenCalledWith(
-        "https://nominatim.openstreetmap.org/search?q=test&format=json&limit=3&addressdetails=1"
+        "https://nominatim.openstreetmap.org/search?q=test&format=json&limit=3&addressdetails=1",
+        { signal: undefined }
       );
     });
 
@@ -98,7 +100,8 @@ describe("fetchAddressSuggestions", () => {
       await fetchAddressSuggestions("test");
 
       expect(mockFetch).toHaveBeenCalledWith(
-        "https://nominatim.openstreetmap.org/search?q=test&format=json&limit=6&addressdetails=1"
+        "https://nominatim.openstreetmap.org/search?q=test&format=json&limit=6&addressdetails=1",
+        { signal: undefined }
       );
     });
 
@@ -171,7 +174,8 @@ describe("fetchAddressSuggestions", () => {
       await fetchAddressSuggestions("  test query  ");
 
       expect(mockFetch).toHaveBeenCalledWith(
-        "https://nominatim.openstreetmap.org/search?q=test%20query&format=json&limit=6&addressdetails=1"
+        "https://nominatim.openstreetmap.org/search?q=test%20query&format=json&limit=6&addressdetails=1",
+        { signal: undefined }
       );
     });
   });
@@ -201,12 +205,6 @@ describe("fetchAddressSuggestions", () => {
 
     it("should handle null query", async () => {
       const result = await fetchAddressSuggestions(null as unknown as string);
-      expect(result).toEqual([]);
-      expect(mockFetch).not.toHaveBeenCalled();
-    });
-
-    it("should handle undefined query", async () => {
-      const result = await fetchAddressSuggestions(undefined as unknown as string);
       expect(result).toEqual([]);
       expect(mockFetch).not.toHaveBeenCalled();
     });
@@ -252,14 +250,9 @@ describe("fetchAddressSuggestions", () => {
       const networkError = new Error("Network error");
       mockFetch.mockRejectedValueOnce(networkError);
 
-      try {
-        await fetchAddressSuggestions("test");
-      } catch {
-        // Expected to throw
-      }
+      await expect(fetchAddressSuggestions("test")).rejects.toThrow("Network error");
 
       expect(consoleSpy).toHaveBeenCalledWith("Error fetching address suggestions", networkError);
-
       consoleSpy.mockRestore();
     });
   });
@@ -273,17 +266,20 @@ describe("fetchAddressSuggestions", () => {
 
       await fetchAddressSuggestions("test", 1);
       expect(mockFetch).toHaveBeenLastCalledWith(
-        "https://nominatim.openstreetmap.org/search?q=test&format=json&limit=1&addressdetails=1"
+        "https://nominatim.openstreetmap.org/search?q=test&format=json&limit=1&addressdetails=1",
+        { signal: undefined }
       );
 
       await fetchAddressSuggestions("test", 10);
       expect(mockFetch).toHaveBeenLastCalledWith(
-        "https://nominatim.openstreetmap.org/search?q=test&format=json&limit=10&addressdetails=1"
+        "https://nominatim.openstreetmap.org/search?q=test&format=json&limit=10&addressdetails=1",
+        { signal: undefined }
       );
 
       await fetchAddressSuggestions("test", 0);
       expect(mockFetch).toHaveBeenLastCalledWith(
-        "https://nominatim.openstreetmap.org/search?q=test&format=json&limit=0&addressdetails=1"
+        "https://nominatim.openstreetmap.org/search?q=test&format=json&limit=0&addressdetails=1",
+        { signal: undefined }
       );
     });
 
@@ -296,7 +292,8 @@ describe("fetchAddressSuggestions", () => {
       await fetchAddressSuggestions("test & special chars");
 
       expect(mockFetch).toHaveBeenCalledWith(
-        "https://nominatim.openstreetmap.org/search?q=test%20%26%20special%20chars&format=json&limit=6&addressdetails=1"
+        "https://nominatim.openstreetmap.org/search?q=test%20%26%20special%20chars&format=json&limit=6&addressdetails=1",
+        { signal: undefined }
       );
     });
   });

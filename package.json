@@ -47,5 +47,8 @@
       "cd frontend && npm run typecheck"
     ]
   },
-  "resolutions": {}
+  "resolutions": {},
+  "dependencies": {
+    "use-debounce": "10.0.5"
+  }
 }

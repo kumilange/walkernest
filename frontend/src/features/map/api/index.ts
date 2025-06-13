@@ -188,7 +188,8 @@ export async function fetchRoute(coordinates: string) {
 
 export async function fetchAddressSuggestions(
   query: string,
-  limit = 6
+  limit = 6,
+  signal?: AbortSignal
 ): Promise<AutocompleteResult[]> {
   if (!query || query.trim().length < 3) {
     return [];
@@ -199,7 +200,7 @@ export async function fetchAddressSuggestions(
   )}&format=json&limit=${limit}&addressdetails=1`;
 
   try {
-    const response = await fetch(url);
+    const response = await fetch(url, { signal });
     if (!response.ok) {
       throw new Error("Network response was not ok");
     }
