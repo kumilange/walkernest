@@ -64,8 +64,9 @@ vi.mock("@/features/map/components/CardContent/check-route/select-point", () => 
     setIsPointSelecting: (selecting: boolean) => void;
     onGeocodeAddress: (address: string, isStarting: boolean) => Promise<void>;
   }) => (
-    <button
-      type="button"
+    <div
+      role="button"
+      tabIndex={0}
       data-testid={`mock-select-point-${isStarting ? "starting" : "ending"}`}
       onClick={() => setIsPointSelecting(!isPointSelecting)}
       onKeyDown={(e: React.KeyboardEvent) => {
@@ -103,7 +104,7 @@ vi.mock("@/features/map/components/CardContent/check-route/select-point", () => 
       >
         Geocode Address
       </button>
-    </button>
+    </div>
   ),
 }));
 

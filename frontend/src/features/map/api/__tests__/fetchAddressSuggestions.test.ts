@@ -214,6 +214,7 @@ describe("fetchAddressSuggestions", () => {
 
     describe("network failure cases", () => {
         it("should throw error when network response is not ok", async () => {
+            const consoleSpy = vi.spyOn(console, "error").mockImplementation(() => { });
             mockFetch.mockResolvedValueOnce({
                 ok: false,
                 status: 500,
@@ -221,16 +222,20 @@ describe("fetchAddressSuggestions", () => {
             });
 
             await expect(fetchAddressSuggestions("test")).rejects.toThrow("Network response was not ok");
+            consoleSpy.mockRestore();
         });
 
         it("should throw error when fetch fails", async () => {
+            const consoleSpy = vi.spyOn(console, "error").mockImplementation(() => { });
             const networkError = new Error("Network error");
             mockFetch.mockRejectedValueOnce(networkError);
 
             await expect(fetchAddressSuggestions("test")).rejects.toThrow("Network error");
+            consoleSpy.mockRestore();
         });
 
         it("should throw error when JSON parsing fails", async () => {
+            const consoleSpy = vi.spyOn(console, "error").mockImplementation(() => { });
             mockFetch.mockResolvedValueOnce({
                 ok: true,
                 json: async () => {
@@ -239,6 +244,7 @@ describe("fetchAddressSuggestions", () => {
             });
 
             await expect(fetchAddressSuggestions("test")).rejects.toThrow("Invalid JSON");
+            consoleSpy.mockRestore();
         });
 
         it("should log errors to console", async () => {

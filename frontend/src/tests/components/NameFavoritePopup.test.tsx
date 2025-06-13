@@ -208,7 +208,12 @@ vi.mock("@/features/map/components/NameFavoritePopup", () => ({
             <div data-testid="form-item">
               <div data-testid="form-label">Name your favorite item</div>
               <div data-testid="form-control">
-                <input data-testid="mock-input" name="favorite" value="Default Favorite Name" />
+                <input
+                  data-testid="mock-input"
+                  name="favorite"
+                  value="Default Favorite Name"
+                  readOnly
+                />
               </div>
               <div data-testid="form-message" />
             </div>
