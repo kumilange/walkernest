@@ -14,7 +14,7 @@ export default function MenuActionTrigger({ icon, tooltip }: MenuActionTriggerPr
       <Tooltip>
         <TooltipTrigger asChild>
           <PopoverTrigger asChild>
-            <Button variant="outline" size="icon">
+            <Button variant="outline" size="icon" aria-label={tooltip}>
               {icon}
             </Button>
           </PopoverTrigger>

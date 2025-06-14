@@ -96,25 +96,16 @@ The objective is to deliver an accessible, performant autocomplete dropdown inte
 
 ### Phase 3 – UX Polish & Accessibility (REQ-14 → REQ-15)
 
-8. **Task 3.1 – Error & fallback handling**
-   - **Overview**: Implement cached-result fallback; show toast on failure.
-   - **Completion Criteria**:
-     - [] Integration test (Playwright+MSW) simulates network fail then success.
-   - **Operational Confirmation**:
-     - [] `npm run test` green.
-     - [] `npm run check:biome` zero issues.
-     - [] `npm run typecheck` zero issues.
-
-9. **Task 3.2 – Accessibility & focus management**
+8. **Task 3.1 – Accessibility & focus management**
    - **Overview**: Ensure `role="combobox"`, correct `aria-expanded`, focus returns to input after selection.
    - **Completion Criteria**:
-     - [] RTL axe accessibility test passes.
+     - [x] RTL axe accessibility test passes.
    - **Operational Confirmation**:
-     - [] `npm run test` green.
-     - [] `npm run check:biome` zero issues.
-     - [] `npm run typecheck` zero issues.
+     - [x] `npm run test` green.
+     - [x] `npm run check:biome` zero issues.
+     - [x] `npm run typecheck` zero issues.
 
-10. **Task 3.3 – Touch/mobile validation**
+9. **Task 3.2 – Touch/mobile validation**
     - **Overview**: Verify dropdown interactions on mobile viewport.
     - **Completion Criteria**:
       - [] Playwright test emulating iPhone selects suggestion successfully.
@@ -122,6 +113,15 @@ The objective is to deliver an accessible, performant autocomplete dropdown inte
       - [] `npm run test` green.
       - [] `npm run check:biome` zero issues.
       - [] `npm run typecheck` zero issues.
+
+10. **Task 3.3 – Error & fallback handling**
+   - **Overview**: Implement cached-result fallback; show toast on failure.
+   - **Completion Criteria**:
+     - [] Integration test (Playwright+MSW) simulates network fail then success.
+   - **Operational Confirmation**:
+     - [] `npm run test` green.
+     - [] `npm run check:biome` zero issues.
+     - [] `npm run typecheck` zero issues.
 
 ### Phase 4 – Documentation & Clean-up
 

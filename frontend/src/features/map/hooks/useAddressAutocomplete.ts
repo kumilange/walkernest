@@ -27,10 +27,9 @@ class LRUCache {
       return null;
     }
 
-    const cityChanged = currentCity && entry.city && entry.city !== currentCity;
-
-    if (cityChanged) {
-      this.cache.delete(key);
+    // Check if the cached entry matches the current city context
+    if (currentCity && entry.city && entry.city !== currentCity) {
+      // City context has changed, don't use this cached entry
       return null;
     }
 
@@ -41,7 +40,7 @@ class LRUCache {
   }
 
   set(key: string, data: AutocompleteResult[], currentCity?: string): void {
-    // Remove oldest entries if cache is full
+    // Remove oldest entries if at capacity
     if (this.cache.size >= this.maxSize) {
       const firstKey = this.cache.keys().next().value;
       if (firstKey) {
@@ -49,10 +48,7 @@ class LRUCache {
       }
     }
 
-    this.cache.set(key, {
-      data,
-      city: currentCity,
-    });
+    this.cache.set(key, { data, city: currentCity });
   }
 
   clear(): void {
@@ -69,6 +65,7 @@ export function useAddressAutocomplete(options: UseAddressAutocompleteOptions = 
   const { currentCity, mapCenter } = options;
   const [suggestions, setSuggestions] = useState<AutocompleteResult[]>([]);
   const [isLoading, setIsLoading] = useState(false);
+  const [selectedIndex, setSelectedIndex] = useState(-1);
   const abortControllerRef = useRef<AbortController | null>(null);
   const cacheRef = useRef(new LRUCache(CACHE_SIZE));
 
@@ -145,6 +142,7 @@ export function useAddressAutocomplete(options: UseAddressAutocompleteOptions = 
         if (!controller.signal.aborted) {
           const processedResults = processResults(results);
           setSuggestions(processedResults);
+          setSelectedIndex(-1); // Reset selection when new results arrive
           // Cache the results (unsorted to preserve original API response)
           cacheRef.current.set(cacheKey, results, currentCity);
         }
@@ -152,6 +150,7 @@ export function useAddressAutocomplete(options: UseAddressAutocompleteOptions = 
         if ((error as Error).name !== "AbortError") {
           console.error("Failed to fetch address suggestions:", error);
           setSuggestions([]);
+          setSelectedIndex(-1);
         }
       } finally {
         if (!controller.signal.aborted) {
@@ -169,6 +168,7 @@ export function useAddressAutocomplete(options: UseAddressAutocompleteOptions = 
       if (!query || query.trim().length === 0) {
         setSuggestions([]);
         setIsLoading(false);
+        setSelectedIndex(-1);
         debouncedFetchSuggestions.cancel();
         return;
       }
@@ -176,6 +176,7 @@ export function useAddressAutocomplete(options: UseAddressAutocompleteOptions = 
       if (query.trim().length < 3) {
         setIsLoading(false);
         setSuggestions([]);
+        setSelectedIndex(-1);
         debouncedFetchSuggestions.cancel();
         return;
       }
@@ -189,6 +190,7 @@ export function useAddressAutocomplete(options: UseAddressAutocompleteOptions = 
       if (cachedResults) {
         const processedCachedResults = processResults(cachedResults);
         setSuggestions(processedCachedResults);
+        setSelectedIndex(-1); // Reset selection for cached results
         setIsLoading(false);
         // Cancel any pending debounced calls
         debouncedFetchSuggestions.cancel();
@@ -207,9 +209,41 @@ export function useAddressAutocomplete(options: UseAddressAutocompleteOptions = 
       // eslint-disable-next-line no-console
       console.log("Selected:", result);
       setSuggestions([]);
+      setSelectedIndex(-1);
       debouncedFetchSuggestions.cancel();
     },
     [debouncedFetchSuggestions]
+  );
+
+  // Keyboard navigation handlers
+  const handleKeyDown = useCallback(
+    (event: React.KeyboardEvent) => {
+      if (suggestions.length === 0) return;
+
+      switch (event.key) {
+        case "ArrowDown":
+          event.preventDefault();
+          setSelectedIndex((prev) => (prev < suggestions.length - 1 ? prev + 1 : prev));
+          break;
+        case "ArrowUp":
+          event.preventDefault();
+          setSelectedIndex((prev) => (prev > 0 ? prev - 1 : -1));
+          break;
+        case "Enter":
+          event.preventDefault();
+          if (selectedIndex >= 0 && selectedIndex < suggestions.length) {
+            handleSelect(suggestions[selectedIndex]);
+          }
+          break;
+        case "Escape":
+          event.preventDefault();
+          setSuggestions([]);
+          setSelectedIndex(-1);
+          debouncedFetchSuggestions.cancel();
+          break;
+      }
+    },
+    [suggestions, selectedIndex, handleSelect, debouncedFetchSuggestions]
   );
 
   // Function to handle geocoding search (for Enter key) using the same cache and API
@@ -264,9 +298,10 @@ export function useAddressAutocomplete(options: UseAddressAutocompleteOptions = 
   return {
     suggestions,
     isLoading,
-    selectedIdx: -1,
+    selectedIndex,
     handleInput,
     handleSelect,
+    handleKeyDown,
     handleGeocodeSearch,
   };
 }

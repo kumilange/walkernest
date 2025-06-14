@@ -8,7 +8,7 @@ import { useAddressAutocomplete } from "@/features/map/hooks/useAddressAutocompl
 import type { Route, RoutePoint } from "@/types";
 import { CircleX, Locate, LocateFixed, MapPin } from "lucide-react";
 import { LngLat } from "maplibre-gl";
-import { useCallback, useEffect, useRef, useState } from "react";
+import { useCallback, useEffect, useId, useRef, useState } from "react";
 import useEventHandlers from "./hooks/use-event-handlers";
 
 export default function SelectPoint({
@@ -35,14 +35,17 @@ export default function SelectPoint({
   const [addressInput, setAddressInput] = useState("");
   const [isGeocoding, setIsGeocoding] = useState(false);
   const inputRef = useRef<HTMLInputElement>(null);
+  const rawListboxId = useId();
+  // Convert React's useId output to valid HTML ID by replacing colons with underscores
+  const listboxId = rawListboxId.replace(/:/g, "_");
   const { map } = useCityMap();
 
   // Get map center for geographic prioritization
   const mapCenter = map?.getCenter()
     ? {
-        lat: map.getCenter().lat,
-        lng: map.getCenter().lng,
-      }
+      lat: map.getCenter().lat,
+      lng: map.getCenter().lng,
+    }
     : undefined;
 
   const autocomplete = useAddressAutocomplete({ mapCenter });
@@ -112,14 +115,19 @@ export default function SelectPoint({
     setIsGeocoding,
   });
 
-  // Handle Enter key press
+  // Handle keyboard navigation and Enter key press
   const handleKeyDown = useCallback(
     (e: React.KeyboardEvent<HTMLInputElement>) => {
-      if (e.key === "Enter") {
+      // First let the autocomplete handle keyboard navigation
+      autocomplete.handleKeyDown(e);
+
+      // If Enter was pressed and no suggestion was selected, do manual search
+      if (e.key === "Enter" && autocomplete.selectedIndex === -1) {
+        e.preventDefault();
         handleAddressSearch();
       }
     },
-    [handleAddressSearch]
+    [autocomplete, handleAddressSearch]
   );
 
   const onNewInputChange = (e: React.ChangeEvent<HTMLInputElement>) => {
@@ -140,7 +148,10 @@ export default function SelectPoint({
     }
 
     autocomplete.handleSelect(suggestion);
-    inputRef.current?.focus();
+    // Focus returns to input after selection for accessibility
+    setTimeout(() => {
+      inputRef.current?.focus();
+    }, 0);
   };
 
   const classes = `w-[16px] w-4 h-4 ${point ? "text-green-600" : ""}`;
@@ -154,6 +165,10 @@ export default function SelectPoint({
   }, [point]);
 
   const isPopoverOpen = autocomplete.suggestions.length > 0 || autocomplete.isLoading;
+  const activeDescendant =
+    autocomplete.selectedIndex >= 0
+      ? `${listboxId}-option-${autocomplete.selectedIndex}`
+      : undefined;
 
   return (
     <div className="flex w-full items-center gap-1">
@@ -166,15 +181,20 @@ export default function SelectPoint({
           <PopoverAnchor>
             <Input
               ref={inputRef}
+              role="combobox"
+              aria-expanded={isPopoverOpen}
+              aria-controls={isPopoverOpen ? listboxId : undefined}
+              aria-activedescendant={activeDescendant}
+              aria-autocomplete="list"
+              aria-label={`Enter ${isStarting ? "starting" : "ending"} address`}
               placeholder={`Enter ${isStarting ? "starting" : "ending"} address`}
               value={addressInput}
               onChange={onNewInputChange}
               onKeyDown={handleKeyDown}
               onFocus={handleFocus}
               disabled={isGeocoding || isRouteFetching}
-              className={`w-full focus:border-green-500 ${
-                isPointSelecting ? "border-green-500 bg-green-50" : ""
-              }`}
+              className={`w-full focus:border-green-500 ${isPointSelecting ? "border-green-500 bg-green-50" : ""
+                }`}
             />
           </PopoverAnchor>
         </div>
@@ -185,6 +205,8 @@ export default function SelectPoint({
           <AddressSuggestions
             suggestions={autocomplete.suggestions}
             isLoading={autocomplete.isLoading}
+            selectedIndex={autocomplete.selectedIndex}
+            listboxId={listboxId}
             onSelect={handleSuggestionSelect}
           />
         </PopoverContent>

@@ -23,6 +23,7 @@ export default function CloseButton({ handleClose }: CloseButtonProps) {
       className="h-6 w-6"
       onClick={handleClose}
       onTouchEnd={handleCloseTouch}
+      aria-label="Close"
     >
       <X className="h-4 w-4" />
     </Button>
