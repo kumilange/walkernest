@@ -53,7 +53,7 @@ export default function AddressSuggestions({
             >
               <div className="flex w-full items-center gap-2">
                 {hasError && <Clock className="h-3 w-3 flex-shrink-0 text-amber-500" />}
-                <span className="truncate">{suggestion.displayName}</span>
+                <span className="line-clamp-2">{suggestion.displayName}</span>
               </div>
             </CommandItem>
           ))}

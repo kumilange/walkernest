@@ -231,8 +231,14 @@ export default function SelectPoint({
           type="button"
           size="icon"
           variant="ghost"
-          onClick={handleClearPoint}
-          onTouchEnd={handleClearPointTouch}
+          onClick={() => {
+            handleClearPoint();
+            autocomplete.handleInput("");
+          }}
+          onTouchEnd={(e) => {
+            handleClearPointTouch(e);
+            autocomplete.handleInput("");
+          }}
           disabled={isGeocoding || isRouteFetching}
           title="Clear point"
           className="h-4 w-4 hover:bg-transparent hover:text-current"

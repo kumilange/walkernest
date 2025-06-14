@@ -7,112 +7,112 @@ import useFeaturePopup from "./useFeaturePopup";
 const mockSetIsFavPopupOpen = vi.fn();
 
 vi.mock("@/features/map/stores/favoritesAtoms", () => ({
-    useAtomIsFavPopupOpen: () => ({
-        isFavPopupOpen: false,
-        setIsFavPopupOpen: mockSetIsFavPopupOpen,
-    }),
+  useAtomIsFavPopupOpen: () => ({
+    isFavPopupOpen: false,
+    setIsFavPopupOpen: mockSetIsFavPopupOpen,
+  }),
 }));
 
 describe("useFeaturePopup", () => {
-    beforeEach(() => {
-        vi.clearAllMocks();
+  beforeEach(() => {
+    vi.clearAllMocks();
+  });
+
+  describe("initial state", () => {
+    it("should initialize with default values", () => {
+      // Arrange & Act
+      const { result } = renderHook(() => useFeaturePopup());
+
+      // Assert
+      expect(result.current.lngLat).toBeNull();
+      expect(result.current.properties).toBeNull();
+      expect(result.current.isPopupOpen).toBe(false);
+      expect(result.current.isFavPopupOpen).toBe(false);
+    });
+  });
+
+  describe("state updates", () => {
+    it("should update lngLat when setLngLat is called", async () => {
+      // Arrange
+      const { result } = renderHook(() => useFeaturePopup());
+      const mockLngLat = { lng: -105, lat: 40 } as LngLat;
+
+      // Act
+      act(() => {
+        result.current.setLngLat(mockLngLat);
+      });
+
+      // Assert
+      await waitFor(() => {
+        expect(result.current.lngLat).toEqual(mockLngLat);
+      });
     });
 
-    describe("initial state", () => {
-        it("should initialize with default values", () => {
-            // Arrange & Act
-            const { result } = renderHook(() => useFeaturePopup());
+    it("should update popup open state when setIsPopupOpen is called", async () => {
+      // Arrange
+      const { result } = renderHook(() => useFeaturePopup());
 
-            // Assert
-            expect(result.current.lngLat).toBeNull();
-            expect(result.current.properties).toBeNull();
-            expect(result.current.isPopupOpen).toBe(false);
-            expect(result.current.isFavPopupOpen).toBe(false);
-        });
+      // Act
+      act(() => {
+        result.current.setIsPopupOpen(true);
+      });
+
+      // Assert
+      await waitFor(() => {
+        expect(result.current.isPopupOpen).toBe(true);
+      });
     });
 
-    describe("state updates", () => {
-        it("should update lngLat when setLngLat is called", async () => {
-            // Arrange
-            const { result } = renderHook(() => useFeaturePopup());
-            const mockLngLat = { lng: -105, lat: 40 } as LngLat;
+    it("should update properties when setProperties is called", async () => {
+      // Arrange
+      const { result } = renderHook(() => useFeaturePopup());
+      const mockProperties = { id: "123", name: "Test Location" };
 
-            // Act
-            act(() => {
-                result.current.setLngLat(mockLngLat);
-            });
+      // Act
+      act(() => {
+        result.current.setProperties(mockProperties);
+      });
 
-            // Assert
-            await waitFor(() => {
-                expect(result.current.lngLat).toEqual(mockLngLat);
-            });
-        });
-
-        it("should update popup open state when setIsPopupOpen is called", async () => {
-            // Arrange
-            const { result } = renderHook(() => useFeaturePopup());
-
-            // Act
-            act(() => {
-                result.current.setIsPopupOpen(true);
-            });
-
-            // Assert
-            await waitFor(() => {
-                expect(result.current.isPopupOpen).toBe(true);
-            });
-        });
-
-        it("should update properties when setProperties is called", async () => {
-            // Arrange
-            const { result } = renderHook(() => useFeaturePopup());
-            const mockProperties = { id: "123", name: "Test Location" };
-
-            // Act
-            act(() => {
-                result.current.setProperties(mockProperties);
-            });
-
-            // Assert
-            await waitFor(() => {
-                expect(result.current.properties).toEqual(mockProperties);
-            });
-        });
+      // Assert
+      await waitFor(() => {
+        expect(result.current.properties).toEqual(mockProperties);
+      });
     });
+  });
 
-    describe("popup close handling", () => {
-        it("should reset all state when handlePopupClose is called", async () => {
-            // Arrange
-            const { result } = renderHook(() => useFeaturePopup());
-            const mockLngLat = { lng: -105, lat: 40 } as LngLat;
-            const mockProperties = { id: "123", name: "Test Location" };
+  describe("popup close handling", () => {
+    it("should reset all state when handlePopupClose is called", async () => {
+      // Arrange
+      const { result } = renderHook(() => useFeaturePopup());
+      const mockLngLat = { lng: -105, lat: 40 } as LngLat;
+      const mockProperties = { id: "123", name: "Test Location" };
 
-            // Set initial state
-            act(() => {
-                result.current.setLngLat(mockLngLat);
-                result.current.setIsPopupOpen(true);
-                result.current.setProperties(mockProperties);
-            });
+      // Set initial state
+      act(() => {
+        result.current.setLngLat(mockLngLat);
+        result.current.setIsPopupOpen(true);
+        result.current.setProperties(mockProperties);
+      });
 
-            // Verify initial state is set
-            await waitFor(() => {
-                expect(result.current.lngLat).toEqual(mockLngLat);
-                expect(result.current.isPopupOpen).toBe(true);
-                expect(result.current.properties).toEqual(mockProperties);
-            });
+      // Verify initial state is set
+      await waitFor(() => {
+        expect(result.current.lngLat).toEqual(mockLngLat);
+        expect(result.current.isPopupOpen).toBe(true);
+        expect(result.current.properties).toEqual(mockProperties);
+      });
 
-            // Act
-            act(() => {
-                result.current.handlePopupClose();
-            });
+      // Act
+      act(() => {
+        result.current.handlePopupClose();
+      });
 
-            // Assert
-            await waitFor(() => {
-                expect(result.current.lngLat).toBeNull();
-                expect(result.current.properties).toBeNull();
-                expect(result.current.isPopupOpen).toBe(false);
-                expect(mockSetIsFavPopupOpen).toHaveBeenCalledWith(false);
-            });
-        });
+      // Assert
+      await waitFor(() => {
+        expect(result.current.lngLat).toBeNull();
+        expect(result.current.properties).toBeNull();
+        expect(result.current.isPopupOpen).toBe(false);
+        expect(mockSetIsFavPopupOpen).toHaveBeenCalledWith(false);
+      });
     });
-}); 
+  });
+});
