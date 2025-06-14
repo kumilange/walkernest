@@ -29,9 +29,9 @@ The objective is to deliver an accessible, performant autocomplete dropdown inte
      - [x] Function respects `limit` param (default 6).
      - [x] Lints & type-checks pass.
    - **Operational Confirmation**:
-     - [x] `npm run test` green.
-     - [x] `npm run check:biome` zero issues.
-     - [x] `npm run typecheck` zero issues.
+      - [x] `npm run test:unit` green.
+      - [x] `npm run check` zero issues.
+      - [x] `npm run typecheck` zero issues.
 
 2. **Task 1.2 – `useAddressAutocomplete` hook skeleton**
    - **Overview**: Create a hook returning `{ suggestions, isLoading, selectedIdx, handleInput, handleSelect }` but with hard-coded mock data for now.
@@ -39,9 +39,9 @@ The objective is to deliver an accessible, performant autocomplete dropdown inte
      - [x] Hook compiles & returns default empty state.
      - [x] Unit test verifies debounce with `vi.useFakeTimers()`.
    - **Operational Confirmation**:
-     - [x] `npm run test` green.
-     - [x] `npm run check:biome` zero issues.
-     - [x] `npm run typecheck` zero issues.
+      - [x] `npm run test:unit` green.
+      - [x] `npm run check` zero issues.
+      - [x] `npm run typecheck` zero issues.
 
 3. **Task 1.3 – `AddressSuggestions` dropdown component**
    - **Overview**: Build dropdown using *shadcn/ui* `Popover` + `CommandList`/`CommandItem` with keyboard navigation & loading/empty states.
@@ -49,9 +49,9 @@ The objective is to deliver an accessible, performant autocomplete dropdown inte
      - [x] Snapshot test verifies render of 3 states: loading, empty, list.
      - [x] ARIA roles inherit from `cmdk`.
    - **Operational Confirmation**:
-     - [x] `npm run test` green.
-     - [x] `npm run check:biome` zero issues.
-     - [x] `npm run typecheck` zero issues.
+      - [x] `npm run test:unit` green.
+      - [x] `npm run check` zero issues.
+      - [x] `npm run typecheck` zero issues.
 
 4. **Task 1.4 – Integrate dropdown into `SelectPoint`**
    - **Overview**: Replace plain `<Input>` with wrapped `Popover` showing suggestions; wire to mock hook.
@@ -59,9 +59,9 @@ The objective is to deliver an accessible, performant autocomplete dropdown inte
      - [x] `SelectPoint` renders unchanged visually when no suggestions.
      - [x] Keyboard nav selects item & triggers `onSelect` callback (unit test with RTL).
    - **Operational Confirmation**:
-     - [x] `npm run test` green.
-     - [x] `npm run check:biome` zero issues.
-     - [x] `npm run typecheck` zero issues.
+      - [x] `npm run test:unit` green.
+      - [x] `npm run check` zero issues.
+      - [x] `npm run typecheck` zero issues.
 
 ### Phase 2 – Data, Caching & Performance (REQ-11 → REQ-13)
 
@@ -70,29 +70,29 @@ The objective is to deliver an accessible, performant autocomplete dropdown inte
    - **Completion Criteria**:
      - [x] Unit test ensures max 1 fetch/sec when typing quickly.
      - [x] Requests cancelled on new query.
-   - **Operational Confirmation**:
-     - [x] `npm run test` green.
-     - [x] `npm run check:biome` zero issues.
-     - [x] `npm run typecheck` zero issues.
+    - **Operational Confirmation**:
+      - [x] `npm run test:unit` green.
+      - [x] `npm run check` zero issues.
+      - [x] `npm run typecheck` zero issues.
 
 6. **Task 2.2 – Client-side cache (LRU)**
    - **Overview**: Add Map-based cache (size 100, TTL 5 min) to hook.
    - **Completion Criteria**:
      - [x] Cache hit prevents network call (mock verified).
      - [x] Cache invalidates after TTL or city change.
-   - **Operational Confirmation**:
-     - [x] `npm run test` green.
-     - [x] `npm run check:biome` zero issues.
-     - [x] `npm run typecheck` zero issues.
+    - **Operational Confirmation**:
+      - [x] `npm run test:unit` green.
+      - [x] `npm run check` zero issues.
+      - [x] `npm run typecheck` zero issues.
 
 7. **Task 2.3 – Geographic prioritisation**
    - **Overview**: Sort results by distance from map centre using haversine util.
    - **Completion Criteria**:
      - [x] Unit test supplies mock centre & asserts order.
-   - **Operational Confirmation**:
-     - [x] `npm run test:unit` green.
-     - [x] `npm run check` zero issues.
-     - [x] `npm run typecheck` zero issues.
+    - **Operational Confirmation**:
+      - [x] `npm run test:unit` green.
+      - [x] `npm run check` zero issues.
+      - [x] `npm run typecheck` zero issues.
 
 ### Phase 3 – UX Polish & Accessibility (REQ-14 → REQ-15)
 
@@ -100,28 +100,28 @@ The objective is to deliver an accessible, performant autocomplete dropdown inte
    - **Overview**: Ensure `role="combobox"`, correct `aria-expanded`, focus returns to input after selection.
    - **Completion Criteria**:
      - [x] RTL axe accessibility test passes.
-   - **Operational Confirmation**:
-     - [x] `npm run test` green.
-     - [x] `npm run check:biome` zero issues.
-     - [x] `npm run typecheck` zero issues.
+    - **Operational Confirmation**:
+      - [x] `npm run test:unit` green.
+      - [x] `npm run check` zero issues.
+      - [x] `npm run typecheck` zero issues.
 
 9. **Task 3.2 – Touch/mobile validation**
     - **Overview**: Verify dropdown interactions on mobile viewport.
     - **Completion Criteria**:
-      - [] Playwright test emulating iPhone selects suggestion successfully.
+      - [x] Playwright test emulating iPhone selects suggestion successfully.
     - **Operational Confirmation**:
-      - [] `npm run test` green.
-      - [] `npm run check:biome` zero issues.
-      - [] `npm run typecheck` zero issues.
+      - [x] `npm run test:unit` green.
+      - [x] `npm run check` zero issues.
+      - [x] `npm run typecheck` zero issues.
 
 10. **Task 3.3 – Error & fallback handling**
    - **Overview**: Implement cached-result fallback; show toast on failure.
    - **Completion Criteria**:
      - [] Integration test (Playwright+MSW) simulates network fail then success.
    - **Operational Confirmation**:
-     - [] `npm run test` green.
-     - [] `npm run check:biome` zero issues.
-     - [] `npm run typecheck` zero issues.
+      - [] `npm run test:unit` green.
+      - [] `npm run check` zero issues.
+      - [] `npm run typecheck` zero issues.
 
 ### Phase 4 – Documentation & Clean-up
 

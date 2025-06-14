@@ -43,9 +43,9 @@ export default function SelectPoint({
   // Get map center for geographic prioritization
   const mapCenter = map?.getCenter()
     ? {
-      lat: map.getCenter().lat,
-      lng: map.getCenter().lng,
-    }
+        lat: map.getCenter().lat,
+        lng: map.getCenter().lng,
+      }
     : undefined;
 
   const autocomplete = useAddressAutocomplete({ mapCenter });
@@ -193,8 +193,9 @@ export default function SelectPoint({
               onKeyDown={handleKeyDown}
               onFocus={handleFocus}
               disabled={isGeocoding || isRouteFetching}
-              className={`w-full focus:border-green-500 ${isPointSelecting ? "border-green-500 bg-green-50" : ""
-                }`}
+              className={`w-full focus:border-green-500 ${
+                isPointSelecting ? "border-green-500 bg-green-50" : ""
+              }`}
             />
           </PopoverAnchor>
         </div>

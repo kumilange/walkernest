@@ -34,7 +34,7 @@ describe("AddressSuggestions", () => {
 
   it("renders a list of suggestions when not loading and suggestions are present", () => {
     render(
-      <AddressSuggestions suggestions={mockSuggestions} isLoading={false} onSelect={() => { }} />
+      <AddressSuggestions suggestions={mockSuggestions} isLoading={false} onSelect={() => {}} />
     );
     expect(screen.getByText("123 Main St, Anytown, USA")).toBeInTheDocument();
     expect(screen.getByText("456 Oak Ave, Anytown, USA")).toBeInTheDocument();
@@ -72,14 +72,14 @@ describe("AddressSuggestions", () => {
   });
 
   it("renders loading skeletons when isLoading is true", () => {
-    render(<AddressSuggestions suggestions={[]} isLoading={true} onSelect={() => { }} />);
+    render(<AddressSuggestions suggestions={[]} isLoading={true} onSelect={() => {}} />);
 
     const skeletons = screen.getAllByRole("alert");
     expect(skeletons).toHaveLength(3);
   });
 
   it('renders "No results found." when there are no suggestions and not loading', () => {
-    render(<AddressSuggestions suggestions={[]} isLoading={false} onSelect={() => { }} />);
+    render(<AddressSuggestions suggestions={[]} isLoading={false} onSelect={() => {}} />);
     expect(screen.getByText("No results found.")).toBeInTheDocument();
   });
 });
