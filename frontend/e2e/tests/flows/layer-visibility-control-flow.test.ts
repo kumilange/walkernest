@@ -1,8 +1,6 @@
 import { expect, test } from "@playwright/test";
 
 /**
- * TASK-013: Layer Visibility Control Flow Implementation
- *
  * Integration flow for Toggle Layers → Real-time Updates → Visual Feedback sequence
  * Layer controls are only accessible after analysis completion
  */

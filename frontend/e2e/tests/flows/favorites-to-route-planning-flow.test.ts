@@ -1,8 +1,6 @@
 import { expect, test } from "@playwright/test";
 
 /**
- * TASK-012: Favorites to Route Planning Flow Implementation
- *
  * Integration flow for Select Favorite → Map FlyTo → Route Planning sequence
  * Important workflow connecting saved locations to routing
  */

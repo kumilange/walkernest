@@ -13,8 +13,6 @@ interface WindowWithMap extends Window {
 }
 
 /**
- * TASK-010: Primary Data Loading Flow Implementation
- *
  * Integration flow testing for City Selection → Amenities Load → Analysis Trigger → Results Display sequence
  * Foundation flow for all subsequent interactions
  *

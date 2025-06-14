@@ -1,8 +1,6 @@
 import { expect, test } from "@playwright/test";
 
 /**
- * TASK-011: Feature Interaction & Favorites Flow Implementation
- *
  * Integration flow for Feature Click → Popup → Favorite → Name → Save sequence
  * Critical user journey for favorite management
  */

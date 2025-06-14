@@ -2,8 +2,6 @@ import { expect, test } from "@playwright/test";
 import { CheckRoutePage } from "../page-objects/components/CheckRoutePage";
 
 /**
- * Task 3.2 - Address Autocomplete Mobile Touch Validation
- *
  * Tests address autocomplete dropdown interactions on mobile viewport
  * with iPhone emulation to ensure touch-based selection works correctly.
  *
