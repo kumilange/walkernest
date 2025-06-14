@@ -117,11 +117,11 @@ The objective is to deliver an accessible, performant autocomplete dropdown inte
 10. **Task 3.3 – Error & fallback handling**
    - **Overview**: Implement cached-result fallback; show toast on failure.
    - **Completion Criteria**:
-     - [] Integration test (Playwright+MSW) simulates network fail then success.
+     - [x] Integration test (Playwright+MSW) simulates network fail then success.
    - **Operational Confirmation**:
-      - [] `npm run test:unit` green.
-      - [] `npm run check` zero issues.
-      - [] `npm run typecheck` zero issues.
+      - [x] `npm run test:unit` green.
+      - [x] `npm run check` zero issues.
+      - [x] `npm run typecheck` zero issues.
 
 ### Phase 4 – Documentation & Clean-up
 

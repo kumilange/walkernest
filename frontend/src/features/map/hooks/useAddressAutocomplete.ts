@@ -1,5 +1,6 @@
 import { fetchAddressSuggestions } from "@/features/map/api";
 import type { AutocompleteResult } from "@/features/map/api";
+import { toast } from "@/hooks/use-toast";
 import type { Coordinates } from "@/utils/geo";
 import { getDistanceBetweenCoordinates } from "@/utils/geo";
 import { useCallback, useEffect, useRef, useState } from "react";
@@ -7,10 +8,12 @@ import { useDebouncedCallback } from "use-debounce";
 
 const DEBOUNCE_TIMEOUT = 300;
 const CACHE_SIZE = 100;
+const CACHE_TTL = 5 * 60 * 1000; // 5 minutes
 
 interface CacheEntry {
   data: AutocompleteResult[];
   city?: string;
+  timestamp: number;
 }
 
 class LRUCache {
@@ -27,9 +30,28 @@ class LRUCache {
       return null;
     }
 
+    // Check if entry has expired
+    if (Date.now() - entry.timestamp > CACHE_TTL) {
+      this.cache.delete(key);
+      return null;
+    }
+
     // Check if the cached entry matches the current city context
     if (currentCity && entry.city && entry.city !== currentCity) {
       // City context has changed, don't use this cached entry
+      return null;
+    }
+
+    // Move to end (most recently used)
+    this.cache.delete(key);
+    this.cache.set(key, entry);
+    return entry.data;
+  }
+
+  // Get cached results without city or TTL checks (for fallback scenarios)
+  getFallback(key: string): AutocompleteResult[] | null {
+    const entry = this.cache.get(key);
+    if (!entry) {
       return null;
     }
 
@@ -48,7 +70,11 @@ class LRUCache {
       }
     }
 
-    this.cache.set(key, { data, city: currentCity });
+    this.cache.set(key, {
+      data,
+      city: currentCity,
+      timestamp: Date.now(),
+    });
   }
 
   clear(): void {
@@ -66,6 +92,7 @@ export function useAddressAutocomplete(options: UseAddressAutocompleteOptions = 
   const [suggestions, setSuggestions] = useState<AutocompleteResult[]>([]);
   const [isLoading, setIsLoading] = useState(false);
   const [selectedIndex, setSelectedIndex] = useState(-1);
+  const [hasError, setHasError] = useState(false);
   const abortControllerRef = useRef<AbortController | null>(null);
   const cacheRef = useRef(new LRUCache(CACHE_SIZE));
 
@@ -128,7 +155,7 @@ export function useAddressAutocomplete(options: UseAddressAutocompleteOptions = 
   );
 
   const fetchSuggestionsFromAPI = useCallback(
-    async (query: string, cacheKey: string) => {
+    async (query: string, cacheKey: string, hasImmediateCache = false) => {
       if (abortControllerRef.current) {
         abortControllerRef.current.abort();
       }
@@ -137,7 +164,10 @@ export function useAddressAutocomplete(options: UseAddressAutocompleteOptions = 
       abortControllerRef.current = controller;
 
       try {
-        setIsLoading(true);
+        if (!hasImmediateCache) {
+          setIsLoading(true);
+        }
+        setHasError(false);
         const results = await fetchAddressSuggestions(query, 6, controller.signal);
         if (!controller.signal.aborted) {
           const processedResults = processResults(results);
@@ -147,10 +177,35 @@ export function useAddressAutocomplete(options: UseAddressAutocompleteOptions = 
           cacheRef.current.set(cacheKey, results, currentCity);
         }
       } catch (error) {
-        if ((error as Error).name !== "AbortError") {
+        if ((error as Error).name !== "AbortError" && !controller.signal.aborted) {
           console.error("Failed to fetch address suggestions:", error);
-          setSuggestions([]);
-          setSelectedIndex(-1);
+          setHasError(true);
+
+          // Try to fallback to cached results (even if expired or from different city)
+          const fallbackResults = cacheRef.current.getFallback(cacheKey);
+          if (fallbackResults && fallbackResults.length > 0) {
+            const processedFallbackResults = processResults(fallbackResults);
+            setSuggestions(processedFallbackResults);
+            setSelectedIndex(-1);
+
+            // Show toast notification about using cached results
+            toast({
+              title: "Connection Issue",
+              description: "Showing cached results. Please check your internet connection.",
+              variant: "default",
+            });
+          } else {
+            // No cached results available, show error toast and clear suggestions
+            setSuggestions([]);
+            setSelectedIndex(-1);
+
+            toast({
+              title: "Address Search Failed",
+              description:
+                "Unable to search for addresses. Please check your connection and try again.",
+              variant: "destructive",
+            });
+          }
         }
       } finally {
         if (!controller.signal.aborted) {
@@ -161,7 +216,11 @@ export function useAddressAutocomplete(options: UseAddressAutocompleteOptions = 
     [currentCity, processResults]
   );
 
-  const debouncedFetchSuggestions = useDebouncedCallback(fetchSuggestionsFromAPI, DEBOUNCE_TIMEOUT);
+  const debouncedFetchSuggestions = useDebouncedCallback(
+    (query: string, cacheKey: string, hasImmediateCache = false) =>
+      fetchSuggestionsFromAPI(query, cacheKey, hasImmediateCache),
+    DEBOUNCE_TIMEOUT
+  );
 
   const handleInput = useCallback(
     (query: string) => {
@@ -169,6 +228,7 @@ export function useAddressAutocomplete(options: UseAddressAutocompleteOptions = 
         setSuggestions([]);
         setIsLoading(false);
         setSelectedIndex(-1);
+        setHasError(false);
         debouncedFetchSuggestions.cancel();
         return;
       }
@@ -177,6 +237,7 @@ export function useAddressAutocomplete(options: UseAddressAutocompleteOptions = 
         setIsLoading(false);
         setSuggestions([]);
         setSelectedIndex(-1);
+        setHasError(false);
         debouncedFetchSuggestions.cancel();
         return;
       }
@@ -184,22 +245,27 @@ export function useAddressAutocomplete(options: UseAddressAutocompleteOptions = 
       const trimmedQuery = query.trim();
       const cacheKey = `${trimmedQuery}:6`; // Include limit in cache key
 
-      // Check cache first - immediately, before any debouncing
+      // Check cache first for immediate response
       const cachedResults = cacheRef.current.get(cacheKey, currentCity);
 
       if (cachedResults) {
+        // Show cached results immediately for better UX
         const processedCachedResults = processResults(cachedResults);
         setSuggestions(processedCachedResults);
         setSelectedIndex(-1); // Reset selection for cached results
         setIsLoading(false);
-        // Cancel any pending debounced calls
-        debouncedFetchSuggestions.cancel();
+        setHasError(false);
+
+        // Still attempt fresh data in background to handle potential network failures
+        // This ensures we can show error states and toasts when network is down
+        debouncedFetchSuggestions(trimmedQuery, cacheKey, true);
         return;
       }
 
       // No cache hit - proceed with API call
       setIsLoading(true);
-      debouncedFetchSuggestions(trimmedQuery, cacheKey);
+      setHasError(false);
+      debouncedFetchSuggestions(trimmedQuery, cacheKey, false);
     },
     [currentCity, debouncedFetchSuggestions, processResults]
   );
@@ -210,6 +276,7 @@ export function useAddressAutocomplete(options: UseAddressAutocompleteOptions = 
       console.log("Selected:", result);
       setSuggestions([]);
       setSelectedIndex(-1);
+      setHasError(false);
       debouncedFetchSuggestions.cancel();
     },
     [debouncedFetchSuggestions]
@@ -239,6 +306,7 @@ export function useAddressAutocomplete(options: UseAddressAutocompleteOptions = 
           event.preventDefault();
           setSuggestions([]);
           setSelectedIndex(-1);
+          setHasError(false);
           debouncedFetchSuggestions.cancel();
           break;
       }
@@ -256,13 +324,7 @@ export function useAddressAutocomplete(options: UseAddressAutocompleteOptions = 
       const trimmedQuery = query.trim();
       const cacheKey = `${trimmedQuery}:6`;
 
-      // Check cache first
-      const cachedResults = cacheRef.current.get(cacheKey, currentCity);
-      if (cachedResults) {
-        return processResults(cachedResults);
-      }
-
-      // No cache hit - fetch from API
+      // For geocoding, always attempt fresh data first to detect network issues
       try {
         const results = await fetchAddressSuggestions(trimmedQuery, 6);
         // Cache the results (unsorted to preserve original API response)
@@ -270,6 +332,25 @@ export function useAddressAutocomplete(options: UseAddressAutocompleteOptions = 
         return processResults(results);
       } catch (error) {
         console.error("Failed to geocode address:", error);
+
+        // Try to fallback to cached results for geocoding
+        const fallbackResults = cacheRef.current.getFallback(cacheKey);
+        if (fallbackResults && fallbackResults.length > 0) {
+          toast({
+            title: "Using Cached Results",
+            description: "Geocoding using cached data due to connection issue.",
+            variant: "default",
+          });
+          return processResults(fallbackResults);
+        }
+
+        // Show error toast for geocoding failure when no cache available
+        toast({
+          title: "Geocoding Failed",
+          description: "Unable to find location. Please check your connection and try again.",
+          variant: "destructive",
+        });
+
         throw error;
       }
     },
@@ -299,6 +380,7 @@ export function useAddressAutocomplete(options: UseAddressAutocompleteOptions = 
     suggestions,
     isLoading,
     selectedIndex,
+    hasError,
     handleInput,
     handleSelect,
     handleKeyDown,

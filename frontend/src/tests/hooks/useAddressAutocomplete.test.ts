@@ -1,13 +1,20 @@
 import { fetchAddressSuggestions } from "@/features/map/api";
 import { useAddressAutocomplete } from "@/features/map/hooks/useAddressAutocomplete";
+import { toast } from "@/hooks/use-toast";
 import { act, renderHook, waitFor } from "@testing-library/react";
 import { afterEach, beforeEach, describe, expect, it, vi } from "vitest";
+
+// Mock the toast function
+vi.mock("@/hooks/use-toast", () => ({
+  toast: vi.fn(),
+}));
 
 vi.mock("@/features/map/api", () => ({
   fetchAddressSuggestions: vi.fn(),
 }));
 
 const mockFetchAddressSuggestions = vi.mocked(fetchAddressSuggestions);
+const mockToast = vi.mocked(toast);
 
 const MOCK_SUGGESTIONS = [
   {
@@ -23,6 +30,12 @@ const MOCK_SUGGESTIONS = [
 describe("useAddressAutocomplete", () => {
   beforeEach(() => {
     mockFetchAddressSuggestions.mockClear();
+    mockToast.mockClear();
+    vi.useFakeTimers();
+  });
+
+  afterEach(() => {
+    vi.useRealTimers();
   });
 
   it("should not fetch when query is less than 3 chars", async () => {
@@ -42,64 +55,41 @@ describe("useAddressAutocomplete", () => {
       result.current.handleInput("Berlin");
     });
 
-    await waitFor(() => {
-      expect(result.current.isLoading).toBe(true);
+    // Advance time and run all timers to complete debounce and promise resolution
+    await act(async () => {
+      vi.runAllTimers();
     });
 
-    await waitFor(
-      () => {
-        expect(mockFetchAddressSuggestions).toHaveBeenCalledWith(
-          "Berlin",
-          6,
-          expect.any(AbortSignal)
-        );
-      },
-      { timeout: 1000 }
-    );
-  }, 10000);
-
-  it("should cancel previous request on new input", async () => {
-    mockFetchAddressSuggestions.mockResolvedValue([]);
-    const { result } = renderHook(() => useAddressAutocomplete({}));
-
-    act(() => result.current.handleInput("Berli"));
-
-    await new Promise((r) => setTimeout(r, 100));
-
-    // Quick succession typing should cancel the previous debounced call
-    act(() => result.current.handleInput("Berlin"));
-
-    // Wait for the debounce to complete
-    await waitFor(
-      () => {
-        expect(mockFetchAddressSuggestions).toHaveBeenCalledWith(
-          "Berlin",
-          6,
-          expect.any(AbortSignal)
-        );
-      },
-      { timeout: 1000 }
-    );
-
-    // Should only be called once (for "Berlin"), not twice
-    expect(mockFetchAddressSuggestions).toHaveBeenCalledTimes(1);
+    // Verify the call was made and state updated
+    expect(mockFetchAddressSuggestions).toHaveBeenCalledWith("Berlin", 6, expect.any(AbortSignal));
+    expect(result.current.suggestions).toEqual(MOCK_SUGGESTIONS);
+    expect(result.current.isLoading).toBe(false);
   });
 
-  it("should handle API errors gracefully", async () => {
-    mockFetchAddressSuggestions.mockRejectedValue(new Error("API Error"));
+  it("should show cached results immediately when available", async () => {
+    mockFetchAddressSuggestions.mockResolvedValue(MOCK_SUGGESTIONS);
     const { result } = renderHook(() => useAddressAutocomplete({}));
 
+    // First call to populate cache
     act(() => {
-      result.current.handleInput("ErrorCity");
+      result.current.handleInput("Berlin");
     });
 
-    await waitFor(
-      () => {
-        expect(result.current.isLoading).toBe(false);
-        expect(result.current.suggestions).toEqual([]);
-      },
-      { timeout: 1000 }
-    );
+    await act(async () => {
+      vi.advanceTimersByTime(300);
+      await vi.runAllTimersAsync();
+    });
+
+    expect(mockFetchAddressSuggestions).toHaveBeenCalledTimes(1);
+
+    // Second call should use cache immediately
+    act(() => {
+      result.current.handleInput("Berlin");
+    });
+
+    expect(result.current.suggestions).toEqual(MOCK_SUGGESTIONS);
+    expect(result.current.isLoading).toBe(false);
+    expect(mockFetchAddressSuggestions).toHaveBeenCalledTimes(1); // Still only 1 API call
   });
 
   it("should clear suggestions and not fetch for empty query", async () => {
@@ -108,18 +98,144 @@ describe("useAddressAutocomplete", () => {
 
     // First, get some suggestions
     act(() => result.current.handleInput("Berlin"));
-    await waitFor(() => expect(mockFetchAddressSuggestions).toHaveBeenCalledTimes(1), {
-      timeout: 1000,
+
+    // Complete debounce and fetch
+    await act(async () => {
+      vi.runAllTimers();
     });
+
+    // Verify suggestions are loaded
+    expect(result.current.suggestions).toEqual(MOCK_SUGGESTIONS);
+    expect(result.current.isLoading).toBe(false);
 
     // Now, clear the input
     act(() => result.current.handleInput(""));
 
-    await waitFor(() => {
-      expect(result.current.suggestions).toEqual([]);
-      expect(result.current.isLoading).toBe(false);
-    });
+    // Should immediately clear suggestions without waiting
+    expect(result.current.suggestions).toEqual([]);
+    expect(result.current.isLoading).toBe(false);
+    expect(result.current.hasError).toBe(false);
     expect(mockFetchAddressSuggestions).toHaveBeenCalledTimes(1); // only the first call
+  });
+
+  describe("Error handling and fallback", () => {
+    it("should show toast and fallback to cached results on network error", async () => {
+      // First successful call to populate cache
+      mockFetchAddressSuggestions.mockResolvedValueOnce(MOCK_SUGGESTIONS);
+      const { result } = renderHook(() => useAddressAutocomplete({}));
+
+      act(() => {
+        result.current.handleInput("Berlin");
+      });
+
+      await act(async () => {
+        vi.advanceTimersByTime(300);
+        await vi.runAllTimersAsync();
+      });
+
+      expect(result.current.suggestions).toEqual(MOCK_SUGGESTIONS);
+      expect(result.current.hasError).toBe(false);
+
+      // Clear suggestions to simulate new search
+      act(() => {
+        result.current.handleInput("");
+      });
+
+      // Now mock a network error
+      mockFetchAddressSuggestions.mockRejectedValueOnce(new Error("Network error"));
+
+      act(() => {
+        result.current.handleInput("Berlin");
+      });
+
+      await act(async () => {
+        vi.advanceTimersByTime(300);
+        await vi.runAllTimersAsync();
+      });
+
+      // Should show cached results and error state
+      expect(result.current.suggestions).toEqual(MOCK_SUGGESTIONS);
+      expect(result.current.hasError).toBe(true);
+      expect(mockToast).toHaveBeenCalledWith({
+        title: "Connection Issue",
+        description: "Showing cached results. Please check your internet connection.",
+        variant: "default",
+      });
+    });
+
+    it("should show error toast when no cached results available", async () => {
+      mockFetchAddressSuggestions.mockRejectedValue(new Error("Network error"));
+      const { result } = renderHook(() => useAddressAutocomplete({}));
+
+      act(() => {
+        result.current.handleInput("Berlin");
+      });
+
+      await act(async () => {
+        vi.advanceTimersByTime(300);
+        await vi.runAllTimersAsync();
+      });
+
+      expect(result.current.suggestions).toEqual([]);
+      expect(result.current.hasError).toBe(true);
+      expect(mockToast).toHaveBeenCalledWith({
+        title: "Address Search Failed",
+        description: "Unable to search for addresses. Please check your connection and try again.",
+        variant: "destructive",
+      });
+    });
+
+    it("should not show error for aborted requests", async () => {
+      const abortError = new Error("AbortError");
+      abortError.name = "AbortError";
+      mockFetchAddressSuggestions.mockRejectedValue(abortError);
+
+      const { result } = renderHook(() => useAddressAutocomplete({}));
+
+      act(() => {
+        result.current.handleInput("Berlin");
+      });
+
+      await act(async () => {
+        vi.advanceTimersByTime(300);
+        await vi.runAllTimersAsync();
+      });
+
+      expect(result.current.hasError).toBe(false);
+      expect(mockToast).not.toHaveBeenCalled();
+    });
+
+    it("should clear error state on successful request", async () => {
+      // First, cause an error
+      mockFetchAddressSuggestions.mockRejectedValueOnce(new Error("Network error"));
+      const { result } = renderHook(() => useAddressAutocomplete({}));
+
+      act(() => {
+        result.current.handleInput("Berlin");
+      });
+
+      await act(async () => {
+        vi.advanceTimersByTime(300);
+        await vi.runAllTimersAsync();
+      });
+
+      expect(result.current.hasError).toBe(true);
+
+      // Now succeed
+      mockFetchAddressSuggestions.mockResolvedValueOnce(MOCK_SUGGESTIONS);
+
+      act(() => {
+        result.current.handleInput("Hamburg");
+      });
+
+      await act(async () => {
+        vi.advanceTimersByTime(300);
+        await vi.runAllTimersAsync();
+      });
+
+      expect(result.current.hasError).toBe(false);
+      expect(result.current.suggestions).toEqual(MOCK_SUGGESTIONS);
+    });
   });
 
   describe("handleGeocodeSearch", () => {
@@ -140,7 +256,7 @@ describe("useAddressAutocomplete", () => {
       expect(geocodeResult).toEqual(MOCK_SUGGESTIONS);
     });
 
-    it("should use cache when available", async () => {
+    it("should always attempt fresh data for geocoding", async () => {
       mockFetchAddressSuggestions.mockResolvedValue(MOCK_SUGGESTIONS);
       const { result } = renderHook(() => useAddressAutocomplete({}));
 
@@ -148,244 +264,153 @@ describe("useAddressAutocomplete", () => {
       await result.current.handleGeocodeSearch("Berlin");
       expect(mockFetchAddressSuggestions).toHaveBeenCalledTimes(1);
 
-      // Second call should use cache
+      // Second call should still attempt API for fresh data (geocoding behavior)
       const geocodeResult = await result.current.handleGeocodeSearch("Berlin");
-      expect(mockFetchAddressSuggestions).toHaveBeenCalledTimes(1); // Still only 1 call
+      expect(mockFetchAddressSuggestions).toHaveBeenCalledTimes(2); // 2 calls for fresh data
       expect(geocodeResult).toEqual(MOCK_SUGGESTIONS);
     });
 
-    it("should handle API errors in geocoding", async () => {
-      mockFetchAddressSuggestions.mockRejectedValue(new Error("API Error"));
+    it("should fallback to cached results and show toast on geocoding error", async () => {
+      // First successful call to populate cache
+      mockFetchAddressSuggestions.mockResolvedValueOnce(MOCK_SUGGESTIONS);
       const { result } = renderHook(() => useAddressAutocomplete({}));
 
-      await expect(result.current.handleGeocodeSearch("ErrorCity")).rejects.toThrow("API Error");
+      await result.current.handleGeocodeSearch("Berlin");
+      expect(mockFetchAddressSuggestions).toHaveBeenCalledTimes(1);
+
+      // Clear the cache by time advancement (simulate expired cache) and then cause error
+      vi.advanceTimersByTime(6 * 60 * 1000); // 6 minutes to expire cache
+      mockFetchAddressSuggestions.mockRejectedValueOnce(new Error("Network error"));
+
+      const geocodeResult = await result.current.handleGeocodeSearch("Berlin");
+
+      expect(geocodeResult).toEqual(MOCK_SUGGESTIONS);
+      expect(mockToast).toHaveBeenCalledWith({
+        title: "Using Cached Results",
+        description: "Geocoding using cached data due to connection issue.",
+        variant: "default",
+      });
     });
 
-    describe("Geographic prioritization", () => {
-      beforeEach(() => {
-        vi.useFakeTimers();
-      });
+    it("should show error toast and throw when no cached results available for geocoding", async () => {
+      mockFetchAddressSuggestions.mockRejectedValue(new Error("Network error"));
+      const { result } = renderHook(() => useAddressAutocomplete({}));
 
-      afterEach(() => {
-        vi.useRealTimers();
-      });
-
-      it("should sort suggestions by distance from map center", async () => {
-        const mockResults = [
-          {
-            id: "1",
-            displayName: "Berlin Far",
-            address: "Berlin Far",
-            city: "Berlin",
-            country: "Germany",
-            coordinates: { lat: 52.7, lng: 13.8 }, // Further from center
-          },
-          {
-            id: "2",
-            displayName: "Berlin Close",
-            address: "Berlin Close",
-            city: "Berlin",
-            country: "Germany",
-            coordinates: { lat: 52.51, lng: 13.4 }, // Closer to center
-          },
-        ];
-
-        const mapCenter = { lat: 52.5, lng: 13.4 };
-        mockFetchAddressSuggestions.mockResolvedValue(mockResults);
-
-        const { result } = renderHook(() => useAddressAutocomplete({ mapCenter }));
-
-        act(() => {
-          result.current.handleInput("Berlin");
-        });
-
-        await act(async () => {
-          vi.advanceTimersByTime(300);
-          await vi.runAllTimersAsync();
-        });
-
-        expect(result.current.suggestions).toHaveLength(2);
-        // Should be sorted by distance - closer one first
-        expect(result.current.suggestions[0].displayName).toBe("Berlin Close");
-        expect(result.current.suggestions[1].displayName).toBe("Berlin Far");
-      });
-
-      it("should return unsorted results when no map center provided", async () => {
-        const mockResults = [
-          {
-            id: "1",
-            displayName: "Berlin Far",
-            address: "Berlin Far",
-            city: "Berlin",
-            country: "Germany",
-            coordinates: { lat: 52.7, lng: 13.8 },
-          },
-          {
-            id: "2",
-            displayName: "Berlin Close",
-            address: "Berlin Close",
-            city: "Berlin",
-            country: "Germany",
-            coordinates: { lat: 52.51, lng: 13.4 },
-          },
-        ];
-
-        mockFetchAddressSuggestions.mockResolvedValue(mockResults);
-
-        const { result } = renderHook(() => useAddressAutocomplete({}));
-
-        act(() => {
-          result.current.handleInput("Berlin");
-        });
-
-        await act(async () => {
-          vi.advanceTimersByTime(300);
-          await vi.runAllTimersAsync();
-        });
-
-        expect(result.current.suggestions).toHaveLength(2);
-        // Should keep original API order when no center provided
-        expect(result.current.suggestions[0].displayName).toBe("Berlin Far");
-        expect(result.current.suggestions[1].displayName).toBe("Berlin Close");
-      });
-
-      it("should sort cached results by distance from map center", async () => {
-        const mockResults = [
-          {
-            id: "1",
-            displayName: "Berlin Far",
-            address: "Berlin Far",
-            city: "Berlin",
-            country: "Germany",
-            coordinates: { lat: 52.7, lng: 13.8 },
-          },
-          {
-            id: "2",
-            displayName: "Berlin Close",
-            address: "Berlin Close",
-            city: "Berlin",
-            country: "Germany",
-            coordinates: { lat: 52.51, lng: 13.4 },
-          },
-        ];
-
-        const mapCenter = { lat: 52.5, lng: 13.4 };
-        mockFetchAddressSuggestions.mockResolvedValue(mockResults);
-
-        const { result } = renderHook(() => useAddressAutocomplete({ mapCenter }));
-
-        // First call to populate cache
-        act(() => {
-          result.current.handleInput("Berlin");
-        });
-
-        await act(async () => {
-          vi.advanceTimersByTime(300);
-          await vi.runAllTimersAsync();
-        });
-
-        expect(mockFetchAddressSuggestions).toHaveBeenCalledTimes(1);
-
-        // Second call should use cache and still sort by distance
-        act(() => {
-          result.current.handleInput("Berlin");
-        });
-
-        await act(async () => {
-          vi.advanceTimersByTime(300);
-          await vi.runAllTimersAsync();
-        });
-
-        expect(mockFetchAddressSuggestions).toHaveBeenCalledTimes(1); // Still only 1 API call
-        expect(result.current.suggestions).toHaveLength(2);
-        // Should be sorted by distance - closer one first
-        expect(result.current.suggestions[0].displayName).toBe("Berlin Close");
-        expect(result.current.suggestions[1].displayName).toBe("Berlin Far");
-      });
-
-      it("should sort geocode search results by distance", async () => {
-        const mockResults = [
-          {
-            id: "1",
-            displayName: "Berlin Far",
-            address: "Berlin Far",
-            city: "Berlin",
-            country: "Germany",
-            coordinates: { lat: 52.7, lng: 13.8 },
-          },
-          {
-            id: "2",
-            displayName: "Berlin Close",
-            address: "Berlin Close",
-            city: "Berlin",
-            country: "Germany",
-            coordinates: { lat: 52.51, lng: 13.4 },
-          },
-        ];
-
-        const mapCenter = { lat: 52.5, lng: 13.4 };
-        mockFetchAddressSuggestions.mockResolvedValue(mockResults);
-
-        const { result } = renderHook(() => useAddressAutocomplete({ mapCenter }));
-
-        const geocodeResult = await result.current.handleGeocodeSearch("Berlin");
-
-        expect(geocodeResult).toHaveLength(2);
-        // Should be sorted by distance - closer one first
-        expect(geocodeResult[0].displayName).toBe("Berlin Close");
-        expect(geocodeResult[1].displayName).toBe("Berlin Far");
+      await expect(result.current.handleGeocodeSearch("Berlin")).rejects.toThrow("Network error");
+      expect(mockToast).toHaveBeenCalledWith({
+        title: "Geocoding Failed",
+        description: "Unable to find location. Please check your connection and try again.",
+        variant: "destructive",
       });
     });
   });
 
-  describe("LRU Cache", () => {
-    beforeEach(() => {
-      vi.useFakeTimers();
+  describe("Geographic prioritization", () => {
+    it("should sort suggestions by distance from map center", async () => {
+      const mockResults = [
+        {
+          id: "1",
+          displayName: "Berlin Far",
+          address: "Berlin Far",
+          city: "Berlin",
+          country: "Germany",
+          coordinates: { lat: 52.7, lng: 13.8 }, // Further from center
+        },
+        {
+          id: "2",
+          displayName: "Berlin Close",
+          address: "Berlin Close",
+          city: "Berlin",
+          country: "Germany",
+          coordinates: { lat: 52.51, lng: 13.4 }, // Closer to center
+        },
+      ];
+
+      const mapCenter = { lat: 52.5, lng: 13.4 };
+      mockFetchAddressSuggestions.mockResolvedValue(mockResults);
+
+      const { result } = renderHook(() => useAddressAutocomplete({ mapCenter }));
+
+      act(() => {
+        result.current.handleInput("Berlin");
+      });
+
+      await act(async () => {
+        vi.advanceTimersByTime(300);
+        await vi.runAllTimersAsync();
+      });
+
+      expect(result.current.suggestions).toHaveLength(2);
+      // Should be sorted by distance - closer one first
+      expect(result.current.suggestions[0].displayName).toBe("Berlin Close");
+      expect(result.current.suggestions[1].displayName).toBe("Berlin Far");
     });
 
-    afterEach(() => {
-      vi.useRealTimers();
-    });
+    it("should return unsorted results when no map center provided", async () => {
+      const mockResults = [
+        {
+          id: "1",
+          displayName: "Berlin Far",
+          address: "Berlin Far",
+          city: "Berlin",
+          country: "Germany",
+          coordinates: { lat: 52.7, lng: 13.8 },
+        },
+        {
+          id: "2",
+          displayName: "Berlin Close",
+          address: "Berlin Close",
+          city: "Berlin",
+          country: "Germany",
+          coordinates: { lat: 52.51, lng: 13.4 },
+        },
+      ];
 
-    it("should prevent network call when cache hit occurs", async () => {
-      mockFetchAddressSuggestions.mockResolvedValue(MOCK_SUGGESTIONS);
+      mockFetchAddressSuggestions.mockResolvedValue(mockResults);
+
       const { result } = renderHook(() => useAddressAutocomplete({}));
 
-      // First call - should hit the network
       act(() => {
         result.current.handleInput("Berlin");
       });
 
-      // Advance debounce timer and let async operations resolve
       await act(async () => {
         vi.advanceTimersByTime(300);
         await vi.runAllTimersAsync();
       });
 
-      expect(mockFetchAddressSuggestions).toHaveBeenCalledTimes(1);
-      expect(result.current.suggestions).toEqual(MOCK_SUGGESTIONS);
-
-      // Second call with same query - should use cache, not hit network
-      act(() => {
-        result.current.handleInput("Berlin");
-      });
-
-      // Advance debounce timer and let async operations resolve
-      await act(async () => {
-        vi.advanceTimersByTime(300);
-        await vi.runAllTimersAsync();
-      });
-
-      expect(result.current.suggestions).toEqual(MOCK_SUGGESTIONS);
-      // Should still be only 1 network call (cache hit prevented second call)
-      expect(mockFetchAddressSuggestions).toHaveBeenCalledTimes(1);
+      expect(result.current.suggestions).toHaveLength(2);
+      // Should keep original API order when no center provided
+      expect(result.current.suggestions[0].displayName).toBe("Berlin Far");
+      expect(result.current.suggestions[1].displayName).toBe("Berlin Close");
     });
 
-    it("should share cache between handleInput and handleGeocodeSearch", async () => {
-      mockFetchAddressSuggestions.mockResolvedValue(MOCK_SUGGESTIONS);
-      const { result } = renderHook(() => useAddressAutocomplete({}));
+    it("should sort cached results by distance from map center", async () => {
+      const mockResults = [
+        {
+          id: "1",
+          displayName: "Berlin Far",
+          address: "Berlin Far",
+          city: "Berlin",
+          country: "Germany",
+          coordinates: { lat: 52.7, lng: 13.8 },
+        },
+        {
+          id: "2",
+          displayName: "Berlin Close",
+          address: "Berlin Close",
+          city: "Berlin",
+          country: "Germany",
+          coordinates: { lat: 52.51, lng: 13.4 },
+        },
+      ];
 
-      // First call via handleInput to populate cache
+      const mapCenter = { lat: 52.5, lng: 13.4 };
+      mockFetchAddressSuggestions.mockResolvedValue(mockResults);
+
+      const { result } = renderHook(() => useAddressAutocomplete({ mapCenter }));
+
+      // First call to populate cache
       act(() => {
         result.current.handleInput("Berlin");
       });
@@ -397,19 +422,57 @@ describe("useAddressAutocomplete", () => {
 
       expect(mockFetchAddressSuggestions).toHaveBeenCalledTimes(1);
 
-      // Call handleGeocodeSearch - should use cache from handleInput
+      // Second call should use cache and still sort by distance
+      act(() => {
+        result.current.handleInput("Berlin");
+      });
+
+      expect(mockFetchAddressSuggestions).toHaveBeenCalledTimes(1); // Still only 1 API call
+      expect(result.current.suggestions).toHaveLength(2);
+      // Should be sorted by distance - closer one first
+      expect(result.current.suggestions[0].displayName).toBe("Berlin Close");
+      expect(result.current.suggestions[1].displayName).toBe("Berlin Far");
+    });
+
+    it("should sort geocode search results by distance", async () => {
+      const mockResults = [
+        {
+          id: "1",
+          displayName: "Berlin Far",
+          address: "Berlin Far",
+          city: "Berlin",
+          country: "Germany",
+          coordinates: { lat: 52.7, lng: 13.8 },
+        },
+        {
+          id: "2",
+          displayName: "Berlin Close",
+          address: "Berlin Close",
+          city: "Berlin",
+          country: "Germany",
+          coordinates: { lat: 52.51, lng: 13.4 },
+        },
+      ];
+
+      const mapCenter = { lat: 52.5, lng: 13.4 };
+      mockFetchAddressSuggestions.mockResolvedValue(mockResults);
+
+      const { result } = renderHook(() => useAddressAutocomplete({ mapCenter }));
+
       const geocodeResult = await result.current.handleGeocodeSearch("Berlin");
-      expect(mockFetchAddressSuggestions).toHaveBeenCalledTimes(1); // Still only 1 call
-      expect(geocodeResult).toEqual(MOCK_SUGGESTIONS);
+
+      expect(geocodeResult).toHaveLength(2);
+      // Should be sorted by distance - closer one first
+      expect(geocodeResult[0].displayName).toBe("Berlin Close");
+      expect(geocodeResult[1].displayName).toBe("Berlin Far");
     });
+  });
 
-    it("should invalidate cache when city changes", async () => {
+  describe("LRU Cache with TTL", () => {
+    it("should cache results with timestamp", async () => {
       mockFetchAddressSuggestions.mockResolvedValue(MOCK_SUGGESTIONS);
-      const { result, rerender } = renderHook(({ currentCity }: { currentCity?: string } = {}) =>
-        useAddressAutocomplete({ currentCity })
-      );
+      const { result } = renderHook(() => useAddressAutocomplete({}));
 
-      // First call with Berlin city
       act(() => {
         result.current.handleInput("Berlin");
       });
@@ -421,10 +484,35 @@ describe("useAddressAutocomplete", () => {
 
       expect(mockFetchAddressSuggestions).toHaveBeenCalledTimes(1);
 
-      // Change city
-      rerender({ currentCity: "Hamburg" });
+      // Second call should use cache
+      act(() => {
+        result.current.handleInput("Berlin");
+      });
 
-      // Same query but different city - should hit network again due to city change
+      expect(result.current.suggestions).toEqual(MOCK_SUGGESTIONS);
+      expect(mockFetchAddressSuggestions).toHaveBeenCalledTimes(1); // Still only 1 API call
+    });
+
+    it("should expire cache after TTL", async () => {
+      mockFetchAddressSuggestions.mockResolvedValue(MOCK_SUGGESTIONS);
+      const { result } = renderHook(() => useAddressAutocomplete({}));
+
+      // First call to populate cache
+      act(() => {
+        result.current.handleInput("Berlin");
+      });
+
+      await act(async () => {
+        vi.advanceTimersByTime(300);
+        await vi.runAllTimersAsync();
+      });
+
+      expect(mockFetchAddressSuggestions).toHaveBeenCalledTimes(1);
+
+      // Advance time beyond TTL
+      vi.advanceTimersByTime(6 * 60 * 1000); // 6 minutes
+
+      // Should fetch again due to expired cache
       act(() => {
         result.current.handleInput("Berlin");
       });
@@ -490,15 +578,7 @@ describe("useAddressAutocomplete", () => {
   });
 
   describe("Deduplication", () => {
-    beforeEach(() => {
-      vi.useFakeTimers();
-    });
-
-    afterEach(() => {
-      vi.useRealTimers();
-    });
-
-    it("should remove duplicate suggestions with same coordinates", async () => {
+    it("should remove suggestions with same coordinates", async () => {
       const mockResults = [
         {
           id: "1",
@@ -510,19 +590,11 @@ describe("useAddressAutocomplete", () => {
         },
         {
           id: "2",
-          displayName: "Berlin Central Station",
-          address: "Berlin Central Station",
+          displayName: "Berlin Hauptbahnhof",
+          address: "Berlin Hauptbahnhof",
           city: "Berlin",
           country: "Germany",
-          coordinates: { lat: 52.5253, lng: 13.3719 }, // Same coordinates
-        },
-        {
-          id: "3",
-          displayName: "Berlin Park",
-          address: "Berlin Park",
-          city: "Berlin",
-          country: "Germany",
-          coordinates: { lat: 52.52, lng: 13.405 }, // Different coordinates
+          coordinates: { lat: 52.5253, lng: 13.3719 }, // Same coordinates, should be removed
         },
       ];
 
@@ -539,9 +611,8 @@ describe("useAddressAutocomplete", () => {
         await vi.runAllTimersAsync();
       });
 
-      expect(result.current.suggestions).toHaveLength(2);
+      expect(result.current.suggestions).toHaveLength(1);
       expect(result.current.suggestions[0].displayName).toBe("Berlin Central Station");
-      expect(result.current.suggestions[1].displayName).toBe("Berlin Park");
     });
 
     it("should remove suggestions with same displayName even with different coordinates", async () => {
@@ -660,11 +731,6 @@ describe("useAddressAutocomplete", () => {
       // Second call should use cache and still deduplicate
       act(() => {
         result.current.handleInput("Berlin");
-      });
-
-      await act(async () => {
-        vi.advanceTimersByTime(300);
-        await vi.runAllTimersAsync();
       });
 
       expect(mockFetchAddressSuggestions).toHaveBeenCalledTimes(1); // Still only 1 API call

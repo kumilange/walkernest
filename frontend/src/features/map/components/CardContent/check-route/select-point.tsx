@@ -206,6 +206,7 @@ export default function SelectPoint({
           <AddressSuggestions
             suggestions={autocomplete.suggestions}
             isLoading={autocomplete.isLoading}
+            hasError={autocomplete.hasError}
             selectedIndex={autocomplete.selectedIndex}
             listboxId={listboxId}
             onSelect={handleSuggestionSelect}
