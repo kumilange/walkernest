@@ -1,11 +1,7 @@
 ---
-description: 
-globs: 
-alwaysApply: true
----
----
-description: Guidelines for writing clean, maintainable, and human-readable code. Apply these rules when writing or reviewing code to ensure consistency and quality.
+description: Clean code guidelines for writing maintainable and readable code
 globs: "**/*.{ts,tsx,js,jsx}"
+alwaysApply: true
 ---
 
 # Clean Code Guidelines

@@ -3,11 +3,6 @@ description:
 globs: 
 alwaysApply: true
 ---
----
-description: Code quality enforcement rules for Biome formatting/linting with ESLint as a supplementary fallback.
-globs: "**/*.*"
----
-
 # Linter & Formatter Guidelines
 
 - **Primary Command**: Before committing, run `biome check --write --unsafe .` to lint, format, and apply all safe and unsafe auto-fixes.

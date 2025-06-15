@@ -22,17 +22,14 @@ To break down development work, based on `01-requirements.md` and `02-design.md`
     *   **Operational Guarantee**: Each task, upon completion, should result in a functionally verifiable part of the system.
         *   Verification should primarily be through automated tests (unit, visual regression, etc.) using Vitest and React Testing Library (as per `@my-coding-rule.mdc`).
         *   For aspects not easily testable via automation, specify clear manual confirmation procedures.
-    *   **Quality Gate – Mandatory for Every Task**:  
+*   **Quality Gate – Mandatory for Every Task**:  
         *   After implementing a task, **all** of the following must be true:
             *   `npm run test` passes (no test errors).
             *   `npm run check:biome` passes (no linting errors).
             *   `npm run typecheck` passes (no type errors).
         *   These checks are implicit for *every* task, even if not redundantly listed in that task's _Operational Confirmation_ block.
     *   **Test-Driven Development (TDD)**: Tasks should be approached with TDD. Write tests *before* implementation code.
-    *   **Completion Criteria**: For each task, define specific criteria for completion. Upon task completion, ensure (as per Quality Assurance in `@my-coding-rule.mdc`):
-        - `npm run test` passes (no test errors).
-        - `npm run check:biome` passes (no linting errors).
-        - `npm run typecheck` passes (no type errors).
+   *   **Completion Criteria**: For each task, define specific criteria for completion that are unique to that task's functionality.
 4.  **Clarification**: If any ambiguities arise during task breakdown, ask questions to clarify.
 5.  **Document Updates**:
     *   If task breakdown reveals necessary changes to requirements or design, ensure `01-requirements.md` and/or `02-design.md` are updated accordingly.

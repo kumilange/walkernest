@@ -272,8 +272,6 @@ export function useAddressAutocomplete(options: UseAddressAutocompleteOptions = 
 
   const handleSelect = useCallback(
     (result: AutocompleteResult) => {
-      // eslint-disable-next-line no-console
-      console.log("Selected:", result);
       setSuggestions([]);
       setSelectedIndex(-1);
       setHasError(false);
