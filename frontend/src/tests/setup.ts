@@ -161,3 +161,16 @@ expect.extend(matchers as any);
 afterEach(() => {
   cleanup();
 });
+
+window.HTMLElement.prototype.scrollIntoView = vi.fn();
+
+// Mock IntersectionObserver
+class IntersectionObserver {
+  observe = vi.fn();
+  unobserve = vi.fn();
+  disconnect = vi.fn();
+  takeRecords = vi.fn();
+}
+
+global.IntersectionObserver =
+  IntersectionObserver as unknown as typeof globalThis.IntersectionObserver;

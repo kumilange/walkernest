@@ -19,6 +19,7 @@ export default function CheckRoute() {
     reversePoints,
     handleReverseTouch,
     handleGeocodeAddress,
+    handlePointSet,
   } = useCheckRoutes();
 
   return (
@@ -34,6 +35,7 @@ export default function CheckRoute() {
             onGeocodeAddress={handleGeocodeAddress}
             setRoute={setRoute}
             isRouteFetching={isRouteFetching}
+            onPointSet={handlePointSet}
           />
           <SelectPoint
             isStarting={false}
@@ -44,6 +46,7 @@ export default function CheckRoute() {
             onGeocodeAddress={handleGeocodeAddress}
             setRoute={setRoute}
             isRouteFetching={isRouteFetching}
+            onPointSet={handlePointSet}
           />
         </div>
         {(startingPoint || endingPoint) && (

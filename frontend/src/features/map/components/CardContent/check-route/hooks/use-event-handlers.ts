@@ -65,28 +65,6 @@ export default function useEventHandlers({
     [handleClearPoint]
   );
 
-  // Internal function for address search with loading state
-  const handleAddressSearch = useCallback(async () => {
-    const trimmed = addressInput.trim();
-    if (!trimmed || trimmed === point?.name) return;
-
-    setIsGeocoding(true);
-    try {
-      await onGeocodeAddress(addressInput.trim(), isStarting);
-    } finally {
-      setIsGeocoding(false);
-    }
-  }, [addressInput, onGeocodeAddress, isStarting, point?.name, setIsGeocoding]);
-
-  const handleKeyDown = useCallback(
-    (e: React.KeyboardEvent<HTMLInputElement>) => {
-      if (e.key === "Enter") {
-        handleAddressSearch();
-      }
-    },
-    [handleAddressSearch]
-  );
-
   const handleInputChange = useCallback(
     (e: React.ChangeEvent<HTMLInputElement>) => {
       setAddressInput(e.target.value);
@@ -111,7 +89,6 @@ export default function useEventHandlers({
     handleClearPoint,
     handleMapClickTouch,
     handleClearPointTouch,
-    handleKeyDown,
     handleInputChange,
     handleFocus,
   };

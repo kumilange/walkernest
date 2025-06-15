@@ -28,6 +28,7 @@
   },
   "devDependencies": {
     "@nx/devkit": "^17.0.0",
+    "@nx/storybook": "21.2.0",
     "@nx/workspace": "^17.0.0",
     "@playwright/test": "1.52.0",
     "lint-staged": "16.1.0",
@@ -46,5 +47,8 @@
       "cd frontend && npm run typecheck"
     ]
   },
-  "resolutions": {}
+  "resolutions": {},
+  "dependencies": {
+    "use-debounce": "10.0.5"
+  }
 }

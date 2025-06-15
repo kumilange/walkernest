@@ -17,7 +17,8 @@
     "test:unit": "vitest run --watch=false",
     "test:unit:ui": "vitest --ui",
     "test:unit:coverage": "vitest run --coverage",
-    "test:e2e": "playwright test --config=e2e/playwright.config.ts",
+    "test:e2e": "playwright test --config=e2e/playwright.config.ts --project=chromium --grep-invert \"@mobile\"",
+    "test:e2e:mobile": "playwright test --config=e2e/playwright.config.ts --project=mobile-iphone",
     "test:e2e:ui": "playwright test --config=e2e/playwright.config.ts --ui",
     "test:e2e:debug": "playwright test --config=e2e/playwright.config.ts --debug",
     "test:e2e:headed": "playwright test --config=e2e/playwright.config.ts --headed"
@@ -71,6 +72,7 @@
     "tailwindcss": "^3.4.1",
     "tailwindcss-animate": "^1.0.7",
     "typescript": "~5.3.2",
+    "use-debounce": "10.0.5",
     "vite": "^6.2.7",
     "vite-plugin-webfont-dl": "3.10.4",
     "vitest": "^3.0.9",
@@ -80,7 +82,8 @@
     "@biomejs/biome": "1.9.4",
     "@playwright/test": "1.52.0",
     "dotenv": "16.5.0",
-    "husky": "^9.0.11"
+    "husky": "^9.0.11",
+    "vitest-axe": "0.1.0"
   },
   "engines": {
     "node": ">=20"

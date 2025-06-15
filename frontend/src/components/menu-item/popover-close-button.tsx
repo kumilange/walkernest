@@ -5,7 +5,12 @@ import { X } from "lucide-react";
 export default function PopoverCloseButton() {
   return (
     <PopoverClose asChild>
-      <Button variant="ghost" size="icon" className="absolute top-1 right-1 h-6 w-6">
+      <Button
+        variant="ghost"
+        size="icon"
+        className="absolute top-1 right-1 h-6 w-6"
+        aria-label="Close"
+      >
         <X className="h-4 w-4" />
       </Button>
     </PopoverClose>

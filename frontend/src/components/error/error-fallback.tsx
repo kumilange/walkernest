@@ -11,32 +11,29 @@ export default function ErrorFallback({
   resetErrorBoundary: () => void;
 }) {
   return (
-    <div className="fixed flex h-screen w-full items-center justify-center bg-gray-50">
+    <main
+      className="fixed flex h-screen w-full items-center justify-center bg-gray-50"
+      aria-labelledby="error-title"
+    >
       <Card className="w-full max-w-sm shadow-lg">
         <CardHeader>
-          <CardTitle className="flex items-center gap-2 text-red-600">
-            <TriangleAlert size={24} />
-            Something went wrong
+          <CardTitle id="error-title" className="flex items-center gap-2 text-red-600">
+            <TriangleAlert className="h-5 w-5" />
+            Error occurred
           </CardTitle>
         </CardHeader>
         <CardContent>
-          <Alert className="mb-4 bg-red-100 text-red-800">
-            <AlertTitle>Error</AlertTitle>
-            <AlertDescription>
-              {error?.message || "An unexpected error has occurred."}
+          <Alert className="mb-4 bg-red-100 text-red-800" role="alert" aria-live="assertive">
+            <h2 className="mb-2 font-semibold text-lg">Error</h2>
+            <AlertDescription className="text-sm">
+              {error?.message || "An error occurred while loading this page."}
             </AlertDescription>
           </Alert>
-          <div className="text-center">
-            <Button
-              onClick={() => {
-                resetErrorBoundary();
-              }}
-            >
-              Retry
-            </Button>
-          </div>
+          <Button onClick={resetErrorBoundary} className="w-full">
+            Try again
+          </Button>
         </CardContent>
       </Card>
-    </div>
+    </main>
   );
 }

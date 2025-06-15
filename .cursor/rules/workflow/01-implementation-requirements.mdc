@@ -1,0 +1,77 @@
+---
+description: 
+globs: 
+alwaysApply: false
+---
+# Guide to Creating a Implementation Requirements Definition Document (`01-requirements.md`)
+
+## 🎯 Purpose
+
+To define clear, unambiguous implementation requirements based on development images and user requests. This document serves as the foundation for design and development, enabling junior engineers to understand what needs to be built.
+
+## ➡️ Inputs
+
+- Development images and user requests.
+
+## ⚙️ Process & Key Considerations
+
+1.  **Role**: Act as a professional web front-end engineer. Your primary goal is to produce a `01-requirements.md` that junior engineers can use for development without confusion.
+2.  **Detailing Requests**:
+    *   Convert received requests into specific, actionable implementation requirements.
+    *   **Focus on WHAT, not HOW**: Detail the specifications of pages, functions, and components. Do *not* include proposals for implementation policies or methods.
+    *   Minimize undetermined information by exhaustively detailing requests.
+3.  **Clarification**:
+    *   Proactively ask questions to resolve any concerns, ambiguities, or lack of information in the initial requests. Repeat questioning as needed to achieve full clarity.
+4.  **Key Principles for Documenting Requirements**:
+    *   **Clear and Specific**: Use unambiguous language. Include specific examples and conditions.
+    *   **Completeness**: Cover all necessary information, including edge cases and exceptional scenarios.
+    *   **Consistent Terminology**: Use uniform terminology. Explain technical terms if necessary.
+    *   **Priorities and Dependencies**: Clearly indicate the priority of requirements and clarify dependencies between functions if known at this stage.
+
+##  deliverables
+
+1.  **Primary Document**: `01-requirements.md`
+2.  **Location**: Create this file in `context/<branch-name>/01-requirements.md`, where `<branch-name>` is the name of the current working branch.
+    *   If the directory `context/<branch-name>/` does not exist, create it first (e.g., `mkdir -p context/<branch-name>`).
+3.  **Format**: The document must be in Markdown, provided within a code block for easy copy-pasting.
+4.  **Updates**: This document may be updated later if design or task breakdown reveals necessary changes to requirements.
+
+## 📝 `01-requirements.md` Structure
+
+# [Feature/Page Name] Requirements Definition Document
+
+## 📋 Overview
+
+[Brief description of the purpose and role of the feature or page]
+
+## 🎯 Requirements
+
+- [Requirement 1]
+- [Requirement 2]
+- [Requirement 3]
+
+## 📝 Functional Specifications
+
+### Screen/Component Configuration
+
+[Details of UI elements and screen configuration]
+
+### Behavior
+
+[Details about user operations and system responses]
+
+### Constraints
+
+[Technical and business constraints]
+
+## 📊 Data Requirements
+
+[Required data structures and acquisition methods]
+
+## 🔄 Interactions
+
+[Integration with other systems or components]
+
+## ❓ Unresolved Questions
+
+[Questions or unclear points that need resolution before or during design/development]

@@ -1,0 +1,425 @@
+---
+description: 
+globs: 
+alwaysApply: false
+---
+---
+description: Comprehensive Unit Testing Guidelines for modern web applications
+globs: "**/*.{test,spec,unit}.{ts,js,tsx,jsx}"
+alwaysApply: true
+---
+
+# Frontend Unit Testing Guidelines
+
+## Objective
+
+To establish a robust, maintainable, and efficient unit testing strategy that validates component behavior, prevents regressions, and ensures code quality in frontend applications.
+
+## Test Philosophy
+
+- **Behavior Over Implementation**: Test what the component does, not how it does it. Focus on user interactions and expected outcomes.
+- **User-Centric Testing**: Write tests from the user's perspective using accessible queries that mirror how users interact with your components.
+- **Test Independence**: Each test should be atomic and self-contained. Tests must run independently without relying on state from other tests.
+- **Fast Feedback**: Unit tests should be fast, reliable, and provide immediate feedback during development.
+
+## Testing Strategy
+
+### What to Test
+
+- **Component Rendering**: Verify components render correctly with different props
+- **User Interactions**: Test clicks, form submissions, keyboard navigation
+- **Conditional Rendering**: Test different UI states based on props/state
+- **Error Boundaries**: Test error handling and fallback UI
+- **Accessibility**: Ensure components are accessible to all users
+- **Business Logic**: Test custom hooks and utility functions
+
+### What NOT to Test
+
+- **Implementation Details**: Internal state, lifecycle methods, private functions
+- **Third-Party Libraries**: Don't test external dependencies
+- **Styling**: Avoid testing CSS unless it affects functionality
+- **Complex Integration**: Use integration tests for multi-component flows
+
+## Component Testing Best Practices
+
+### Rendering Components
+
+```typescript
+// ✅ Good - Test behavior and outcomes
+import { render, screen } from '@testing-library/react'
+import userEvent from '@testing-library/user-event'
+import { Button } from './Button'
+
+describe('Button Component', () => {
+  it('should call onClick handler when clicked', async () => {
+    const user = userEvent.setup()
+    const handleClick = vi.fn()
+    
+    render(<Button onClick={handleClick}>Click me</Button>)
+    
+    await user.click(screen.getByRole('button', { name: /click me/i }))
+    
+    expect(handleClick).toHaveBeenCalledTimes(1)
+  })
+})
+```
+
+### Query Priority (Testing Library)
+
+Use queries in this order of preference:
+1. **Accessible to everyone**: `getByRole`, `getByLabelText`, `getByPlaceholderText`, `getByText`
+2. **Semantic queries**: `getByDisplayValue`
+3. **Test IDs**: `getByTestId` (last resort)
+
+```typescript
+// ✅ Preferred - Accessible queries
+screen.getByRole('button', { name: /submit/i })
+screen.getByLabelText(/email address/i)
+screen.getByPlaceholderText(/enter your name/i)
+
+// ❌ Avoid - Implementation details
+screen.getByClassName('btn-primary')
+container.querySelector('.submit-button')
+```
+
+## Testing Patterns
+
+### AAA Pattern (Arrange-Act-Assert)
+
+```typescript
+describe('UserForm', () => {
+  it('should submit form with valid data', async () => {
+    // Arrange
+    const user = userEvent.setup()
+    const mockSubmit = vi.fn()
+    render(<UserForm onSubmit={mockSubmit} />)
+    
+    // Act
+    await user.type(screen.getByLabelText(/name/i), 'John Doe')
+    await user.type(screen.getByLabelText(/email/i), 'john@example.com')
+    await user.click(screen.getByRole('button', { name: /submit/i }))
+    
+    // Assert
+    expect(mockSubmit).toHaveBeenCalledWith({
+      name: 'John Doe',
+      email: 'john@example.com'
+    })
+  })
+})
+```
+
+### Custom Render Helpers
+
+```typescript
+// utils/test-utils.tsx
+import { render } from '@testing-library/react'
+import { ReactElement } from 'react'
+import { ThemeProvider } from './ThemeProvider'
+import { QueryClient, QueryClientProvider } from '@tanstack/react-query'
+
+const createTestQueryClient = () => new QueryClient({
+  defaultOptions: { queries: { retry: false } }
+})
+
+export function renderWithProviders(
+  ui: ReactElement,
+  options: { queryClient?: QueryClient } = {}
+) {
+  const { queryClient = createTestQueryClient(), ...renderOptions } = options
+  
+  function Wrapper({ children }: { children: React.ReactNode }) {
+    return (
+      <QueryClientProvider client={queryClient}>
+        <ThemeProvider>
+          {children}
+        </ThemeProvider>
+      </QueryClientProvider>
+    )
+  }
+  
+  return render(ui, { wrapper: Wrapper, ...renderOptions })
+}
+```
+
+## Testing Async Behavior
+
+### Async Component Updates
+
+```typescript
+import { waitFor, screen } from '@testing-library/react'
+
+it('should display loading state then data', async () => {
+  render(<UserProfile userId="123" />)
+  
+  // Check loading state
+  expect(screen.getByText(/loading/i)).toBeInTheDocument()
+  
+  // Wait for data to load
+  await waitFor(() => {
+    expect(screen.getByText('John Doe')).toBeInTheDocument()
+  })
+  
+  // Verify loading state is gone
+  expect(screen.queryByText(/loading/i)).not.toBeInTheDocument()
+})
+```
+
+### Testing Custom Hooks
+
+```typescript
+import { renderHook, act } from '@testing-library/react'
+import { useCounter } from './useCounter'
+
+describe('useCounter', () => {
+  it('should increment counter', () => {
+    const { result } = renderHook(() => useCounter(0))
+    
+    act(() => {
+      result.current.increment()
+    })
+    
+    expect(result.current.count).toBe(1)
+  })
+})
+```
+
+## Mocking Strategies
+
+### API Calls and External Dependencies
+
+```typescript
+// Mock API calls
+vi.mock('./api/userService', () => ({
+  fetchUser: vi.fn().mockResolvedValue({ id: 1, name: 'John' }),
+  updateUser: vi.fn().mockResolvedValue({ success: true })
+}))
+
+// Mock React Router
+vi.mock('react-router-dom', () => ({
+  useNavigate: () => vi.fn(),
+  useParams: () => ({ id: '123' })
+}))
+
+// Mock environment variables
+vi.mock.env = {
+  VITE_API_URL: 'http://localhost:3001'
+}
+```
+
+### Component Dependencies
+
+```typescript
+// Mock child components when testing parent
+vi.mock('./ChildComponent', () => ({
+  ChildComponent: vi.fn(({ title }) => <div data-testid="child">{title}</div>)
+}))
+```
+
+## Testing Form Components
+
+```typescript
+describe('ContactForm', () => {
+  it('should validate required fields', async () => {
+    const user = userEvent.setup()
+    render(<ContactForm />)
+    
+    // Try to submit without filling required fields
+    await user.click(screen.getByRole('button', { name: /submit/i }))
+    
+    // Check for validation errors
+    expect(screen.getByText(/name is required/i)).toBeInTheDocument()
+    expect(screen.getByText(/email is required/i)).toBeInTheDocument()
+  })
+  
+  it('should submit with valid data', async () => {
+    const user = userEvent.setup()
+    const mockSubmit = vi.fn()
+    render(<ContactForm onSubmit={mockSubmit} />)
+    
+    // Fill form
+    await user.type(screen.getByLabelText(/name/i), 'John Doe')
+    await user.type(screen.getByLabelText(/email/i), 'john@example.com')
+    await user.type(screen.getByLabelText(/message/i), 'Hello world')
+    
+    // Submit
+    await user.click(screen.getByRole('button', { name: /submit/i }))
+    
+    expect(mockSubmit).toHaveBeenCalledWith({
+      name: 'John Doe',
+      email: 'john@example.com',
+      message: 'Hello world'
+    })
+  })
+})
+```
+
+## Testing Error States
+
+```typescript
+describe('ErrorBoundary', () => {
+  it('should display error message when child component throws', () => {
+    const ThrowError = () => {
+      throw new Error('Test error')
+    }
+    
+    render(
+      <ErrorBoundary>
+        <ThrowError />
+      </ErrorBoundary>
+    )
+    
+    expect(screen.getByText(/something went wrong/i)).toBeInTheDocument()
+  })
+})
+```
+
+## Accessibility Testing
+
+```typescript
+import { axe, toHaveNoViolations } from 'jest-axe'
+
+expect.extend(toHaveNoViolations)
+
+describe('Button accessibility', () => {
+  it('should not have accessibility violations', async () => {
+    const { container } = render(<Button>Click me</Button>)
+    const results = await axe(container)
+    expect(results).toHaveNoViolations()
+  })
+})
+```
+
+## Test Organization and Structure
+
+### File Structure
+
+```
+src/
+├── components/
+│   ├── Button/
+│   │   ├── Button.tsx
+│   │   ├── Button.test.tsx
+│   │   └── index.ts
+│   └── Form/
+│       ├── Form.tsx
+│       ├── Form.test.tsx
+│       └── index.ts
+├── hooks/
+│   ├── useCounter.ts
+│   └── useCounter.test.ts
+└── utils/
+    ├── helpers.ts
+    ├── helpers.test.ts
+    └── test-utils.tsx
+```
+
+### Grouping Tests
+
+```typescript
+describe('UserProfile Component', () => {
+  describe('when user is loading', () => {
+    it('should display loading spinner', () => {
+      // test implementation
+    })
+  })
+  
+  describe('when user is loaded', () => {
+    it('should display user information', () => {
+      // test implementation
+    })
+    
+    it('should allow editing profile', () => {
+      // test implementation
+    })
+  })
+  
+  describe('when user fails to load', () => {
+    it('should display error message', () => {
+      // test implementation
+    })
+  })
+})
+```
+
+## Performance Testing
+
+```typescript
+import { render } from '@testing-library/react'
+import { performance } from 'perf_hooks'
+
+describe('LargeList performance', () => {
+  it('should render large lists efficiently', () => {
+    const items = Array.from({ length: 1000 }, (_, i) => ({ id: i, name: `Item ${i}` }))
+    
+    const start = performance.now()
+    render(<LargeList items={items} />)
+    const end = performance.now()
+    
+    // Should render in less than 100ms
+    expect(end - start).toBeLessThan(100)
+  })
+})
+```
+
+## Framework-Specific Best Practices
+
+### Vitest
+
+- Use `vi.fn()` for mocks instead of `jest.fn()`
+- Leverage Vitest's fast HMR for test development
+- Use `vi.mock()` for module mocking
+- Configure coverage with `c8` for TypeScript support
+
+### Jest
+
+- Use `jest.fn()` for mocks and spies
+- Configure `setupFilesAfterEnv` for test setup
+- Use `jest.mock()` for module mocking
+- Leverage Jest's snapshot testing for UI components
+
+### Testing Library
+
+- Always use `screen` for queries
+- Prefer `userEvent` over `fireEvent` for interactions
+- Use `waitFor` for async assertions
+- Follow the testing library philosophy: "The more your tests resemble the way your software is used, the more confidence they can give you."
+
+## CI/CD Integration
+
+```json
+// package.json scripts
+{
+  "scripts": {
+    "test": "vitest",
+    "test:coverage": "vitest --coverage",
+    "test:ui": "vitest --ui",
+    "test:watch": "vitest --watch"
+  }
+}
+```
+
+```yaml
+# GitHub Actions example
+- name: Run Tests
+  run: npm run test:coverage
+  
+- name: Upload Coverage
+  uses: codecov/codecov-action@v3
+  with:
+    file: ./coverage/lcov.info
+```
+
+## Best Practices Summary
+
+- **Write tests first** - Follow TDD principles when possible
+- **Test behavior, not implementation** - Focus on what users see and do
+- **Keep tests simple** - One assertion per test when possible
+- **Use meaningful test names** - Describe the expected behavior
+- **Mock external dependencies** - Keep tests isolated and fast
+- **Test edge cases** - Include error states and boundary conditions
+- **Maintain test coverage** - Aim for high coverage but focus on critical paths
+- **Review tests during code review** - Tests are code and should be reviewed
+- **Refactor tests** - Keep tests maintainable as code evolves
+- **Use descriptive assertions** - Make test failures informative
+
+Choose the testing framework that best fits your project's needs while following these universal principles for maintainable, reliable frontend unit tests.

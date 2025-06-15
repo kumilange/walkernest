@@ -1,0 +1,62 @@
+---
+description: 
+globs: 
+alwaysApply: false
+---
+---
+description: React best practices and patterns for modern web applications
+globs: "**/*.{tsx,jsx}"
+alwaysApply: true
+---
+
+# React Best Practices
+
+## Core Principles
+- Prefer **functional components** with hooks; avoid class components.
+- Keep components **small, focused**, and **single-purpose**; split large ones.
+- Use **composition over inheritance** and collocate component-specific code.
+- Co-locate **styles (Tailwind or CSS Modules)** and tests with components.
+- Follow **strict TypeScript** rules; define explicit `Props` and avoid `any`/`as`.
+
+## Hooks
+- Obey the **Rules of Hooks**; never call hooks conditionally or in loops.
+- Extract reusable logic into **custom hooks** (`useSomething.ts`) and collocate them.
+- Keep hook bodies lean; defer heavy work with `useMemo`/`useCallback`.
+- Supply correct **dependency arrays** and clean up side-effects in `useEffect`.
+- Avoid nested custom hooks that obscure control flow.
+- **Extract component logic to custom hooks with proper collocation**:
+  - **Component-level hooks**: If component logic can be moved to local custom hooks, create them under the same component directory and collocate them (e.g., `components/AnalyzeApartment/hooks/useEventHandlers.ts`). This improves separation of concerns, reusability, and testability.
+  - **Feature-level hooks**: If logic is shared between components within the same feature directory, create hooks under the feature's hooks directory (e.g., `features/map/hooks/useMapInteractions.ts`).
+  - **Global hooks**: Only create hooks in the shared `src/hooks` directory if they're used across multiple features.
+  - Follow the Project Structure principles: keep feature-specific code within feature boundaries and avoid cross-feature imports.
+
+## State Management
+- Use `useState` for simple local state and `useReducer` for complex logic.
+- Keep state **close to where it's used**; lift only when multiple siblings require it.
+- Use **Context API** sparingly for truly global concerns.
+- Introduce a state management library only when Context becomes unwieldy.
+
+## Performance
+- Memoize expensive calculations with `useMemo` and callbacks with `useCallback`.
+- Wrap render-heavy components in `React.memo` (or `memo` from `react`).
+- Lazy-load route and component chunks via `React.lazy` + `Suspense` or Vite dynamic import.
+- Provide meaningful `key` props in lists to prevent unneeded re-renders.
+- Profile with React DevTools; eliminate wasted renders and prop drilling.
+
+## Forms
+- Prefer **controlled components**; sync UI → state → UI.
+- Use **react-hook-form** or **Formik** for complex forms; validate with **Zod**.
+- Show loading, success, and error states clearly; disable submit when busy.
+- Ensure all inputs are labelled and keyboard accessible.
+
+## Error Handling & Boundaries
+- Wrap critical UI trees in **Error Boundaries**; render fallback UI.
+- Handle async errors in `try/catch`; surface user-friendly messages.
+- Log errors via a centralized service (e.g., Sentry) with contextual data.
+
+## Accessibility
+- Use **semantic HTML**; enhance with ARIA only when necessary.
+- Guarantee keyboard navigation and focus management.
+- Provide `alt` text and `aria-labels`; test with screen readers.
+
+

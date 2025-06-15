@@ -1,0 +1,164 @@
+---
+description: 
+globs: 
+alwaysApply: false
+---
+---
+description: Comprehensive End-to-End Testing Guidelines for modern web applications
+globs: "**/*.{e2e,spec,test}.{ts,js,tsx,jsx}"
+alwaysApply: true
+---
+
+# Frontend End-to-End Testing Guidelines
+
+## Objective
+
+To establish a robust, maintainable, and resilient end-to-end testing strategy that validates critical user flows, prevents regressions, and integrates seamlessly into the development lifecycle.
+
+## Test Philosophy
+
+- **User-Centric Flows**: Tests should emulate real user journeys. Focus on testing from the user's perspective, validating workflows rather than individual components in isolation.
+- **Resilience Over Brittleness**: Write tests that are resistant to minor UI and refactoring changes. Avoid dependencies on volatile selectors like auto-generated CSS classes or complex DOM structures.
+- **Test Independence**: Each test must be atomic and self-contained. Tests should be able to run independently and in any order, without relying on the state from a previous test. Use setup hooks to ensure a clean state for every test.
+
+## Selector Strategy
+
+- **Prioritize User-Facing Locators**: Use locators that are tied to user-visible attributes, as they are less likely to change. The preferred order is:
+  1. **`data-testid`**: The most resilient option. Add `data-testid` attributes to key elements for stable test hooks.
+  2. **ARIA Roles**: Target elements by their semantic roles. This aligns tests with accessibility best practices and how users interact with the page.
+  3. **Visible Text**: Target elements by their visible text content. Ideal for elements with static, unique text content like buttons and headers.
+  4. **Labels**: Target form inputs via their associated labels.
+- **Flexible Selectors**: For components that are dynamic or A/B tested, use fallback strategies with multiple potential selectors to find the first one that is visible. This greatly improves test resilience.
+- **Avoid Brittle Selectors**: Strictly avoid auto-generated class names, complex XPath selectors, or selectors that rely heavily on the DOM hierarchy (`div > div > span`).
+
+## Waiting and Assertions
+
+- **Eliminate Fixed Timeouts**: **Avoid arbitrary timeout waits**. They introduce unnecessary delays, making tests slow and flaky.
+- **Use Smart Waiting**: Rely on the testing framework's auto-waiting mechanisms. Most modern E2E tools automatically wait for elements to be actionable before interacting with them.
+- **Web-First Assertions**: Use assertions that automatically wait for conditions to be met within a timeout period, making tests more reliable.
+- **Network and Page Load Waits**:
+  - Wait for network idle states after actions that trigger significant network activity to ensure the page is settled.
+  - Wait for specific API calls when you need to verify network interactions.
+
+## Test Organization and Structure
+
+- **Group Related Tests**: Organize related tests into suites or describe blocks for better readability and context.
+- **AAA Pattern (Arrange-Act-Assert)**: Structure every test clearly:
+  - **Arrange**: Set up the initial state and preconditions.
+  - **Act**: Perform the single user action being tested.
+  - **Assert**: Verify the expected outcome.
+- **Test Categorization**: Use tags or labels in test titles (e.g., `@smoke`, `@regression`, `@critical`, `@data-flow`) to categorize tests. This allows for running specific subsets of tests in different scenarios (e.g., a quick smoke test on every commit, a full regression suite nightly).
+
+## Page Object Model (POM)
+
+- For a growing application, adopt the Page Object Model (POM) to enhance maintainability.
+- **Structure**: Create a class or module for each page or significant reusable component (e.g., `Header`, `Navigation`, `LoginForm`).
+- **Contents**: These page objects should encapsulate the locators and the methods to interact with them (e.g., `loginForm.submitCredentials(email, password)`).
+- **Benefits**: This abstracts away the UI implementation from the test logic. If the UI changes, updates are only needed in the page object, not in every test that interacts with that UI.
+
+## Reusable Helpers and Utilities
+
+- Centralize common operations in a dedicated `e2e/helpers` or `tests/helpers` directory.
+- **Examples**:
+  - `authenticate(userType)`: A function to handle authentication flows.
+  - `setupTestData()`: Functions to set up test data before test execution.
+  - `cleanupTestData()`: Functions to clean up test data after test execution.
+  - `navigateToPage(route)`: Standardized navigation helpers.
+  - `waitForPageLoad()`: Custom waiting utilities for complex loading states.
+
+## Debugging and CI/CD
+
+- **Visual Debugging**: Use your testing framework's debugging capabilities (screenshots, video recording, trace files) to understand test failures.
+- **Interactive Debugging**: Use debug modes for live, interactive debugging during test development.
+- **CI Integration**: Configure your CI pipeline to run E2E tests on pull requests or pushes to main. Use parallelization to speed up test execution. Configure reporters to easily view test results and artifacts.
+- **Artifact Collection**: Collect screenshots, videos, and logs on test failures for easier debugging.
+
+## Test Data Management
+
+- **Isolated Test Data**: Each test should use its own test data to avoid conflicts.
+- **Data Cleanup**: Always clean up test data after test execution.
+- **Realistic Data**: Use realistic test data that represents actual user scenarios.
+- **Dynamic Data**: Generate dynamic test data to avoid conflicts in parallel test execution.
+
+## Error Handling
+
+- **Graceful Failures**: Tests should fail gracefully with clear error messages.
+- **Retry Logic**: Implement intelligent retry logic for flaky operations (network requests, animations).
+- **Error Recovery**: Design tests to recover from common error scenarios.
+
+## Test Case Examples
+
+### Successful Flow Example (Happy Path)
+
+This test validates the standard login flow where the user provides correct credentials and successfully accesses their dashboard.
+
+```typescript
+// Framework-agnostic example structure
+describe('Authentication', () => {
+  test('should allow a user to log in successfully', async () => {
+    // Arrange: Navigate to the login page and ensure clean state
+    await navigateTo('/login');
+    await waitForPageLoad();
+
+    // Act: Fill in credentials and submit
+    await fillField('email', 'user@example.com');
+    await fillField('password', 'SuperSecretPassword123');
+    await clickButton('Log In');
+
+    // Assert: Verify the user is redirected and sees the dashboard
+    await expectCurrentUrl('/dashboard');
+    await expectElementVisible('Welcome, User!');
+  });
+});
+```
+
+### Unsuccessful Flow Example (Sad Path)
+
+This test ensures that the application provides clear feedback when a user tries to log in with invalid credentials.
+
+```typescript
+// Framework-agnostic example structure
+describe('Authentication', () => {
+  test('should show an error message with invalid credentials', async () => {
+    // Arrange: Navigate to the login page
+    await navigateTo('/login');
+    await waitForPageLoad();
+
+    // Act: Fill in invalid credentials and submit
+    await fillField('email', 'user@example.com');
+    await fillField('password', 'WrongPassword');
+    await clickButton('Log In');
+
+    // Assert: Verify the error message is displayed
+    await expectElementVisible('[data-testid="error-message"]');
+    await expectElementText('[data-testid="error-message"]', 'Invalid email or password. Please try again.');
+    
+    // Assert: Verify the user remains on the login page
+    await expectCurrentUrl('/login');
+  });
+});
+```
+
+## Best Practices Summary
+
+- **Start with critical user journeys** - Test the most important flows first
+- **Keep tests focused** - Each test should verify one specific behavior
+- **Make tests readable** - Tests should serve as living documentation
+- **Maintain test independence** - Tests should not depend on each other
+- **Use stable selectors** - Prefer semantic selectors over implementation details
+- **Handle asynchrony properly** - Use appropriate waiting strategies
+- **Plan for maintenance** - Design tests to be easy to update when the UI changes
+- **Monitor test health** - Regularly review and refactor flaky tests
+- **Balance coverage and speed** - Focus on high-value tests that catch real issues
+
+## Framework-Specific Considerations
+
+When implementing these guidelines with specific frameworks:
+
+- **Playwright**: Use built-in auto-waiting, web-first assertions, and trace viewer
+- **Cypress**: Leverage automatic waiting, time-travel debugging, and real browser testing
+- **Selenium**: Implement explicit waits, use WebDriverWait, and manage browser drivers
+- **Testing Library**: Focus on user-centric queries and accessible selectors
+- **Puppeteer**: Handle promises carefully, use page events, and manage browser lifecycle
+
+Choose the framework that best fits your project's needs while following these universal principles. 

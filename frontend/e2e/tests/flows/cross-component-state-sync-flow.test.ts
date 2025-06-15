@@ -6,8 +6,6 @@ import { ManageLayerPage } from "../../page-objects/components/ManageLayerPage";
 import type { FavoriteTestData, LayerState } from "../../types/TestTypes";
 
 /**
- * TASK-014: Cross-Component State Synchronization Flow Implementation
- *
  * Comprehensive testing for State Changes → Component Updates → Data Persistence
  * Critical for overall application stability and user experience
  */

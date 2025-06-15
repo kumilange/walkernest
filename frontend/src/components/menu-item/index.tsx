@@ -49,6 +49,7 @@ export default function MenuItem(props: MenuItemProps) {
               setOpen(false);
               props.closeCallback?.();
             }}
+            aria-label="Close menu"
           >
             <X className="h-4 w-4" />
           </Button>

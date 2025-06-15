@@ -27,6 +27,25 @@ type NominatimSearchResult = {
   lon: string;
   display_name: string;
   importance: number;
+  place_id: string;
+  address?: {
+    city?: string;
+    country?: string;
+    state?: string;
+    country_code?: string;
+  };
+};
+
+export type AutocompleteResult = {
+  id: string;
+  displayName: string;
+  address: string;
+  city: string;
+  country: string;
+  coordinates: {
+    lat: number;
+    lng: number;
+  };
 };
 
 async function fetchAmenities(cityId: number): Promise<CityData> {
@@ -163,6 +182,45 @@ export async function fetchRoute(coordinates: string) {
     return data.routes[0];
   } catch (error) {
     console.error("Error fetching route", error);
+    throw error;
+  }
+}
+
+export async function fetchAddressSuggestions(
+  query: string,
+  limit = 6,
+  signal?: AbortSignal
+): Promise<AutocompleteResult[]> {
+  if (!query || query.trim().length < 3) {
+    return [];
+  }
+
+  const url = `${BASE_OSM_NOMINATIM_SEARCH_URL}?q=${encodeURIComponent(
+    query.trim()
+  )}&format=json&limit=${limit}&addressdetails=1`;
+
+  try {
+    const response = await fetch(url, { signal });
+    if (!response.ok) {
+      throw new Error("Network response was not ok");
+    }
+    const data: NominatimSearchResult[] = await response.json();
+
+    return data.map(
+      (item): AutocompleteResult => ({
+        id: item.place_id,
+        displayName: item.display_name,
+        address: item.display_name.split(",")[0]?.trim() || item.display_name,
+        city: item.address?.city || item.address?.state || "",
+        country: item.address?.country || "",
+        coordinates: {
+          lat: Number(item.lat),
+          lng: Number(item.lon),
+        },
+      })
+    );
+  } catch (error) {
+    console.error("Error fetching address suggestions", error);
     throw error;
   }
 }

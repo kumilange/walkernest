@@ -1,0 +1,87 @@
+---
+description: 
+globs: 
+alwaysApply: false
+---
+---
+description: Testing Overview Guidelines for frontend applications
+globs: "**/*.{test,spec,unit,e2e}.{ts,js,tsx,jsx}"
+alwaysApply: true
+---
+
+# Frontend Testing Overview
+
+## Objective
+
+Provide a single source of truth for testing goals, philosophy, organization, and high-level best practices that apply to all automated tests (unit, integration, and end-to-end).
+
+## Test Philosophy
+
+Write tests that are:
+
+- **User-Centric**: Focus on behavior over implementation. Test from the user's perspective using black-box testing approaches.
+- **Independent**: Each test must be atomic, self-contained, and runnable in any order without dependencies on other tests.
+- **Resilient**: Use stable selectors and queries (`data-testid`, ARIA roles, visible text) and avoid brittle DOM-dependent queries.
+- **Fast**: Keep the feedback loop tight - unit tests should run in milliseconds, E2E tests in seconds.
+- **Living Documentation**: Tests should read like documentation of business requirements and user stories.
+
+## Test Organization
+
+Structure your tests for clarity and maintainability:
+
+- **AAA Pattern**: Use Arrange-Act-Assert structure for clarity and consistency.
+- **Logical Grouping**: Organize related tests using `describe` or suite blocks.
+- **Descriptive Naming**: Use behavior-describing titles that explain what the test validates (e.g., "should submit form with valid data").
+- **Test Categorization**: Add tags (`@smoke`, `@regression`, `@critical`) in test titles or metadata to enable targeted test runs.
+
+## Data Management
+
+Ensure test reliability through proper data handling:
+
+- **Isolated State**: Each test sets up and cleans up its own data to avoid interference.
+- **Realistic Fixtures**: Use production-like test data that represents actual user scenarios.
+- **Deterministic Behavior**: Tests must be predictable - avoid flakiness caused by time dependencies, randomness, or external systems.
+- **Dynamic Data**: Generate unique test data to avoid conflicts in parallel test execution.
+
+## Code Quality Assurance
+
+**CRITICAL REQUIREMENT**: Whenever you add, edit, or delete code, you MUST ensure that existing functionality remains intact:
+
+- **Run the full test suite** after making any changes
+- **Ensure 100% test pass rate** - no failing tests should be left behind
+- **Add tests for new functionality** before or during implementation
+- **Update existing tests** when behavior legitimately changes
+- **Remove or update tests** when removing functionality
+
+### Validation Process
+
+1. **Before making changes**: Run tests to establish baseline
+2. **During development**: Run relevant tests frequently
+3. **After changes**: Run full test suite to verify nothing is broken
+4. **Before committing**: Ensure all tests pass and coverage is maintained
+
+Any code change that breaks existing tests without updating them appropriately should be considered incomplete.
+
+## CI/CD Integration
+
+Configure your continuous integration pipeline for reliability:
+
+- **Fail-Fast**: Any failing test should block the pipeline and prevent deployment.
+- **Parallelization**: Run tests in parallel where supported to reduce feedback time.
+- **Artifact Collection**: Collect coverage and logs for failed runs. Include screenshots and videos if necessary.
+- **Multiple Environments**: Test across different browsers, devices, and environments as needed.
+
+## Best Practices Summary
+
+Follow these guidelines for effective testing:
+
+- **Start with critical user journeys** - Test the most important flows first
+- **Keep tests small and focused** - Each test should verify one specific behavior
+- **Prefer accessibility queries** - Use semantic selectors over test IDs when possible
+- **Avoid fixed waits** - Use smart waiting APIs instead of arbitrary timeouts
+- **Mock external dependencies** - Use mocks for unit/integration tests, real services for E2E when appropriate
+- **Monitor test health** - Regularly review and refactor flaky or duplicate tests
+- **Maintain test coverage** - Aim for high coverage but focus on critical business logic
+- **Review tests during code review** - Tests are code and should be reviewed with the same rigor
+
+Remember: Good tests give you confidence to refactor and change your code. If your tests are brittle or hard to maintain, they become a liability rather than an asset.
